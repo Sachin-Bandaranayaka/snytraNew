@@ -78,6 +78,11 @@ export default function Footer() {
                   Legal
                 </Link>
               </li>
+              <li>
+                <Link href="/faq" className="text-gray-600 hover:text-[#e85c2c]">
+                  FAQ
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -90,8 +95,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-gray-600 hover:text-[#e85c2c]">
-                  Research
+                <Link href="/resources" className="text-gray-600 hover:text-[#e85c2c]">
+                  Resource Center
                 </Link>
               </li>
               <li>

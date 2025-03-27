@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 
-export default function Footer() {
+export function Footer() {
   return (
     <footer className="border-t border-gray-200 pt-12 pb-8">
       <div className="container mx-auto px-4">
@@ -130,4 +130,7 @@ export default function Footer() {
     </footer>
   )
 }
+
+// Default export for backward compatibility
+export default Footer;
 

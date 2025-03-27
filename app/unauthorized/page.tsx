@@ -1,34 +1,36 @@
-import Link from "next/link";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import Link from 'next/link';
+import { ShieldAlert } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+export const metadata = {
+    title: 'Unauthorized Access - Restaurant Management System',
+    description: 'You do not have permission to access this page',
+};
 
 export default function UnauthorizedPage() {
     return (
-        <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-1 flex items-center justify-center py-12 px-4">
-                <div className="max-w-md w-full mx-auto text-center">
-                    <div className="flex justify-center mb-6">
-                        <AlertTriangle className="h-16 w-16 text-amber-500" />
-                    </div>
-                    <h1 className="text-3xl font-bold mb-2">Access Denied</h1>
-                    <p className="text-lg text-muted-foreground mb-6">
-                        You don't have permission to access this page. Please contact your administrator if you
-                        believe this is an error.
-                    </p>
-                    <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 justify-center">
-                        <Button asChild>
-                            <Link href="/">Go Home</Link>
-                        </Button>
-                        <Button variant="outline" asChild>
-                            <Link href="/signin">Sign In</Link>
-                        </Button>
-                    </div>
-                </div>
-            </main>
-            <Footer />
+        <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 text-center">
+            <div className="mb-6 p-6 bg-red-50 rounded-full">
+                <ShieldAlert className="h-16 w-16 text-red-500" />
+            </div>
+
+            <h1 className="text-3xl font-bold tracking-tight mb-2">Access Denied</h1>
+            <p className="text-gray-600 mb-8 max-w-md">
+                You do not have permission to access this page. Please sign in with an account that has the required permissions.
+            </p>
+
+            <div className="flex space-x-4">
+                <Link href="/signin">
+                    <Button>
+                        Sign In
+                    </Button>
+                </Link>
+                <Link href="/">
+                    <Button variant="outline">
+                        Back to Home
+                    </Button>
+                </Link>
+            </div>
         </div>
     );
 } 

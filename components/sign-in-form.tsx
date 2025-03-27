@@ -41,8 +41,14 @@ export function SignInForm({ redirectPath }: SignInFormProps) {
                 throw new Error(data.error || "Failed to sign in");
             }
 
-            // Successfully logged in, navigate to dashboard or redirectPath
-            router.push(redirectPath || "/dashboard");
+            // Check user role and redirect accordingly
+            if (data.user && data.user.role === 'admin') {
+                // Admin users should go to admin dashboard
+                router.push('/admin');
+            } else {
+                // Regular users go to the user dashboard or specified redirectPath
+                router.push(redirectPath || "/dashboard");
+            }
 
             // Force a refresh to ensure the auth state is updated
             router.refresh();

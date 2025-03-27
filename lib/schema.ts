@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, timestamp, integer, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, varchar, timestamp, integer, boolean, foreignKey } from 'drizzle-orm/pg-core';
 
 // Users table
 export const users = pgTable('users', {
@@ -58,6 +58,59 @@ export const contactSubmissions = pgTable('contact_submissions', {
     subject: text('subject'),
     message: text('message').notNull(),
     status: text('status').default('new'), // new, read, replied
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Blog Categories table
+export const blogCategories = pgTable('blog_categories', {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    slug: text('slug').notNull().unique(),
+    description: text('description'),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Blog Posts table
+export const blogPosts = pgTable('blog_posts', {
+    id: serial('id').primaryKey(),
+    title: text('title').notNull(),
+    slug: text('slug').notNull().unique(),
+    content: text('content').notNull(),
+    excerpt: text('excerpt'),
+    featuredImage: text('featured_image'),
+    categoryId: integer('category_id').references(() => blogCategories.id),
+    authorId: integer('author_id').references(() => users.id),
+    status: text('status').default('draft'), // draft, published
+    publishedAt: timestamp('published_at'),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Pricing Packages table
+export const pricingPackages = pgTable('pricing_packages', {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    description: text('description'),
+    price: integer('price').notNull(), // stored in cents
+    billingCycle: text('billing_cycle').default('monthly'), // monthly, annually
+    features: text('features').notNull(), // JSON string of features
+    isPopular: boolean('is_popular').default(false),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// User Subscriptions table
+export const userSubscriptions = pgTable('user_subscriptions', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').references(() => users.id),
+    packageId: integer('package_id').references(() => pricingPackages.id),
+    startDate: timestamp('start_date').notNull(),
+    endDate: timestamp('end_date'),
+    status: text('status').default('active'), // active, cancelled, expired
+    paymentStatus: text('payment_status').default('paid'), // paid, pending, failed
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
 }); 

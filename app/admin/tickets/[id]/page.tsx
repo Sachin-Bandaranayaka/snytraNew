@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,8 @@ import { getTicket, updateTicket, getTicketMessages, addTicketMessage } from "@/
 
 export default function AdminTicketDetailPage({ params }: { params: { id: string } }) {
     const router = useRouter();
-    const ticketId = parseInt(params.id);
+    const unwrappedParams = use(params);
+    const ticketId = parseInt(unwrappedParams.id);
 
     const [ticket, setTicket] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -41,6 +42,7 @@ export default function AdminTicketDetailPage({ params }: { params: { id: string
     const [error, setError] = useState("");
     const [isSending, setIsSending] = useState(false);
     const [savingTicket, setSavingTicket] = useState(false);
+    const [activeTab, setActiveTab] = useState("all");
 
     // Fetch ticket and messages
     useEffect(() => {
@@ -141,7 +143,7 @@ export default function AdminTicketDetailPage({ params }: { params: { id: string
     const handleAssignmentChange = (value) => {
         setTicket({
             ...ticket,
-            assignedTo: value === "0" ? null : parseInt(value)
+            assignedTo: value === "unassigned" ? null : parseInt(value)
         });
     };
 
@@ -280,7 +282,7 @@ export default function AdminTicketDetailPage({ params }: { params: { id: string
                 <div className="flex-1">
                     <Card>
                         <CardHeader className="pb-3">
-                            <Tabs defaultValue="all">
+                            <Tabs value={activeTab} onValueChange={setActiveTab}>
                                 <TabsList>
                                     <TabsTrigger value="all">All Messages</TabsTrigger>
                                     <TabsTrigger value="customer">Customer Thread</TabsTrigger>
@@ -314,51 +316,59 @@ export default function AdminTicketDetailPage({ params }: { params: { id: string
                                 </div>
                             ) : (
                                 <div className="space-y-6">
-                                    <TabsContent value="all" className="mt-0">
-                                        {allMessages.length === 0 ? (
-                                            <div className="text-center py-8 text-gray-500">
-                                                No messages for this ticket yet.
-                                            </div>
-                                        ) : (
-                                            allMessages.map((message) => (
-                                                <MessageItem
-                                                    key={message.id}
-                                                    message={message}
-                                                    formatDate={formatDate}
-                                                />
-                                            ))
-                                        )}
-                                    </TabsContent>
-                                    <TabsContent value="customer" className="mt-0">
-                                        {customerMessages.length === 0 ? (
-                                            <div className="text-center py-8 text-gray-500">
-                                                No customer-visible messages for this ticket yet.
-                                            </div>
-                                        ) : (
-                                            customerMessages.map((message) => (
-                                                <MessageItem
-                                                    key={message.id}
-                                                    message={message}
-                                                    formatDate={formatDate}
-                                                />
-                                            ))
-                                        )}
-                                    </TabsContent>
-                                    <TabsContent value="internal" className="mt-0">
-                                        {internalNotes.length === 0 ? (
-                                            <div className="text-center py-8 text-gray-500">
-                                                No internal notes for this ticket.
-                                            </div>
-                                        ) : (
-                                            internalNotes.map((message) => (
-                                                <MessageItem
-                                                    key={message.id}
-                                                    message={message}
-                                                    formatDate={formatDate}
-                                                />
-                                            ))
-                                        )}
-                                    </TabsContent>
+                                    <Tabs value={activeTab} onValueChange={setActiveTab}>
+                                        <TabsList className="hidden">
+                                            <TabsTrigger value="all">All</TabsTrigger>
+                                            <TabsTrigger value="customer">Customer</TabsTrigger>
+                                            <TabsTrigger value="internal">Internal</TabsTrigger>
+                                        </TabsList>
+
+                                        <TabsContent value="all" className="mt-0">
+                                            {allMessages.length === 0 ? (
+                                                <div className="text-center py-8 text-gray-500">
+                                                    No messages for this ticket yet.
+                                                </div>
+                                            ) : (
+                                                allMessages.map((message) => (
+                                                    <MessageItem
+                                                        key={message.id}
+                                                        message={message}
+                                                        formatDate={formatDate}
+                                                    />
+                                                ))
+                                            )}
+                                        </TabsContent>
+                                        <TabsContent value="customer" className="mt-0">
+                                            {customerMessages.length === 0 ? (
+                                                <div className="text-center py-8 text-gray-500">
+                                                    No customer-visible messages for this ticket yet.
+                                                </div>
+                                            ) : (
+                                                customerMessages.map((message) => (
+                                                    <MessageItem
+                                                        key={message.id}
+                                                        message={message}
+                                                        formatDate={formatDate}
+                                                    />
+                                                ))
+                                            )}
+                                        </TabsContent>
+                                        <TabsContent value="internal" className="mt-0">
+                                            {internalNotes.length === 0 ? (
+                                                <div className="text-center py-8 text-gray-500">
+                                                    No internal notes for this ticket.
+                                                </div>
+                                            ) : (
+                                                internalNotes.map((message) => (
+                                                    <MessageItem
+                                                        key={message.id}
+                                                        message={message}
+                                                        formatDate={formatDate}
+                                                    />
+                                                ))
+                                            )}
+                                        </TabsContent>
+                                    </Tabs>
                                 </div>
                             )}
                         </CardContent>
@@ -409,7 +419,7 @@ export default function AdminTicketDetailPage({ params }: { params: { id: string
                                         Status
                                     </Label>
                                     <Select
-                                        value={ticket.status?.toLowerCase()}
+                                        value={ticket.status?.toLowerCase() || "open"}
                                         onValueChange={handleStatusChange}
                                     >
                                         <SelectTrigger className="mt-1">
@@ -428,7 +438,7 @@ export default function AdminTicketDetailPage({ params }: { params: { id: string
                                         Priority
                                     </Label>
                                     <Select
-                                        value={ticket.priority?.toLowerCase()}
+                                        value={ticket.priority?.toLowerCase() || "medium"}
                                         onValueChange={handlePriorityChange}
                                     >
                                         <SelectTrigger className="mt-1">
@@ -446,7 +456,7 @@ export default function AdminTicketDetailPage({ params }: { params: { id: string
                                         Assigned To
                                     </Label>
                                     <Select
-                                        value={ticket.assignedTo?.toString() || "0"}
+                                        value={ticket.assignedTo?.toString() || "unassigned"}
                                         onValueChange={handleAssignmentChange}
                                     >
                                         <SelectTrigger className="mt-1">
@@ -454,7 +464,10 @@ export default function AdminTicketDetailPage({ params }: { params: { id: string
                                         </SelectTrigger>
                                         <SelectContent>
                                             {teamMembers.map((member) => (
-                                                <SelectItem key={member.id} value={member.id.toString()}>
+                                                <SelectItem
+                                                    key={member.id}
+                                                    value={member.id === 0 ? "unassigned" : member.id.toString()}
+                                                >
                                                     {member.name}
                                                 </SelectItem>
                                             ))}

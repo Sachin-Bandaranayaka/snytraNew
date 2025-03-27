@@ -16,7 +16,8 @@ export async function GET(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const ticketId = parseInt(params.id);
+        const unwrappedParams = await params;
+        const ticketId = parseInt(unwrappedParams.id);
 
         if (isNaN(ticketId)) {
             return NextResponse.json({ error: 'Invalid ticket ID' }, { status: 400 });
@@ -72,7 +73,8 @@ export async function PATCH(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const ticketId = parseInt(params.id);
+        const unwrappedParams = await params;
+        const ticketId = parseInt(unwrappedParams.id);
 
         if (isNaN(ticketId)) {
             return NextResponse.json({ error: 'Invalid ticket ID' }, { status: 400 });
@@ -142,7 +144,8 @@ export async function DELETE(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
         }
 
-        const ticketId = parseInt(params.id);
+        const unwrappedParams = await params;
+        const ticketId = parseInt(unwrappedParams.id);
 
         if (isNaN(ticketId)) {
             return NextResponse.json({ error: 'Invalid ticket ID' }, { status: 400 });

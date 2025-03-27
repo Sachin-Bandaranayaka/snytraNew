@@ -111,6 +111,8 @@ export const userSubscriptions = pgTable('user_subscriptions', {
     endDate: timestamp('end_date'),
     status: text('status').default('active'), // active, cancelled, expired
     paymentStatus: text('payment_status').default('paid'), // paid, pending, failed
+    stripeCustomerId: text('stripe_customer_id'),
+    stripeSubscriptionId: text('stripe_subscription_id'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
 });

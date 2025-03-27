@@ -1,14 +1,56 @@
+"use client";
+
 import { Button } from "@/components/ui/button"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import { useState, useEffect } from "react";
+import { redirectToCheckout } from "@/lib/stripe";
+import { useToast } from "@/components/ui/use-toast";
 
-export default async function PricingPage() {
-  // Fetch pricing packages from API
-  const res = await fetch(new URL('/api/pricing/packages', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'), {
-    next: { revalidate: 60 } // Cache for 60 seconds
-  });
+export default function PricingPage() {
+  const [pricingPackages, setPricingPackages] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState<number | null>(null);
+  const { toast } = useToast();
 
-  const pricingPackages = await res.json();
+  useEffect(() => {
+    async function fetchPricingPackages() {
+      try {
+        const res = await fetch('/api/pricing/packages', {
+          next: { revalidate: 60 } // Cache for 60 seconds
+        });
+        const data = await res.json();
+        setPricingPackages(data);
+      } catch (error) {
+        console.error('Error fetching pricing packages:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load pricing packages. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchPricingPackages();
+  }, [toast]);
+
+  const handleCheckout = async (packageId: number) => {
+    setCheckoutLoading(packageId);
+    try {
+      await redirectToCheckout(packageId);
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      toast({
+        title: "Checkout Failed",
+        description: "There was a problem with the checkout process. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
 
   return (
     <div className="bg-[#f8f5eb] min-h-screen">
@@ -41,7 +83,11 @@ export default async function PricingPage() {
 
         {/* Pricing Plans */}
         <section className="mb-20">
-          {pricingPackages.length > 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#e85c2c]"></div>
+            </div>
+          ) : pricingPackages.length > 0 ? (
             <div className="grid md:grid-cols-3 gap-6">
               {pricingPackages.map((tier, index) => (
                 <div
@@ -92,8 +138,18 @@ export default async function PricingPage() {
                         ? 'bg-[#e85c2c] hover:bg-[#d04a1d] text-white'
                         : 'bg-white hover:bg-gray-100 text-gray-800 border border-gray-300'
                         }`}
+                      onClick={() => handleCheckout(tier.id)}
+                      disabled={checkoutLoading === tier.id}
                     >
-                      {tier.price === 0 ? 'Start Free Trial' : 'Get Started'}
+                      {checkoutLoading === tier.id ? (
+                        <span className="flex items-center justify-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Processing...
+                        </span>
+                      ) : tier.price === 0 ? 'Start Free Trial' : 'Get Started'}
                     </Button>
 
                     <div className="mt-6">

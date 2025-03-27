@@ -17,11 +17,11 @@ async function runMigration() {
     console.log('Connected to database successfully');
 
     // Read the SQL file
-    const sqlPath = path.join(__dirname, '../drizzle/0002_support_tickets.sql');
+    const sqlPath = path.join(__dirname, '../drizzle/0003_stripe_subscription_fields.sql');
     const sql = fs.readFileSync(sqlPath, 'utf8');
 
     // Execute the SQL statements
-    console.log('Running migration: 0002_support_tickets.sql');
+    console.log('Running migration: 0003_stripe_subscription_fields.sql');
     await client.query(sql);
     console.log('Migration completed successfully');
 

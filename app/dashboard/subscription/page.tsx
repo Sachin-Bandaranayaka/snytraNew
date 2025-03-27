@@ -1,4 +1,6 @@
-import Link from "next/link";
+"use client";
+
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -16,26 +18,73 @@ import {
 } from "@/components/ui/tabs";
 import DashboardNavbar from "@/components/dashboard/navbar";
 import DashboardSidebar from "@/components/dashboard/sidebar";
+import { useAuth } from "@/context/auth-context";
+import { useToast } from "@/components/ui/use-toast";
+import Link from "next/link";
 
 export default function SubscriptionPage() {
-    // Current subscription details
-    const subscription = {
-        plan: "Pro",
-        status: "Active",
-        nextBillingDate: "May 15, 2023",
-        amount: "$49.99/month",
-        startDate: "January 15, 2023",
-        features: [
-            "Online Ordering System",
-            "AI Calling Assistant",
-            "WhatsApp Integration",
-            "SMS Marketing",
-            "5 Staff Accounts",
-            "24/7 Support",
-            "Analytics Dashboard",
-            "Custom Branding",
-        ],
-    };
+    const { user } = useAuth();
+    const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState(true);
+    const [subscriptionData, setSubscriptionData] = useState<any>(null);
+    const [hasSubscription, setHasSubscription] = useState(false);
+
+    // Fetch real subscription data
+    useEffect(() => {
+        const fetchSubscriptionData = async () => {
+            if (!user) {
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/user/subscription?userId=${user.id}`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch subscription data");
+                }
+
+                const data = await response.json();
+                setSubscriptionData(data);
+                setHasSubscription(data.hasSubscription);
+            } catch (error) {
+                console.error("Error fetching subscription:", error);
+                toast({
+                    title: "Error",
+                    description: "There was an error loading your subscription details.",
+                    variant: "destructive",
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchSubscriptionData();
+    }, [user, toast]);
+
+    // Current subscription details (use real data if available)
+    const subscription = hasSubscription && subscriptionData?.subscription
+        ? {
+            plan: subscriptionData.subscription.package.name,
+            status: subscriptionData.subscription.subscription.status,
+            nextBillingDate: subscriptionData.stripeSubscription
+                ? new Date(subscriptionData.stripeSubscription.current_period_end * 1000).toLocaleDateString()
+                : "N/A",
+            amount: `$${(subscriptionData.subscription.package.price / 100).toFixed(2)}/${subscriptionData.subscription.package.billingCycle}`,
+            startDate: new Date(subscriptionData.subscription.subscription.startDate).toLocaleDateString(),
+            features: subscriptionData.subscription.package.features
+                ? typeof subscriptionData.subscription.package.features === 'string'
+                    ? JSON.parse(subscriptionData.subscription.package.features)
+                    : subscriptionData.subscription.package.features
+                : []
+        }
+        : {
+            plan: "No Active Plan",
+            status: "Inactive",
+            nextBillingDate: "N/A",
+            amount: "$0.00",
+            startDate: "N/A",
+            features: [],
+        };
 
     // Available plans for upgrade
     const availablePlans = [
@@ -52,7 +101,7 @@ export default function SubscriptionPage() {
                 "Basic Analytics",
             ],
             recommended: false,
-            current: false,
+            current: subscription.plan === "Basic",
         },
         {
             name: "Pro",
@@ -70,7 +119,7 @@ export default function SubscriptionPage() {
                 "Custom Branding",
             ],
             recommended: true,
-            current: true,
+            current: subscription.plan === "Pro",
         },
         {
             name: "Enterprise",
@@ -88,29 +137,33 @@ export default function SubscriptionPage() {
                 "Custom Integrations",
             ],
             recommended: false,
-            current: false,
+            current: subscription.plan === "Enterprise",
         },
     ];
 
-    // Subscription history
-    const subscriptionHistory = [
-        {
-            id: "SUB-2023-01",
-            date: "January 15, 2023",
-            plan: "Pro",
-            amount: "$49.99",
-            status: "Active",
-            statusColor: "bg-green-100 text-green-800",
-        },
-        {
-            id: "SUB-2022-12",
-            date: "December 15, 2022",
-            plan: "Basic",
-            amount: "$29.99",
-            status: "Expired",
-            statusColor: "bg-gray-100 text-gray-800",
-        },
-    ];
+    const handleManageSubscription = async () => {
+        toast({
+            title: "Coming Soon",
+            description: "Subscription management will be available soon.",
+        });
+        // TODO: Implement Stripe Customer Portal redirect
+    };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <DashboardNavbar />
+                <div className="flex">
+                    <DashboardSidebar />
+                    <main className="flex-1 p-6">
+                        <div className="flex justify-center items-center h-96">
+                            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-gray-900"></div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -129,7 +182,11 @@ export default function SubscriptionPage() {
                         </div>
                         <div className="flex space-x-3">
                             <Button variant="outline">Contact Support</Button>
-                            <Button>Upgrade Plan</Button>
+                            {!hasSubscription && (
+                                <Button>
+                                    <Link href="/pricing">Choose a Plan</Link>
+                                </Button>
+                            )}
                         </div>
                     </div>
 
@@ -150,64 +207,83 @@ export default function SubscriptionPage() {
                                             <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
                                                 {subscription.plan}
                                             </span>
-                                            <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                                                {subscription.status}
+                                            <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${hasSubscription && subscription.status === 'active'
+                                                ? 'bg-green-50 text-green-700 ring-green-600/20'
+                                                : 'bg-gray-50 text-gray-700 ring-gray-600/20'
+                                                }`}>
+                                                {hasSubscription && subscription.status === 'active' ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
                                     </div>
                                     <CardDescription>Subscription details and upcoming billing</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="space-y-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div>
-                                                <h3 className="text-sm font-medium text-gray-500 mb-1">Billing Cycle</h3>
-                                                <p className="font-medium">{subscription.amount}</p>
+                                    {hasSubscription ? (
+                                        <div className="space-y-6">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div>
+                                                    <h3 className="text-sm font-medium text-gray-500 mb-1">Billing Cycle</h3>
+                                                    <p className="font-medium">{subscription.amount}</p>
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-sm font-medium text-gray-500 mb-1">Next Billing Date</h3>
+                                                    <p className="font-medium">{subscription.nextBillingDate}</p>
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-sm font-medium text-gray-500 mb-1">Start Date</h3>
+                                                    <p className="font-medium">{subscription.startDate}</p>
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-sm font-medium text-gray-500 mb-1">Payment Method</h3>
+                                                    <p className="font-medium">
+                                                        {subscriptionData?.stripeSubscription?.default_payment_method
+                                                            ? `Card ending in ${subscriptionData.stripeSubscription.default_payment_method.card.last4}`
+                                                            : "On file with Stripe"}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h3 className="text-sm font-medium text-gray-500 mb-1">Next Billing Date</h3>
-                                                <p className="font-medium">{subscription.nextBillingDate}</p>
-                                            </div>
-                                            <div>
-                                                <h3 className="text-sm font-medium text-gray-500 mb-1">Start Date</h3>
-                                                <p className="font-medium">{subscription.startDate}</p>
-                                            </div>
-                                            <div>
-                                                <h3 className="text-sm font-medium text-gray-500 mb-1">Payment Method</h3>
-                                                <p className="font-medium">Visa ending in 4242</p>
-                                            </div>
-                                        </div>
 
-                                        <div>
-                                            <h3 className="text-sm font-medium text-gray-500 mb-3">Included Features</h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                                {subscription.features.map((feature, index) => (
-                                                    <div key={index} className="flex items-center space-x-2">
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            width="18"
-                                                            height="18"
-                                                            viewBox="0 0 24 24"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            strokeWidth="2"
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            className="text-green-500"
-                                                        >
-                                                            <polyline points="20 6 9 17 4 12" />
-                                                        </svg>
-                                                        <span className="text-sm">{feature}</span>
-                                                    </div>
-                                                ))}
+                                            <div>
+                                                <h3 className="text-sm font-medium text-gray-500 mb-3">Included Features</h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                    {subscription.features && Array.isArray(subscription.features) &&
+                                                        subscription.features.map((feature: string, index: number) => (
+                                                            <div key={index} className="flex items-center space-x-2">
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    width="18"
+                                                                    height="18"
+                                                                    viewBox="0 0 24 24"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    strokeWidth="2"
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    className="text-green-500"
+                                                                >
+                                                                    <polyline points="20 6 9 17 4 12" />
+                                                                </svg>
+                                                                <span className="text-sm">{feature}</span>
+                                                            </div>
+                                                        ))}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    ) : (
+                                        <div className="text-center py-8">
+                                            <p className="text-gray-500 mb-4">You don't have any active subscription.</p>
+                                            <Button>
+                                                <Link href="/pricing">Choose a Plan</Link>
+                                            </Button>
+                                        </div>
+                                    )}
                                 </CardContent>
-                                <CardFooter className="flex justify-between border-t pt-6">
-                                    <Button variant="outline">Cancel Subscription</Button>
-                                    <Button>Change Plan</Button>
-                                </CardFooter>
+                                {hasSubscription && (
+                                    <CardFooter className="flex justify-between border-t pt-6">
+                                        <Button variant="outline" onClick={handleManageSubscription}>Cancel Subscription</Button>
+                                        <Button onClick={handleManageSubscription}>Change Plan</Button>
+                                    </CardFooter>
+                                )}
                             </Card>
                         </TabsContent>
 
@@ -253,15 +329,13 @@ export default function SubscriptionPage() {
                                             </div>
                                         </CardContent>
                                         <CardFooter>
-                                            {plan.current ? (
-                                                <Button className="w-full" disabled>
-                                                    Current Plan
-                                                </Button>
-                                            ) : (
-                                                <Button className="w-full">
-                                                    {plan.price < "$49.99" ? "Downgrade" : "Upgrade"} to {plan.name}
-                                                </Button>
-                                            )}
+                                            <Button
+                                                variant={plan.current ? "outline" : "default"}
+                                                className="w-full"
+                                                disabled={plan.current}
+                                            >
+                                                {plan.current ? "Current Plan" : "Select Plan"}
+                                            </Button>
                                         </CardFooter>
                                     </Card>
                                 ))}
@@ -273,47 +347,61 @@ export default function SubscriptionPage() {
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Subscription History</CardTitle>
-                                    <CardDescription>Your previous subscription plans and changes</CardDescription>
+                                    <CardDescription>View your subscription changes and renewals</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full">
-                                            <thead>
-                                                <tr className="text-xs font-medium text-gray-500 border-b">
-                                                    <th className="pb-3 text-left">Subscription ID</th>
-                                                    <th className="pb-3 text-left">Date</th>
-                                                    <th className="pb-3 text-left">Plan</th>
-                                                    <th className="pb-3 text-left">Amount</th>
-                                                    <th className="pb-3 text-left">Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {subscriptionHistory.map((sub, index) => (
-                                                    <tr key={index} className="border-b border-gray-100 last:border-none">
-                                                        <td className="py-3 text-sm font-medium">
-                                                            {sub.id}
-                                                        </td>
-                                                        <td className="py-3 text-sm text-gray-500">
-                                                            {sub.date}
-                                                        </td>
-                                                        <td className="py-3 text-sm">
-                                                            {sub.plan}
-                                                        </td>
-                                                        <td className="py-3 text-sm">
-                                                            {sub.amount}
-                                                        </td>
-                                                        <td className="py-3 text-sm">
-                                                            <span
-                                                                className={`px-2 py-1 rounded-full text-xs font-medium ${sub.statusColor}`}
-                                                            >
-                                                                {sub.status}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                    {hasSubscription ? (
+                                        <div className="space-y-4">
+                                            <div className="border rounded-lg overflow-hidden">
+                                                <table className="min-w-full divide-y divide-gray-200">
+                                                    <thead className="bg-gray-50">
+                                                        <tr>
+                                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                ID
+                                                            </th>
+                                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Date
+                                                            </th>
+                                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Plan
+                                                            </th>
+                                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Amount
+                                                            </th>
+                                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Status
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="bg-white divide-y divide-gray-200">
+                                                        <tr>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                {subscriptionData?.subscription?.subscription?.id || "SUB-1"}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                {new Date(subscriptionData?.subscription?.subscription?.startDate).toLocaleDateString() || "N/A"}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                {subscriptionData?.subscription?.package?.name || "N/A"}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                ${((subscriptionData?.subscription?.package?.price || 0) / 100).toFixed(2)}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                                <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                                    {subscriptionData?.subscription?.subscription?.status || "Active"}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="py-8 text-center text-gray-500">
+                                            <p>No subscription history available.</p>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         </TabsContent>

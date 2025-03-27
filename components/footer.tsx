@@ -54,23 +54,28 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-gray-600 hover:text-[#e85c2c]">
+                <Link href="/legal/privacy-policy" className="text-gray-600 hover:text-[#e85c2c]">
                   Privacy policy
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-gray-600 hover:text-[#e85c2c]">
+                <Link href="/legal/terms-of-service" className="text-gray-600 hover:text-[#e85c2c]">
                   Terms of service
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-gray-600 hover:text-[#e85c2c]">
+                <Link href="/careers" className="text-gray-600 hover:text-[#e85c2c]">
                   Careers
                 </Link>
               </li>
               <li>
                 <Link href="/pricing" className="text-gray-600 hover:text-[#e85c2c]">
                   Pricing
+                </Link>
+              </li>
+              <li>
+                <Link href="/legal" className="text-gray-600 hover:text-[#e85c2c]">
+                  Legal
                 </Link>
               </li>
             </ul>
@@ -80,7 +85,7 @@ export default function Footer() {
             <h3 className="font-bold mb-4">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="#" className="text-gray-600 hover:text-[#e85c2c]">
+                <Link href="/blog" className="text-gray-600 hover:text-[#e85c2c]">
                   Blog
                 </Link>
               </li>
@@ -92,6 +97,21 @@ export default function Footer() {
               <li>
                 <Link href="#" className="text-gray-600 hover:text-[#e85c2c]">
                   Success stories
+                </Link>
+              </li>
+              <li>
+                <Link href="/legal/cookie-policy" className="text-gray-600 hover:text-[#e85c2c]">
+                  Cookie Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/legal/acceptable-use-policy" className="text-gray-600 hover:text-[#e85c2c]">
+                  Acceptable Use Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/legal/data-processing-agreement" className="text-gray-600 hover:text-[#e85c2c]">
+                  Data Processing Agreement
                 </Link>
               </li>
             </ul>

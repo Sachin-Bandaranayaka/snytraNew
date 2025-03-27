@@ -65,6 +65,9 @@ export default function Navbar() {
           <Link href="/pricing" className="text-white hover:text-orange-300">
             Pricing
           </Link>
+          <Link href="/blog" className="text-white hover:text-orange-300">
+            Blog
+          </Link>
           <Link href="/contact" className="text-white hover:text-orange-300">
             Contact Us
           </Link>

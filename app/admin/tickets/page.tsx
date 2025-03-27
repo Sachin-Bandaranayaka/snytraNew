@@ -459,13 +459,14 @@ function TicketsTable({
                                                     <>
                                                         {assigningTicket === ticket.id ? (
                                                             <Select
-                                                                defaultValue=""
+                                                                defaultValue="agent"
                                                                 onValueChange={(value) => handleAssign(ticket.id, value)}
                                                             >
                                                                 <SelectTrigger className="h-8 w-[150px]">
                                                                     <SelectValue placeholder="Select agent" />
                                                                 </SelectTrigger>
                                                                 <SelectContent>
+                                                                    <SelectItem value="agent">Select agent</SelectItem>
                                                                     <SelectItem value="1">John Doe</SelectItem>
                                                                     <SelectItem value="2">Jane Smith</SelectItem>
                                                                     <SelectItem value="3">Mike Johnson</SelectItem>

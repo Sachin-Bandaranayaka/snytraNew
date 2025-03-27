@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,8 @@ import DashboardSidebar from "@/components/dashboard/sidebar";
 import { getTicket, updateTicket, getTicketMessages, addTicketMessage } from "@/lib/api/tickets";
 
 export default function TicketDetailPage({ params }: { params: { id: string } }) {
-    const ticketId = parseInt(params.id);
+    const unwrappedParams = use(params);
+    const ticketId = parseInt(unwrappedParams.id);
     const router = useRouter();
 
     const [ticket, setTicket] = useState(null);
@@ -402,12 +403,12 @@ export default function TicketDetailPage({ params }: { params: { id: string } })
                                         {isAdmin && (
                                             <div>
                                                 <h3 className="text-sm font-medium mb-2">Assign To</h3>
-                                                <Select defaultValue="">
+                                                <Select defaultValue="unassigned">
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Select agent" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="">Unassigned</SelectItem>
+                                                        <SelectItem value="unassigned">Unassigned</SelectItem>
                                                         <SelectItem value="1">John Doe</SelectItem>
                                                         <SelectItem value="2">Jane Smith</SelectItem>
                                                         <SelectItem value="3">Mike Johnson</SelectItem>

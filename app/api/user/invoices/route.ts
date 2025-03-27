@@ -5,9 +5,19 @@ import { eq } from 'drizzle-orm';
 import Stripe from 'stripe';
 
 // Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-    apiVersion: '2023-10-16',
-});
+let stripe: Stripe | null = null;
+
+try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+        console.error('Missing STRIPE_SECRET_KEY environment variable');
+    } else {
+        stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+            apiVersion: '2025-02-24.acacia',
+        });
+    }
+} catch (error) {
+    console.error('Failed to initialize Stripe client:', error);
+}
 
 export async function GET(request: NextRequest) {
     try {
@@ -36,6 +46,12 @@ export async function GET(request: NextRequest) {
             if (!userSub[0].stripeCustomerId) {
                 console.log('User has subscription but no Stripe customer ID:', userId);
                 return NextResponse.json({ invoices: [] });
+            }
+
+            // Check if Stripe is initialized
+            if (!stripe) {
+                console.error('Stripe client not initialized');
+                return NextResponse.json({ invoices: [], error: 'Stripe not configured' });
             }
 
             // Fetch invoices from Stripe

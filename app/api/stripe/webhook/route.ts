@@ -5,9 +5,19 @@ import { userSubscriptions, pricingPackages, users } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
 
 // Initialize Stripe with your secret key from environment variable
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-    apiVersion: '2023-10-16',
-});
+let stripe: Stripe | null = null;
+
+try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+        console.error('Missing STRIPE_SECRET_KEY environment variable');
+    } else {
+        stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+            apiVersion: '2025-02-24.acacia',
+        });
+    }
+} catch (error) {
+    console.error('Failed to initialize Stripe client:', error);
+}
 
 export async function POST(request: NextRequest) {
     const body = await request.text();
@@ -15,6 +25,11 @@ export async function POST(request: NextRequest) {
 
     if (!signature) {
         return NextResponse.json({ error: 'Missing Stripe signature' }, { status: 400 });
+    }
+
+    // Check if Stripe is initialized
+    if (!stripe) {
+        return NextResponse.json({ error: 'Stripe is not configured correctly' }, { status: 500 });
     }
 
     try {

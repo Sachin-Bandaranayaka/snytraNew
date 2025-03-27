@@ -5,9 +5,19 @@ import { eq, and } from 'drizzle-orm';
 import Stripe from 'stripe';
 
 // Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-    apiVersion: '2023-10-16',
-});
+let stripe: Stripe | null = null;
+
+try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+        console.error('Missing STRIPE_SECRET_KEY environment variable');
+    } else {
+        stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+            apiVersion: '2025-02-24.acacia',
+        });
+    }
+} catch (error) {
+    console.error('Failed to initialize Stripe client:', error);
+}
 
 export async function GET(request: NextRequest) {
     try {
@@ -43,7 +53,7 @@ export async function GET(request: NextRequest) {
 
         // If there's a Stripe subscription ID, fetch details from Stripe
         let stripeSubscription = null;
-        if (subscription[0].subscription.stripeSubscriptionId) {
+        if (subscription[0].subscription.stripeSubscriptionId && stripe) {
             stripeSubscription = await stripe.subscriptions.retrieve(
                 subscription[0].subscription.stripeSubscriptionId
             );

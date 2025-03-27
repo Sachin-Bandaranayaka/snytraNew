@@ -1,39 +1,5 @@
 {
     "version": 2,
-    "buildCommand": "npm run build",
-    "devCommand": "npm run dev",
-    "outputDirectory": ".next",
-    "installCommand": "npm install",
     "framework": "nextjs",
-    "regions": [
-        "sfo1"
-    ],
-    "images": {
-        "domains": [
-            "localhost"
-        ],
-        "sizes": [
-            16,
-            32,
-            48,
-            64,
-            96,
-            128,
-            256,
-            384
-        ],
-        "remotePatterns": [
-            {
-                "protocol": "https",
-                "hostname": "**"
-            }
-        ]
-    },
-    "env": {
-        "AUTH_SECRET": "snytra2024",
-        "DATABASE_URL": "postgresql://neondb_owner:npg_cnSe2isy0CIY@ep-floral-dawn-a51acuh7-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require",
-        "STRIPE_PUBLISHABLE_KEY": "pk_test_51ISoQnAnEV2adlouNhcQhrWBJM3wrOjLHnKc36DHPbW2r2s2nshZy6uQlfPqzGUak0C1bybrpZZ5iSbppnCHcme100hBoAIwVt",
-        "STRIPE_SECRET_KEY": "sk_test_51ISoQnAnEV2adlouAMagDwhGwxkX1Qnu4qID8N2V4pOW2wY5QmcKw90GpZk566UKaWif1seEYSk4pQG3PpuwKPPQ0097lk9ZBM",
-        "STRIPE_WEBHOOK_SECRET": "we_1KZpwhAnEV2adlouPxOJTnFK"
-    }
+    "installCommand": "npm install --legacy-peer-deps"
 }

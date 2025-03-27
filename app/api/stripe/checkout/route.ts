@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { packageId, userId, successUrl, cancelUrl } = body;
+        const { packageId, userId, billingPeriod = 'monthly', successUrl, cancelUrl } = body;
 
         if (!packageId || !successUrl || !cancelUrl) {
             return NextResponse.json(
@@ -53,6 +53,16 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Calculate price based on billing period
+        let finalPrice = pricingPackage.price;
+        let interval = 'month';
+
+        if (billingPeriod === 'yearly') {
+            // Apply 5% discount for yearly billing
+            finalPrice = Math.round(pricingPackage.price * 12 * 0.95);
+            interval = 'year';
+        }
+
         // Create a Stripe checkout session
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -61,29 +71,27 @@ export async function POST(request: NextRequest) {
                     price_data: {
                         currency: 'usd',
                         product_data: {
-                            name: pricingPackage.name,
+                            name: `${pricingPackage.name} (${billingPeriod.charAt(0).toUpperCase() + billingPeriod.slice(1)})`,
                             description: pricingPackage.description || undefined,
                         },
-                        unit_amount: pricingPackage.price, // Price in cents
-                        recurring: pricingPackage.billingCycle === 'monthly' ? {
-                            interval: 'month',
-                        } : undefined,
+                        unit_amount: finalPrice, // Price in cents
+                        recurring: {
+                            interval: interval as 'month' | 'year',
+                        },
                     },
                     quantity: 1,
                 },
             ],
-            mode: pricingPackage.billingCycle === 'monthly' ? 'subscription' : 'payment',
+            mode: 'subscription',
             success_url: successUrl,
             cancel_url: cancelUrl,
             // Include metadata to use in the webhook
             metadata: {
                 packageId: packageId.toString(),
+                billingPeriod,
             },
             // Include client_reference_id to identify the user (if logged in)
             ...(userId ? { client_reference_id: userId.toString() } : {}),
-
-            // Only include customer_creation for payment mode, not subscription mode
-            ...(pricingPackage.billingCycle !== 'monthly' ? { customer_creation: 'always' } : {}),
 
             billing_address_collection: 'required',
             // Allow promotion codes

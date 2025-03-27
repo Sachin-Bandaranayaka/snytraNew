@@ -11,6 +11,7 @@ export default function PricingPage() {
   const [pricingPackages, setPricingPackages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<number | null>(null);
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export default function PricingPage() {
   const handleCheckout = async (packageId: number) => {
     setCheckoutLoading(packageId);
     try {
-      await redirectToCheckout(packageId);
+      await redirectToCheckout(packageId, billingPeriod);
     } catch (error) {
       console.error('Error during checkout:', error);
       toast({
@@ -50,6 +51,16 @@ export default function PricingPage() {
     } finally {
       setCheckoutLoading(null);
     }
+  };
+
+  // Calculate price based on billing period
+  const calculatePrice = (price: number) => {
+    if (billingPeriod === 'yearly') {
+      // 5% discount for yearly billing
+      const annualPrice = price * 12 * 0.95;
+      return (annualPrice / 12).toFixed(2); // Show monthly equivalent price
+    }
+    return (price / 100).toFixed(2);
   };
 
   return (
@@ -71,10 +82,16 @@ export default function PricingPage() {
           </p>
           <div className="mt-6 inline-block bg-white rounded-full p-1 shadow-sm">
             <div className="flex items-center">
-              <button className="px-6 py-2 rounded-full bg-[#e85c2c] text-white">
+              <button
+                className={`px-6 py-2 rounded-full ${billingPeriod === 'monthly' ? 'bg-[#e85c2c] text-white' : 'text-gray-700'}`}
+                onClick={() => setBillingPeriod('monthly')}
+              >
                 Monthly
               </button>
-              <button className="px-6 py-2 rounded-full text-gray-700">
+              <button
+                className={`px-6 py-2 rounded-full ${billingPeriod === 'yearly' ? 'bg-[#e85c2c] text-white' : 'text-gray-700'}`}
+                onClick={() => setBillingPeriod('yearly')}
+              >
                 Yearly (5% off)
               </button>
             </div>
@@ -129,8 +146,13 @@ export default function PricingPage() {
                     <p className="text-gray-600 text-sm mb-6">{tier.description || 'Perfect solution for your restaurant'}</p>
 
                     <div className="mb-6">
-                      <span className="text-4xl font-bold">${(tier.price / 100).toFixed(2)}</span>
+                      <span className="text-4xl font-bold">${calculatePrice(tier.price)}</span>
                       <span className="text-gray-500">/month</span>
+                      {billingPeriod === 'yearly' && (
+                        <div className="text-xs text-green-600 mt-1">
+                          Billed annually (5% discount)
+                        </div>
+                      )}
                     </div>
 
                     <Button

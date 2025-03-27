@@ -44,24 +44,24 @@ function SignInContent() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="flex-1 flex items-center justify-center py-12 px-4">
+      <main className="flex-1 flex items-center justify-center py-8 sm:py-12 px-4">
         <Card className="w-full max-w-md mx-auto">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Sign in</CardTitle>
-            <CardDescription className="text-center">
+          <CardHeader className="space-y-1 p-4 sm:p-6">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-center">Sign in</CardTitle>
+            <CardDescription className="text-center text-sm sm:text-base">
               Enter your credentials to access your account
             </CardDescription>
             {userRole && (
-              <div className="p-2 bg-green-50 rounded text-sm">
+              <div className="p-2 bg-green-50 rounded text-xs sm:text-sm">
                 Debug: Current user role is <span className="font-bold">{userRole}</span>
               </div>
             )}
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 sm:p-6">
             <SignInForm redirectPath={redirectPath} />
           </CardContent>
-          <CardFooter className="flex justify-center">
-            <p className="text-sm text-muted-foreground">
+          <CardFooter className="flex justify-center p-4 sm:p-6 text-xs sm:text-sm">
+            <p className="text-muted-foreground">
               Don't have an account?{" "}
               <Link href="/signup" className="text-primary font-medium">
                 Sign up
@@ -80,16 +80,16 @@ export default function SignInPage() {
     <Suspense fallback={
       <div className="flex flex-col min-h-screen">
         <Navbar />
-        <main className="flex-1 flex items-center justify-center py-12 px-4">
+        <main className="flex-1 flex items-center justify-center py-8 sm:py-12 px-4">
           <Card className="w-full max-w-md mx-auto">
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl font-bold text-center">Sign in</CardTitle>
-              <CardDescription className="text-center">
+            <CardHeader className="space-y-1 p-4 sm:p-6">
+              <CardTitle className="text-xl sm:text-2xl font-bold text-center">Sign in</CardTitle>
+              <CardDescription className="text-center text-sm sm:text-base">
                 Loading...
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#e85c2c]"></div>
+            <CardContent className="flex justify-center py-6 sm:py-8">
+              <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 border-t-2 border-b-2 border-[#e85c2c]"></div>
             </CardContent>
           </Card>
         </main>

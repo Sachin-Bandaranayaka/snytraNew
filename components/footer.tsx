@@ -3,20 +3,20 @@ import Image from "next/image"
 
 export function Footer() {
   return (
-    <footer className="border-t border-gray-200 pt-12 pb-8">
+    <footer className="border-t border-gray-200 pt-8 md:pt-12 pb-6 md:pb-8">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          <div>
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8">
+          <div className="col-span-2 sm:col-span-2 md:col-span-1 mb-6 md:mb-0">
             <div className="flex items-center mb-4">
-              <Image src="/logo.png" alt="Restaurant Management Logo" width={200} height={200} className="mr-2" />
+              <Image src="/logo.png" alt="Restaurant Management Logo" width={200} height={200} className="w-40 md:w-auto h-auto mr-2" />
             </div>
             <p className="text-sm text-gray-600 mb-2">Empowering restaurants, one table at a time.</p>
             <p className="text-sm text-gray-600">Discover seamless dining with Our App</p>
           </div>
 
           <div>
-            <h3 className="font-bold mb-4">Features</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="font-bold mb-3 md:mb-4">Features</h3>
+            <ul className="space-y-1 md:space-y-2 text-sm">
               <li>
                 <Link href="#" className="text-gray-600 hover:text-[#e85c2c]">
                   Reservation system
@@ -41,8 +41,8 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-bold mb-4">Company</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="font-bold mb-3 md:mb-4">Company</h3>
+            <ul className="space-y-1 md:space-y-2 text-sm">
               <li>
                 <Link href="/about" className="text-gray-600 hover:text-[#e85c2c]">
                   About us
@@ -87,8 +87,8 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-bold mb-4">Resources</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="font-bold mb-3 md:mb-4">Resources</h3>
+            <ul className="space-y-1 md:space-y-2 text-sm">
               <li>
                 <Link href="/blog" className="text-gray-600 hover:text-[#e85c2c]">
                   Blog
@@ -123,7 +123,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 pt-8 text-center text-sm text-gray-600">
+        <div className="border-t border-gray-200 pt-6 md:pt-8 text-center text-xs md:text-sm text-gray-600">
           <p>All rights reserved.</p>
         </div>
       </div>

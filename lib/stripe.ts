@@ -5,10 +5,15 @@
 /**
  * Creates a Stripe checkout session for a pricing package
  * @param packageId - The ID of the pricing package
+ * @param billingPeriod - The billing period (monthly or yearly)
  * @param userId - The user ID (optional, for subscriptions)
  * @returns The Stripe checkout session data including the URL to redirect to
  */
-export async function createCheckoutSession(packageId: number, userId?: number) {
+export async function createCheckoutSession(
+    packageId: number,
+    billingPeriod: 'monthly' | 'yearly' = 'monthly',
+    userId?: number
+) {
     try {
         const response = await fetch('/api/stripe/checkout', {
             method: 'POST',
@@ -18,6 +23,7 @@ export async function createCheckoutSession(packageId: number, userId?: number) 
             body: JSON.stringify({
                 packageId,
                 userId,
+                billingPeriod,
                 successUrl: `${window.location.origin}/pricing/success?session_id={CHECKOUT_SESSION_ID}`,
                 cancelUrl: `${window.location.origin}/pricing`,
             }),
@@ -38,11 +44,16 @@ export async function createCheckoutSession(packageId: number, userId?: number) 
 /**
  * Redirects to Stripe Checkout for a pricing package
  * @param packageId - The ID of the pricing package
+ * @param billingPeriod - The billing period (monthly or yearly)
  * @param userId - The user ID (optional, for subscriptions)
  */
-export async function redirectToCheckout(packageId: number, userId?: number) {
+export async function redirectToCheckout(
+    packageId: number,
+    billingPeriod: 'monthly' | 'yearly' = 'monthly',
+    userId?: number
+) {
     try {
-        const { url } = await createCheckoutSession(packageId, userId);
+        const { url } = await createCheckoutSession(packageId, billingPeriod, userId);
 
         if (url) {
             window.location.href = url;

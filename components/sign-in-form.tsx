@@ -62,15 +62,15 @@ export function SignInForm({ redirectPath }: SignInFormProps) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             {error && (
-                <div className="p-3 text-sm text-red-800 bg-red-50 border border-red-200 rounded">
+                <div className="p-2 sm:p-3 text-xs sm:text-sm text-red-800 bg-red-50 border border-red-200 rounded">
                     {error}
                 </div>
             )}
 
-            <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+            <div className="space-y-1 sm:space-y-2">
+                <Label htmlFor="email" className="text-sm sm:text-base">Email</Label>
                 <Input
                     id="email"
                     name="email"
@@ -78,13 +78,14 @@ export function SignInForm({ redirectPath }: SignInFormProps) {
                     placeholder="john@example.com"
                     required
                     disabled={isLoading}
+                    className="h-9 sm:h-10 text-sm sm:text-base"
                 />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1 sm:space-y-2">
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <Link href="/forgot-password" className="text-sm text-primary">
+                    <Label htmlFor="password" className="text-sm sm:text-base">Password</Label>
+                    <Link href="/forgot-password" className="text-xs sm:text-sm text-primary">
                         Forgot password?
                     </Link>
                 </div>
@@ -95,10 +96,15 @@ export function SignInForm({ redirectPath }: SignInFormProps) {
                     placeholder="••••••••"
                     required
                     disabled={isLoading}
+                    className="h-9 sm:h-10 text-sm sm:text-base"
                 />
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+                type="submit"
+                className="w-full h-9 sm:h-10 mt-2 text-sm sm:text-base"
+                disabled={isLoading}
+            >
                 {isLoading ? "Signing in..." : "Sign in"}
             </Button>
         </form>

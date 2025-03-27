@@ -3,74 +3,51 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import { db } from "@/lib/db"
+import { blogPosts } from "@/lib/schema"
+import { eq } from "drizzle-orm"
 
-export default function BlogPostPage({ params }: { params: { id: string } }) {
-    // In a real application, you would fetch this data from an API or database
-    // Here we're using a hardcoded post for demonstration
-    const post = {
-        id: params.id,
-        title: "How AI is Revolutionizing Customer Service in Restaurants",
-        excerpt: "Learn how artificial intelligence is transforming the way restaurants interact with their customers.",
-        content: `
-      <p>In recent years, artificial intelligence has emerged as a game-changer in the restaurant industry, particularly in the realm of customer service. From automating routine tasks to providing personalized customer experiences, AI technologies are helping restaurants enhance operational efficiency while delivering superior service.</p>
-      
-      <h2>The Rise of AI-Powered Customer Service</h2>
-      
-      <p>As consumer expectations continue to evolve, restaurants face mounting pressure to provide quick, personalized, and frictionless service experiences. This is where AI steps in, offering innovative solutions to age-old customer service challenges.</p>
-      
-      <p>AI-powered systems can handle a multitude of customer interactions simultaneously, ensuring that no query goes unanswered and no customer feels neglected. Whether it's making reservations, answering frequently asked questions, or processing orders, AI can handle these tasks with remarkable efficiency and accuracy.</p>
-      
-      <h2>Key Applications of AI in Restaurant Customer Service</h2>
-      
-      <h3>1. Automated Ordering Systems</h3>
-      
-      <p>AI-driven ordering systems are becoming increasingly sophisticated, capable of understanding complex orders and preferences. These systems can process orders through various channels, including voice commands, text messages, and chat interfaces, providing customers with multiple convenient options to place their orders.</p>
-      
-      <h3>2. Personalized Recommendations</h3>
-      
-      <p>By analyzing customer data, AI can offer personalized menu recommendations based on previous orders, dietary preferences, and even current weather conditions. This level of personalization not only enhances the customer experience but also presents opportunities for upselling and cross-selling.</p>
-      
-      <h3>3. Intelligent Chatbots</h3>
-      
-      <p>AI-powered chatbots can handle customer inquiries 24/7, providing instant responses to common questions about menu items, operating hours, reservation policies, and more. Advanced chatbots can even understand context and sentiment, allowing them to provide more nuanced and helpful responses.</p>
-      
-      <h2>Benefits for Restaurants</h2>
-      
-      <p>The integration of AI in customer service offers numerous benefits for restaurants:</p>
-      
-      <ul>
-        <li><strong>Reduced Operational Costs:</strong> By automating routine tasks, restaurants can optimize staff allocation and reduce labor costs.</li>
-        <li><strong>Improved Efficiency:</strong> AI systems can handle multiple customer interactions simultaneously, reducing wait times and enhancing service speed.</li>
-        <li><strong>Enhanced Customer Satisfaction:</strong> Personalized experiences and prompt service lead to higher customer satisfaction and loyalty.</li>
-        <li><strong>Valuable Insights:</strong> AI systems collect and analyze customer data, providing restaurants with actionable insights to improve their offerings and service.</li>
-      </ul>
-      
-      <h2>Real-World Success Stories</h2>
-      
-      <p>Many restaurants have already embraced AI-powered customer service with impressive results. For instance, [Restaurant Name] reported a 30% increase in online orders after implementing an AI ordering system, while [Another Restaurant] saw their customer satisfaction scores improve by 25% following the introduction of an AI chatbot.</p>
-      
-      <h2>The Future of AI in Restaurant Customer Service</h2>
-      
-      <p>As AI technology continues to evolve, we can expect even more innovative applications in restaurant customer service. From emotion recognition to predictive analytics, the possibilities are vast and exciting.</p>
-      
-      <p>However, it's important to note that AI should complement, not replace, human service. The warmth, empathy, and personal touch that human staff provide remain irreplaceable aspects of the dining experience. The most successful restaurants will be those that strike the right balance between AI efficiency and human connection.</p>
-      
-      <h2>Conclusion</h2>
-      
-      <p>AI is undoubtedly revolutionizing customer service in the restaurant industry, offering unprecedented opportunities to enhance efficiency, personalization, and customer satisfaction. As the technology matures and becomes more accessible, restaurants of all sizes can leverage AI to elevate their customer service and stay competitive in an increasingly digital marketplace.</p>
-    `,
-        author: "Michael Chen",
-        authorTitle: "AI & Technology Specialist",
-        authorBio: "Michael Chen is a technology consultant specializing in AI applications for the restaurant and hospitality industry. With over 10 years of experience, he has helped numerous businesses implement innovative tech solutions.",
-        authorImage: "/placeholder-user.jpg",
-        date: "February 12, 2023",
-        category: "Technology",
-        tags: ["AI", "customer service", "automation"],
-        image: "/placeholder.svg?height=600&width=1200",
-        readTime: "5 min read"
-    };
+export default async function BlogPostPage({ params }: { params: { id: string } }) {
+    // Try to fetch the blog post using the id parameter (which is actually the slug)
+    let post;
+    const id = params.id; // Extract id from params once
 
-    // Sample related posts
+    try {
+        // First try to find by id if it's a number
+        if (!isNaN(parseInt(id))) {
+            const postById = await db
+                .select()
+                .from(blogPosts)
+                .where(eq(blogPosts.id, parseInt(id)));
+
+            if (postById.length > 0) {
+                post = postById[0];
+            }
+        }
+
+        // If not found by id, try to find by slug
+        if (!post) {
+            const postBySlug = await db
+                .select()
+                .from(blogPosts)
+                .where(eq(blogPosts.slug, id));
+
+            if (postBySlug.length > 0) {
+                post = postBySlug[0];
+            }
+        }
+
+        // If not found, use fallback data
+        if (!post) {
+            post = getFallbackPost(id);
+        }
+    } catch (error) {
+        // If there's an error fetching the post, use fallback data
+        console.error('Error fetching blog post:', error);
+        post = getFallbackPost(id);
+    }
+
+    // Sample related posts - in a real app these would be fetched based on category or tags
     const relatedPosts = [
         {
             id: 2,
@@ -151,22 +128,22 @@ export default function BlogPostPage({ params }: { params: { id: string } }) {
                 {/* Post Header */}
                 <div className="mb-8">
                     <div className="inline-block bg-orange-100 text-[#e85c2c] px-4 py-1 rounded-full text-sm font-medium mb-4">
-                        {post.category}
+                        {post.categoryId ? post.categoryId : 'Technology'}
                     </div>
                     <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                         {post.title}
                     </h1>
                     <div className="flex items-center text-sm text-gray-500 mb-6">
-                        <span>{post.date}</span>
+                        <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : post.date}</span>
                         <span className="mx-2">•</span>
-                        <span>{post.readTime}</span>
+                        <span>{post.readTime || '5 min read'}</span>
                     </div>
                 </div>
 
                 {/* Featured Image */}
                 <div className="mb-12 relative h-[300px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden">
                     <Image
-                        src={post.image}
+                        src={post.featuredImage || post.image || "/placeholder.svg?height=600&width=1200"}
                         alt={post.title}
                         fill
                         className="object-cover"
@@ -186,11 +163,17 @@ export default function BlogPostPage({ params }: { params: { id: string } }) {
                         <div className="mt-12 mb-8">
                             <p className="text-sm font-medium mb-2">Tags:</p>
                             <div className="flex flex-wrap gap-2">
-                                {post.tags.map((tag, index) => (
+                                {post.tags ? post.tags.map((tag, index) => (
                                     <span key={index} className="text-xs px-3 py-1 bg-white rounded-full border">
                                         {tag}
                                     </span>
-                                ))}
+                                )) : (
+                                    ['Technology', 'Restaurant', 'Customer Service'].map((tag, index) => (
+                                        <span key={index} className="text-xs px-3 py-1 bg-white rounded-full border">
+                                            {tag}
+                                        </span>
+                                    ))
+                                )}
                             </div>
                         </div>
 
@@ -199,17 +182,17 @@ export default function BlogPostPage({ params }: { params: { id: string } }) {
                             <div className="flex items-start">
                                 <div className="w-16 h-16 rounded-full overflow-hidden mr-4">
                                     <Image
-                                        src={post.authorImage}
-                                        alt={post.author}
+                                        src={post.authorImage || "/placeholder-user.jpg"}
+                                        alt={post.author || "Author"}
                                         width={64}
                                         height={64}
                                         className="object-cover"
                                     />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg">{post.author}</h3>
-                                    <p className="text-[#e85c2c] text-sm mb-2">{post.authorTitle}</p>
-                                    <p className="text-gray-600 text-sm">{post.authorBio}</p>
+                                    <h3 className="font-bold">{post.author || "Author"}</h3>
+                                    <p className="text-sm text-gray-500 mb-2">{post.authorTitle || "Content Creator"}</p>
+                                    <p className="text-sm text-gray-700">{post.authorBio || "Content creator for our restaurant blog."}</p>
                                 </div>
                             </div>
                         </div>
@@ -315,26 +298,30 @@ export default function BlogPostPage({ params }: { params: { id: string } }) {
                             <div className="mb-8">
                                 <h3 className="text-lg font-bold mb-4">Popular Tags</h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {post.tags.map((tag, index) => (
+                                    {post.tags && Array.isArray(post.tags) ? post.tags.map((tag, index) => (
                                         <span
                                             key={index}
                                             className="text-xs px-3 py-1 bg-white rounded-full border hover:bg-gray-50 cursor-pointer"
                                         >
                                             {tag}
                                         </span>
-                                    ))}
-                                    <span className="text-xs px-3 py-1 bg-white rounded-full border hover:bg-gray-50 cursor-pointer">
-                                        Restaurant
-                                    </span>
-                                    <span className="text-xs px-3 py-1 bg-white rounded-full border hover:bg-gray-50 cursor-pointer">
-                                        Digital Marketing
-                                    </span>
-                                    <span className="text-xs px-3 py-1 bg-white rounded-full border hover:bg-gray-50 cursor-pointer">
-                                        Technology
-                                    </span>
-                                    <span className="text-xs px-3 py-1 bg-white rounded-full border hover:bg-gray-50 cursor-pointer">
-                                        Food Service
-                                    </span>
+                                    )) : (
+                                        // Default tags if post.tags is undefined or not an array
+                                        <>
+                                            <span className="text-xs px-3 py-1 bg-white rounded-full border hover:bg-gray-50 cursor-pointer">
+                                                Restaurant
+                                            </span>
+                                            <span className="text-xs px-3 py-1 bg-white rounded-full border hover:bg-gray-50 cursor-pointer">
+                                                Digital Marketing
+                                            </span>
+                                            <span className="text-xs px-3 py-1 bg-white rounded-full border hover:bg-gray-50 cursor-pointer">
+                                                Technology
+                                            </span>
+                                            <span className="text-xs px-3 py-1 bg-white rounded-full border hover:bg-gray-50 cursor-pointer">
+                                                Food Service
+                                            </span>
+                                        </>
+                                    )}
                                 </div>
                             </div>
 
@@ -397,4 +384,70 @@ export default function BlogPostPage({ params }: { params: { id: string } }) {
             <Footer />
         </div>
     )
+}
+
+// Helper function to provide fallback data if API call fails
+function getFallbackPost(id: string) {
+    return {
+        id,
+        title: "How AI is Revolutionizing Customer Service in Restaurants",
+        excerpt: "Learn how artificial intelligence is transforming the way restaurants interact with their customers.",
+        content: `
+      <p>In recent years, artificial intelligence has emerged as a game-changer in the restaurant industry, particularly in the realm of customer service. From automating routine tasks to providing personalized customer experiences, AI technologies are helping restaurants enhance operational efficiency while delivering superior service.</p>
+      
+      <h2>The Rise of AI-Powered Customer Service</h2>
+      
+      <p>As consumer expectations continue to evolve, restaurants face mounting pressure to provide quick, personalized, and frictionless service experiences. This is where AI steps in, offering innovative solutions to age-old customer service challenges.</p>
+      
+      <p>AI-powered systems can handle a multitude of customer interactions simultaneously, ensuring that no query goes unanswered and no customer feels neglected. Whether it's making reservations, answering frequently asked questions, or processing orders, AI can handle these tasks with remarkable efficiency and accuracy.</p>
+      
+      <h2>Key Applications of AI in Restaurant Customer Service</h2>
+      
+      <h3>1. Automated Ordering Systems</h3>
+      
+      <p>AI-driven ordering systems are becoming increasingly sophisticated, capable of understanding complex orders and preferences. These systems can process orders through various channels, including voice commands, text messages, and chat interfaces, providing customers with multiple convenient options to place their orders.</p>
+      
+      <h3>2. Personalized Recommendations</h3>
+      
+      <p>By analyzing customer data, AI can offer personalized menu recommendations based on previous orders, dietary preferences, and even current weather conditions. This level of personalization not only enhances the customer experience but also presents opportunities for upselling and cross-selling.</p>
+      
+      <h3>3. Intelligent Chatbots</h3>
+      
+      <p>AI-powered chatbots can handle customer inquiries 24/7, providing instant responses to common questions about menu items, operating hours, reservation policies, and more. Advanced chatbots can even understand context and sentiment, allowing them to provide more nuanced and helpful responses.</p>
+      
+      <h2>Benefits for Restaurants</h2>
+      
+      <p>The integration of AI in customer service offers numerous benefits for restaurants:</p>
+      
+      <ul>
+        <li><strong>Reduced Operational Costs:</strong> By automating routine tasks, restaurants can optimize staff allocation and reduce labor costs.</li>
+        <li><strong>Improved Efficiency:</strong> AI systems can handle multiple customer interactions simultaneously, reducing wait times and enhancing service speed.</li>
+        <li><strong>Enhanced Customer Satisfaction:</strong> Personalized experiences and prompt service lead to higher customer satisfaction and loyalty.</li>
+        <li><strong>Valuable Insights:</strong> AI systems collect and analyze customer data, providing restaurants with actionable insights to improve their offerings and service.</li>
+      </ul>
+      
+      <h2>Real-World Success Stories</h2>
+      
+      <p>Many restaurants have already embraced AI-powered customer service with impressive results. For instance, [Restaurant Name] reported a 30% increase in online orders after implementing an AI ordering system, while [Another Restaurant] saw their customer satisfaction scores improve by 25% following the introduction of an AI chatbot.</p>
+      
+      <h2>The Future of AI in Restaurant Customer Service</h2>
+      
+      <p>As AI technology continues to evolve, we can expect even more innovative applications in restaurant customer service. From emotion recognition to predictive analytics, the possibilities are vast and exciting.</p>
+      
+      <p>However, it's important to note that AI should complement, not replace, human service. The warmth, empathy, and personal touch that human staff provide remain irreplaceable aspects of the dining experience. The most successful restaurants will be those that strike the right balance between AI efficiency and human connection.</p>
+      
+      <h2>Conclusion</h2>
+      
+      <p>AI is undoubtedly revolutionizing customer service in the restaurant industry, offering unprecedented opportunities to enhance efficiency, personalization, and customer satisfaction. As the technology matures and becomes more accessible, restaurants of all sizes can leverage AI to elevate their customer service and stay competitive in an increasingly digital marketplace.</p>
+    `,
+        author: "Michael Chen",
+        authorTitle: "AI & Technology Specialist",
+        authorBio: "Michael Chen is a technology consultant specializing in AI applications for the restaurant and hospitality industry. With over 10 years of experience, he has helped numerous businesses implement innovative tech solutions.",
+        authorImage: "/placeholder-user.jpg",
+        date: "February 12, 2023",
+        category: "Technology",
+        tags: ["AI", "customer service", "automation"],
+        image: "/placeholder.svg?height=600&width=1200",
+        readTime: "5 min read"
+    };
 } 

@@ -4,81 +4,18 @@ import { Button } from "@/components/ui/button"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 
-export default function BlogPage() {
-    // Sample blog data - in a real implementation, this would be fetched from database
-    const blogPosts = [
-        {
-            id: 1,
-            title: "10 Ways to Improve Your Restaurant's Online Presence",
-            excerpt: "Discover proven strategies to enhance your restaurant's digital footprint and attract more customers.",
-            author: "Jane Smith",
-            date: "March 15, 2023",
-            category: "Marketing",
-            tags: ["digital marketing", "social media", "SEO"],
-            image: "/placeholder.svg?height=200&width=300",
-            readTime: "6 min read"
-        },
-        {
-            id: 2,
-            title: "The Future of Restaurant Technology in 2023",
-            excerpt: "Explore the latest technological innovations shaping the restaurant industry this year.",
-            author: "David Johnson",
-            date: "February 28, 2023",
-            category: "Technology",
-            tags: ["AI", "automation", "POS systems"],
-            image: "/placeholder.svg?height=200&width=300",
-            readTime: "8 min read"
-        },
-        {
-            id: 3,
-            title: "How AI is Revolutionizing Customer Service in Restaurants",
-            excerpt: "Learn how artificial intelligence is transforming the way restaurants interact with their customers.",
-            author: "Michael Chen",
-            date: "February 12, 2023",
-            category: "Technology",
-            tags: ["AI", "customer service", "automation"],
-            image: "/placeholder.svg?height=200&width=300",
-            readTime: "5 min read"
-        },
-        {
-            id: 4,
-            title: "Effective Strategies for Managing Online Orders",
-            excerpt: "Master the art of efficiently handling online orders to maximize customer satisfaction and revenue.",
-            author: "Sarah Williams",
-            date: "January 25, 2023",
-            category: "Operations",
-            tags: ["online ordering", "efficiency", "management"],
-            image: "/placeholder.svg?height=200&width=300",
-            readTime: "7 min read"
-        },
-        {
-            id: 5,
-            title: "Building a Loyal Customer Base Through Digital Engagement",
-            excerpt: "Discover how to leverage digital tools to foster customer loyalty and repeat business.",
-            author: "Robert Taylor",
-            date: "January 10, 2023",
-            category: "Marketing",
-            tags: ["customer loyalty", "digital engagement", "retention"],
-            image: "/placeholder.svg?height=200&width=300",
-            readTime: "6 min read"
-        },
-        {
-            id: 6,
-            title: "The Impact of WhatsApp Business on Restaurant Communication",
-            excerpt: "Explore how WhatsApp Business is changing the way restaurants communicate with their customers.",
-            author: "Lisa Johnson",
-            date: "December 15, 2022",
-            category: "Communication",
-            tags: ["WhatsApp", "messaging", "customer communication"],
-            image: "/placeholder.svg?height=200&width=300",
-            readTime: "4 min read"
-        }
-    ];
+export default async function BlogPage() {
+    // Fetch blog posts from API
+    const res = await fetch(new URL('/api/blog/posts', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'), {
+        next: { revalidate: 60 } // Cache for 60 seconds
+    });
+
+    const blogPosts = await res.json();
 
     // Get unique categories and tags for filtering
-    const categories = [...new Set(blogPosts.map(post => post.category))];
-    const allTags = blogPosts.flatMap(post => post.tags);
-    const tags = [...new Set(allTags)];
+    const categories = [...new Set(blogPosts.map(post => post.categoryId ? post.categoryId.toString() : 'Uncategorized'))];
+    // For tags, we would need to add tags to our schema or extract them from content
+    const tags = ['digital marketing', 'social media', 'SEO', 'AI', 'automation', 'customer service'];
 
     return (
         <div className="bg-[#f8f5eb] min-h-screen">
@@ -150,99 +87,97 @@ export default function BlogPage() {
                 {/* Blog Posts Grid */}
                 <section className="mb-12">
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {blogPosts.map((post) => (
-                            <Link href={`/blog/${post.id}`} key={post.id} className="group">
-                                <div className="bg-white rounded-lg overflow-hidden shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
-                                    <div className="relative h-48">
-                                        <Image
-                                            src={post.image}
-                                            alt={post.title}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                        <div className="absolute top-4 left-4 bg-[#e85c2c] text-white text-xs font-bold px-3 py-1 rounded-full">
-                                            {post.category}
-                                        </div>
-                                    </div>
-                                    <div className="p-6">
-                                        <div className="flex items-center text-sm text-gray-500 mb-2">
-                                            <span>{post.date}</span>
-                                            <span className="mx-2">•</span>
-                                            <span>{post.readTime}</span>
-                                        </div>
-                                        <h2 className="text-xl font-bold mb-2 group-hover:text-[#e85c2c] transition-colors duration-300">
-                                            {post.title}
-                                        </h2>
-                                        <p className="text-gray-600 mb-4">
-                                            {post.excerpt}
-                                        </p>
-                                        <div className="flex items-center">
-                                            <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden mr-2">
-                                                <Image
-                                                    src="/placeholder-user.jpg"
-                                                    alt={post.author}
-                                                    width={32}
-                                                    height={32}
-                                                    className="object-cover"
-                                                />
+                        {blogPosts.length > 0 ? (
+                            blogPosts.map((post) => (
+                                <Link href={`/blog/${post.slug}`} key={post.id} className="group">
+                                    <div className="bg-white rounded-lg overflow-hidden shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
+                                        <div className="relative h-48">
+                                            <Image
+                                                src={post.featuredImage || "/placeholder.svg?height=200&width=300"}
+                                                alt={post.title}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                            <div className="absolute top-4 left-4 bg-[#e85c2c] text-white text-xs font-bold px-3 py-1 rounded-full">
+                                                {post.categoryId ? post.categoryId.toString() : "Uncategorized"}
                                             </div>
-                                            <span className="text-sm font-medium">{post.author}</span>
+                                        </div>
+                                        <div className="p-6">
+                                            <div className="flex items-center text-sm text-gray-500 mb-2">
+                                                <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : new Date(post.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                                                <span className="mx-2">•</span>
+                                                <span>5 min read</span>
+                                            </div>
+                                            <h2 className="text-xl font-bold mb-2 group-hover:text-[#e85c2c] transition-colors duration-300">
+                                                {post.title}
+                                            </h2>
+                                            <p className="text-gray-600 mb-4">
+                                                {post.excerpt || post.content.substring(0, 120) + '...'}
+                                            </p>
+                                            <div className="flex items-center">
+                                                <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden mr-2">
+                                                    <Image
+                                                        src="/placeholder-user.jpg"
+                                                        alt="Author"
+                                                        width={32}
+                                                        height={32}
+                                                        className="object-cover"
+                                                    />
+                                                </div>
+                                                <span className="text-sm font-medium">Author</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </Link>
-                        ))}
+                                </Link>
+                            ))
+                        ) : (
+                            <div className="col-span-3 text-center py-10">
+                                <p className="text-lg text-gray-600">No blog posts found</p>
+                            </div>
+                        )}
                     </div>
                 </section>
 
-                {/* Pagination */}
-                <section className="flex justify-center">
-                    <div className="flex items-center space-x-2">
-                        <Button variant="outline" size="icon" className="bg-white">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="20"
-                                height="20"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="m15 18-6-6 6-6" />
-                            </svg>
-                        </Button>
-                        <Button variant="outline" className="bg-[#e85c2c] text-white">
-                            1
-                        </Button>
-                        <Button variant="outline" className="bg-white">
-                            2
-                        </Button>
-                        <Button variant="outline" className="bg-white">
-                            3
-                        </Button>
-                        <span>...</span>
-                        <Button variant="outline" className="bg-white">
-                            8
-                        </Button>
-                        <Button variant="outline" size="icon" className="bg-white">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="20"
-                                height="20"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="m9 18 6-6-6-6" />
-                            </svg>
-                        </Button>
-                    </div>
-                </section>
+                {/* Pagination - only show if we have posts */}
+                {blogPosts.length > 0 && (
+                    <section className="flex justify-center">
+                        <div className="flex items-center space-x-2">
+                            <Button variant="outline" size="icon" className="bg-white">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <path d="m15 18-6-6 6-6" />
+                                </svg>
+                            </Button>
+                            <Button variant="outline" className="bg-[#e85c2c] text-white">
+                                1
+                            </Button>
+                            <Button variant="outline" size="icon" className="bg-white">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <path d="m9 18 6-6-6-6" />
+                                </svg>
+                            </Button>
+                        </div>
+                    </section>
+                )}
 
                 {/* Newsletter Sign-up */}
                 <section className="mt-20 bg-white p-8 rounded-xl shadow-sm">

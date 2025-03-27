@@ -2,72 +2,13 @@ import { Button } from "@/components/ui/button"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 
-export default function PricingPage() {
-  // Sample pricing data - in a real implementation, this would be fetched from database
-  const pricingTiers = [
-    {
-      name: "Free Trial",
-      price: 0,
-      duration: "14 days",
-      description: "Try our system risk-free for 14 days",
-      features: [
-        "Basic online ordering system",
-        "Menu management",
-        "Customer database",
-        "Mobile-friendly ordering",
-        "Order tracking"
-      ],
-      accounts: {
-        admin: 1,
-        staff: 1,
-        kitchen: 1
-      }
-    },
-    {
-      name: "Basic",
-      price: 49,
-      monthlyPrice: 49,
-      yearlyPrice: 46.55, // 5% discount
-      description: "Perfect for small restaurants just getting started",
-      features: [
-        "Full online ordering system",
-        "Unlimited menu items",
-        "Basic analytics",
-        "Email support",
-        "Customer database",
-        "Mobile-friendly ordering",
-        "Order notifications"
-      ],
-      accounts: {
-        admin: 1,
-        staff: 1,
-        kitchen: 1
-      },
-      isPopular: true
-    },
-    {
-      name: "Pro",
-      price: 99,
-      monthlyPrice: 99,
-      yearlyPrice: 94.05, // 5% discount
-      description: "Advanced features for growing restaurants",
-      features: [
-        "All Basic features",
-        "Advanced analytics",
-        "Priority support",
-        "Custom branding",
-        "Multiple payment methods",
-        "Inventory management",
-        "Loyalty program integration",
-        "Marketing tools"
-      ],
-      accounts: {
-        admin: 1,
-        staff: 1,
-        kitchen: 1
-      }
-    }
-  ]
+export default async function PricingPage() {
+  // Fetch pricing packages from API
+  const res = await fetch(new URL('/api/pricing/packages', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'), {
+    next: { revalidate: 60 } // Cache for 60 seconds
+  });
+
+  const pricingPackages = await res.json();
 
   return (
     <div className="bg-[#f8f5eb] min-h-screen">
@@ -100,152 +41,186 @@ export default function PricingPage() {
 
         {/* Pricing Plans */}
         <section className="mb-20">
-          <div className="grid md:grid-cols-3 gap-6">
-            {pricingTiers.map((tier, index) => (
-              <div
-                key={index}
-                className={`bg-white rounded-lg shadow-sm relative ${tier.isPopular ? 'border-2 border-[#e85c2c]' : ''
-                  }`}
-              >
-                {tier.isPopular && (
-                  <div className="absolute top-0 right-0 bg-[#e85c2c] text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
-                    Most Popular
-                  </div>
-                )}
-                <div className="p-8">
-                  <div className="flex items-center mb-4">
-                    <div className="bg-[#fff0eb] p-2 rounded-lg mr-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#e85c2c"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        {index === 0 && <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>}
-                        {index === 1 && <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path>}
-                        {index === 2 && <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>}
-                        {index === 2 && <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>}
-                        {index === 2 && <path d="M4 22h16"></path>}
-                        {index === 2 && <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>}
-                        {index === 2 && <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>}
-                        {index === 2 && <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>}
-                      </svg>
+          {pricingPackages.length > 0 ? (
+            <div className="grid md:grid-cols-3 gap-6">
+              {pricingPackages.map((tier, index) => (
+                <div
+                  key={tier.id}
+                  className={`bg-white rounded-lg shadow-sm relative ${tier.isPopular ? 'border-2 border-[#e85c2c]' : ''}`}
+                >
+                  {tier.isPopular && (
+                    <div className="absolute top-0 right-0 bg-[#e85c2c] text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
+                      Most Popular
                     </div>
-                    <h3 className="text-xl font-bold">{tier.name}</h3>
-                  </div>
+                  )}
+                  <div className="p-8">
+                    <div className="flex items-center mb-4">
+                      <div className="bg-[#fff0eb] p-2 rounded-lg mr-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#e85c2c"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          {index === 0 && <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>}
+                          {index === 1 && <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path>}
+                          {index === 2 && <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>}
+                          {index === 2 && <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>}
+                          {index === 2 && <path d="M4 22h16"></path>}
+                          {index === 2 && <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>}
+                          {index === 2 && <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>}
+                          {index === 2 && <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>}
+                        </svg>
+                      </div>
+                      <h3 className="text-xl font-bold">{tier.name}</h3>
+                    </div>
 
-                  <p className="text-gray-600 text-sm mb-6">{tier.description}</p>
+                    <p className="text-gray-600 text-sm mb-6">{tier.description || 'Perfect solution for your restaurant'}</p>
 
-                  <div className="mb-6">
-                    <span className="text-4xl font-bold">${tier.price}</span>
-                    {tier.price > 0 && <span className="text-gray-500">/month</span>}
-                    {tier.price === 0 && <span className="text-gray-500"> - {tier.duration}</span>}
-                  </div>
+                    <div className="mb-6">
+                      <span className="text-4xl font-bold">${(tier.price / 100).toFixed(2)}</span>
+                      <span className="text-gray-500">/month</span>
+                    </div>
 
-                  <Button
-                    className={`w-full ${tier.isPopular
+                    <Button
+                      className={`w-full ${tier.isPopular
                         ? 'bg-[#e85c2c] hover:bg-[#d04a1d] text-white'
                         : 'bg-white hover:bg-gray-100 text-gray-800 border border-gray-300'
-                      }`}
-                  >
-                    {tier.price === 0 ? 'Start Free Trial' : 'Get Started'}
-                  </Button>
+                        }`}
+                    >
+                      {tier.price === 0 ? 'Start Free Trial' : 'Get Started'}
+                    </Button>
 
-                  <div className="mt-6">
-                    <p className="font-medium text-sm mb-3">Default account allocation:</p>
-                    <div className="flex items-center mb-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-gray-400 mr-2"
-                      >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                      </svg>
-                      <span className="text-sm text-gray-600">{tier.accounts.admin} Admin account</span>
+                    <div className="mt-6">
+                      <p className="font-medium text-sm mb-3">Default account allocation:</p>
+                      <div className="flex items-center mb-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-gray-400 mr-2"
+                        >
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="9" cy="7" r="4"></circle>
+                          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span className="text-sm text-gray-600">1 Admin account</span>
+                      </div>
+                      <div className="flex items-center mb-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-gray-400 mr-2"
+                        >
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="9" cy="7" r="4"></circle>
+                        </svg>
+                        <span className="text-sm text-gray-600">1 Staff account</span>
+                      </div>
+                      <div className="flex items-center mb-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-gray-400 mr-2"
+                        >
+                          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                        </svg>
+                        <span className="text-sm text-gray-600">1 Kitchen account</span>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-2">
+                        Additional accounts: $5 per account per month
+                      </div>
                     </div>
-                    <div className="flex items-center mb-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-gray-400 mr-2"
-                      >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                      </svg>
-                      <span className="text-sm text-gray-600">{tier.accounts.staff} Staff account</span>
-                    </div>
-                    <div className="flex items-center mb-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-gray-400 mr-2"
-                      >
-                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-                      </svg>
-                      <span className="text-sm text-gray-600">{tier.accounts.kitchen} Kitchen account</span>
-                    </div>
-                    <div className="text-xs text-gray-500 mt-2">
-                      Additional accounts: $5 per account per month
-                    </div>
-                  </div>
 
-                  <div className="mt-6 border-t border-gray-200 pt-6">
-                    <p className="font-medium text-sm mb-3">What's included:</p>
-                    <ul className="space-y-3">
-                      {tier.features.map((feature, i) => (
-                        <li key={i} className="flex items-start">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="#10b981"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="mr-2 mt-1"
-                          >
-                            <path d="M20 6 9 17l-5-5"></path>
-                          </svg>
-                          <span className="text-sm text-gray-600">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="mt-6 border-t border-gray-200 pt-6">
+                      <p className="font-medium text-sm mb-3">What's included:</p>
+                      <ul className="space-y-3">
+                        {tier.features && (() => {
+                          try {
+                            // Try to parse as JSON
+                            const featuresArray = JSON.parse(tier.features);
+                            if (Array.isArray(featuresArray)) {
+                              return featuresArray.map((feature, i) => (
+                                <li key={i} className="flex items-start">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="#10b981"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="mr-2 mt-1"
+                                  >
+                                    <path d="M20 6 9 17l-5-5"></path>
+                                  </svg>
+                                  <span className="text-sm text-gray-600">{feature}</span>
+                                </li>
+                              ));
+                            }
+                          } catch (e) {
+                            // If it's not valid JSON, treat it as a string and split by newlines
+                            return tier.features.split('\n').map((feature, i) => (
+                              <li key={i} className="flex items-start">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="#10b981"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="mr-2 mt-1"
+                                >
+                                  <path d="M20 6 9 17l-5-5"></path>
+                                </svg>
+                                <span className="text-sm text-gray-600">{feature.trim()}</span>
+                              </li>
+                            ));
+                          }
+                          return null;
+                        })()}
+                      </ul>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10">
+              <p className="text-lg text-gray-600">No pricing packages found</p>
+            </div>
+          )}
         </section>
 
         {/* Additional Products Section */}

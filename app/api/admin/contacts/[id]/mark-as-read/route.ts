@@ -9,9 +9,10 @@ export async function POST(
     { params }: { params: { id: string } }
 ) {
     try {
-        const id = parseInt(params.id);
+        // Ensure params is fully resolved
+        const submissionId = parseInt(params.id);
 
-        if (isNaN(id)) {
+        if (isNaN(submissionId)) {
             return NextResponse.json(
                 { error: 'Invalid ID format' },
                 { status: 400 }
@@ -24,7 +25,7 @@ export async function POST(
                 status: 'read',
                 updatedAt: new Date()
             })
-            .where(eq(contactSubmissions.id, id))
+            .where(eq(contactSubmissions.id, submissionId))
             .returning();
 
         if (result.length === 0) {

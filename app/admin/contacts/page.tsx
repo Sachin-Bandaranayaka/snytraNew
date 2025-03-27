@@ -1,3 +1,5 @@
+"use client";
+
 import { db } from '@/lib/db';
 import { contactSubmissions } from '@/lib/schema';
 import { desc } from 'drizzle-orm';
@@ -12,12 +14,62 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { MessageSquare } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
-async function ContactSubmissionsPage() {
-    // Fetch contact submissions from the database, newest first
-    const submissions = await db.select()
-        .from(contactSubmissions)
-        .orderBy(desc(contactSubmissions.createdAt));
+export default function ContactSubmissionsPage() {
+    const [submissions, setSubmissions] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchSubmissions() {
+            try {
+                const response = await fetch('/api/admin/contacts');
+                if (!response.ok) throw new Error('Failed to fetch submissions');
+                const data = await response.json();
+                setSubmissions(data);
+            } catch (error) {
+                console.error('Error fetching submissions:', error);
+                toast.error('Failed to load contact submissions');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchSubmissions();
+    }, []);
+
+    const handleMarkAsRead = async (id) => {
+        try {
+            const response = await fetch(`/api/admin/contacts/${id}/mark-as-read`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) throw new Error('Failed to mark as read');
+
+            // Update the local state to reflect the change
+            setSubmissions(submissions.map(submission =>
+                submission.id === id ? { ...submission, status: 'read' } : submission
+            ));
+
+            toast.success('Marked as read');
+        } catch (error) {
+            console.error('Error marking as read:', error);
+            toast.error('Failed to update status');
+        }
+    };
+
+    const handleReply = (email, name) => {
+        // Using window.location for mailto link
+        window.location.href = `mailto:${email}?subject=Re: Contact from ${name}`;
+    };
+
+    if (loading) {
+        return <div className="flex justify-center p-8">Loading submissions...</div>;
+    }
 
     return (
         <div className="space-y-6">
@@ -75,21 +127,21 @@ async function ContactSubmissionsPage() {
                                     <TableCell>{new Date(submission.createdAt).toLocaleDateString()}</TableCell>
                                     <TableCell>
                                         <div className="flex space-x-2">
-                                            <form action={`/api/admin/contacts/${submission.id}/mark-as-read`} method="POST">
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    type="submit"
-                                                    disabled={submission.status !== 'new'}
-                                                >
-                                                    Mark as Read
-                                                </Button>
-                                            </form>
-                                            <a href={`mailto:${submission.email}?subject=Re: Contact from ${submission.name}`}>
-                                                <Button size="sm" variant="default">
-                                                    Reply
-                                                </Button>
-                                            </a>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() => handleMarkAsRead(submission.id)}
+                                                disabled={submission.status !== 'new'}
+                                            >
+                                                Mark as Read
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="default"
+                                                onClick={() => handleReply(submission.email, submission.name)}
+                                            >
+                                                Reply
+                                            </Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -100,6 +152,4 @@ async function ContactSubmissionsPage() {
             )}
         </div>
     );
-}
-
-export default ContactSubmissionsPage; 
+} 

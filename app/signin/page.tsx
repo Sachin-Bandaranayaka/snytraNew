@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -7,18 +11,35 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SignInForm } from "@/components/sign-in-form";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default async function SignInPage({
-  searchParams,
-}: {
-  searchParams: { signup?: string; error?: string; redirect?: string };
-}) {
-  // Use await Promise.resolve() to ensure searchParams are properly awaited
-  const params = await Promise.resolve(searchParams);
-  const showSignupSuccess = params?.signup === "success";
-  const showError = params?.error === "auth";
-  // Ensure redirectPath is properly decoded if it's URL-encoded
-  const redirectPath = params?.redirect ? decodeURIComponent(params.redirect) : "/dashboard";
+function SignInContent() {
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get('redirect') || '/dashboard';
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  // Debugging function to check current user role
+  useEffect(() => {
+    const checkUserRole = async () => {
+      try {
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user) {
+            setUserRole(data.user.role);
+            console.log('Current user role:', data.user.role);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking user role:', error);
+      }
+    };
+
+    checkUserRole();
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -30,24 +51,13 @@ export default async function SignInPage({
             <CardDescription className="text-center">
               Enter your credentials to access your account
             </CardDescription>
+            {userRole && (
+              <div className="p-2 bg-green-50 rounded text-sm">
+                Debug: Current user role is <span className="font-bold">{userRole}</span>
+              </div>
+            )}
           </CardHeader>
           <CardContent>
-            {showSignupSuccess && (
-              <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
-                <AlertDescription>
-                  Account created successfully! Please sign in.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {showError && (
-              <Alert className="mb-4 bg-red-50 text-red-800 border-red-200">
-                <AlertDescription>
-                  Invalid email or password. Please try again.
-                </AlertDescription>
-              </Alert>
-            )}
-
             <SignInForm redirectPath={redirectPath} />
           </CardContent>
           <CardFooter className="flex justify-center">
@@ -62,6 +72,32 @@ export default async function SignInPage({
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center py-12 px-4">
+          <Card className="w-full max-w-md mx-auto">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl font-bold text-center">Sign in</CardTitle>
+              <CardDescription className="text-center">
+                Loading...
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#e85c2c]"></div>
+            </CardContent>
+          </Card>
+        </main>
+        <Footer />
+      </div>
+    }>
+      <SignInContent />
+    </Suspense>
   );
 }
 

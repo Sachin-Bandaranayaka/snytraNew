@@ -1,18 +1,42 @@
-import { ReactNode } from 'react';
+"use client";
+
+import { ReactNode, useEffect } from 'react';
 import Link from 'next/link';
-import { getCurrentUser } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
 
-export const metadata = {
-    title: 'Admin Panel - Restaurant Management System',
-    description: 'Admin dashboard for Restaurant Management System',
-};
+export default function AdminLayout({ children }: { children: ReactNode }) {
+    const { user, isLoading } = useAuth();
+    const router = useRouter();
 
-async function AdminLayout({ children }: { children: ReactNode }) {
-    const user = await getCurrentUser();
+    useEffect(() => {
+        // If the user is loaded and not an admin, redirect to unauthorized
+        if (!isLoading && user) {
+            if (user.role !== 'admin') {
+                console.log('Not admin, redirecting');
+                router.push('/unauthorized');
+            } else {
+                console.log('Admin access granted to', user.email);
+            }
+        } else if (!isLoading && !user) {
+            // If no user but finished loading, redirect to login
+            console.log('No user, redirecting to login');
+            router.push('/signin?redirect=/admin');
+        }
+    }, [user, isLoading, router]);
 
+    // Show loading state while checking
+    if (isLoading) {
+        return (
+            <div className="h-screen flex items-center justify-center bg-gray-50">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#e85c2c]"></div>
+            </div>
+        );
+    }
+
+    // Show nothing until we're sure the user is an admin
     if (!user || user.role !== 'admin') {
-        return redirect('/unauthorized');
+        return null;
     }
 
     return (
@@ -80,9 +104,15 @@ async function AdminLayout({ children }: { children: ReactNode }) {
                         <h1 className="text-2xl font-semibold text-gray-800">Admin Panel</h1>
                         <div className="flex items-center">
                             <span className="mr-4">{user.name || user.email}</span>
-                            <Link href="/api/auth/logout" className="text-sm text-gray-600 hover:text-gray-900">
+                            <button
+                                onClick={async () => {
+                                    await fetch('/api/auth/logout', { method: 'POST' });
+                                    window.location.href = '/';
+                                }}
+                                className="text-sm text-gray-600 hover:text-gray-900"
+                            >
                                 Logout
-                            </Link>
+                            </button>
                         </div>
                     </div>
                 </header>
@@ -92,6 +122,4 @@ async function AdminLayout({ children }: { children: ReactNode }) {
             </div>
         </div>
     );
-}
-
-export default AdminLayout; 
+} 

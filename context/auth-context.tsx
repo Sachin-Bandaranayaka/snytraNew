@@ -36,13 +36,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 if (response.ok) {
                     const data = await response.json();
                     setUser(data.user);
+                } else if (response.status === 401) {
+                    // Not authenticated, that's okay - just set user to null
+                    console.log("User not authenticated");
+                    setUser(null);
+                    // Don't set an error for authentication failures
                 } else {
-                    // Not authenticated, that's okay
+                    // Other errors
+                    console.error("Error response:", response.status);
+                    setError("Failed to load user data");
                     setUser(null);
                 }
             } catch (err) {
                 console.error("Error fetching user:", err);
-                setError("Failed to load user data");
+                // Don't set an error that would block the UI
                 setUser(null);
             } finally {
                 setIsLoading(false);

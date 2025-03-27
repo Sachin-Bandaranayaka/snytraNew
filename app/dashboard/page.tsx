@@ -13,211 +13,109 @@ import DashboardNavbar from "@/components/dashboard/navbar"
 import DashboardSidebar from "@/components/dashboard/sidebar"
 
 export default function DashboardPage() {
-    // Dashboard statistics
-    const statistics = [
+    // Subscription details
+    const subscription = {
+        plan: "Pro",
+        status: "Active",
+        nextBillingDate: "May 15, 2023",
+        amount: "$49.99",
+        features: [
+            "Online Ordering System",
+            "AI Calling Assistant",
+            "WhatsApp Integration",
+            "SMS Marketing",
+            "5 Staff Accounts"
+        ]
+    };
+
+    // Billing summary
+    const billingHistory = [
         {
-            title: "Total Revenue",
-            value: "$14,320.50",
-            trend: "+12.5%",
-            trendDirection: "up",
-            period: "vs last month",
-            icon: (
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-green-500"
-                >
-                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
-            ),
+            id: "INV-2023-05",
+            date: "April 15, 2023",
+            amount: "$49.99",
+            status: "Paid",
+            statusColor: "bg-green-100 text-green-800",
         },
         {
-            title: "Orders",
-            value: "324",
-            trend: "+8.2%",
-            trendDirection: "up",
-            period: "vs last month",
-            icon: (
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-blue-500"
-                >
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <path d="M14 2v6h6" />
-                    <path d="M16 13H8" />
-                    <path d="M16 17H8" />
-                    <path d="M10 9H8" />
-                </svg>
-            ),
+            id: "INV-2023-04",
+            date: "March 15, 2023",
+            amount: "$49.99",
+            status: "Paid",
+            statusColor: "bg-green-100 text-green-800",
         },
         {
-            title: "Customers",
-            value: "1,254",
-            trend: "+18.3%",
-            trendDirection: "up",
-            period: "vs last month",
-            icon: (
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-purple-500"
-                >
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-            ),
-        },
-        {
-            title: "Avg Order Value",
-            value: "$44.20",
-            trend: "-2.1%",
-            trendDirection: "down",
-            period: "vs last month",
-            icon: (
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-orange-500"
-                >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-            ),
+            id: "INV-2023-03",
+            date: "February 15, 2023",
+            amount: "$39.99",
+            status: "Paid",
+            statusColor: "bg-green-100 text-green-800",
         },
     ];
 
-    // Recent orders
-    const recentOrders = [
+    // Support tickets
+    const supportTickets = [
         {
-            id: "ORD-1285",
-            customer: "John Smith",
+            id: "TKT-1285",
+            subject: "Integration with POS system",
             date: "Today, 2:30 PM",
-            amount: "$52.40",
-            status: "Completed",
-            statusColor: "bg-green-100 text-green-800",
-        },
-        {
-            id: "ORD-1284",
-            customer: "Sarah Johnson",
-            date: "Today, 1:15 PM",
-            amount: "$36.25",
-            status: "Processing",
+            status: "Open",
             statusColor: "bg-blue-100 text-blue-800",
+            priority: "Medium"
         },
         {
-            id: "ORD-1283",
-            customer: "Michael Davis",
-            date: "Today, 12:30 PM",
-            amount: "$27.50",
-            status: "Completed",
-            statusColor: "bg-green-100 text-green-800",
-        },
-        {
-            id: "ORD-1282",
-            customer: "Emily Wilson",
-            date: "Today, 11:45 AM",
-            amount: "$64.20",
-            status: "Completed",
-            statusColor: "bg-green-100 text-green-800",
-        },
-        {
-            id: "ORD-1281",
-            customer: "Robert Garcia",
-            date: "Today, 10:50 AM",
-            amount: "$42.00",
-            status: "Cancelled",
-            statusColor: "bg-red-100 text-red-800",
+            id: "TKT-1278",
+            subject: "Question about billing",
+            date: "April 02, 2023",
+            status: "Closed",
+            statusColor: "bg-gray-100 text-gray-800",
+            priority: "Low"
         },
     ];
 
-    // Menu performance
-    const menuPerformance = [
+    // Downloads
+    const downloads = [
         {
-            item: "Margherita Pizza",
-            sales: 142,
-            revenue: "$1,704.00",
-            growth: "+5.2%",
+            title: "Restaurant AI User Guide",
+            type: "PDF",
+            size: "2.4 MB",
+            date: "Updated April 10, 2023"
         },
         {
-            item: "Chicken Wings",
-            sales: 98,
-            revenue: "$1,176.00",
-            growth: "+12.8%",
+            title: "Integration API Documentation",
+            type: "PDF",
+            size: "1.8 MB",
+            date: "Updated March 25, 2023"
         },
         {
-            item: "Caesar Salad",
-            sales: 86,
-            revenue: "$688.00",
-            growth: "-2.1%",
-        },
-        {
-            item: "Pasta Carbonara",
-            sales: 78,
-            revenue: "$1,014.00",
-            growth: "+8.5%",
+            title: "Mobile App Setup Guide",
+            type: "PDF",
+            size: "3.1 MB",
+            date: "Updated April 5, 2023"
         },
     ];
 
-    // Notifications
+    // Recent notifications
     const notifications = [
         {
             id: 1,
-            title: "New Review",
-            description: "John D. left a 5-star review for your restaurant.",
-            time: "10 minutes ago",
+            title: "Subscription Renewal",
+            description: "Your subscription will renew in 15 days. Please update payment method if needed.",
+            time: "2 days ago",
             read: false,
         },
         {
             id: 2,
-            title: "Inventory Alert",
-            description: "Chicken wings are running low. Consider reordering soon.",
-            time: "30 minutes ago",
+            title: "Support Ticket Update",
+            description: "Your ticket #TKT-1278 has been resolved. Please review and close if satisfied.",
+            time: "3 days ago",
             read: false,
         },
         {
             id: 3,
-            title: "Staff Schedule Updated",
-            description: "The staff schedule for next week has been updated.",
-            time: "2 hours ago",
-            read: true,
-        },
-        {
-            id: 4,
-            title: "Payment Received",
-            description: "You received a payment of $325.00 for catering services.",
-            time: "Yesterday",
+            title: "New Feature Available",
+            description: "QR Code ordering is now available in your package. Check it out!",
+            time: "1 week ago",
             read: true,
         },
     ];
@@ -238,54 +136,73 @@ export default function DashboardPage() {
                             <p className="text-gray-500">Welcome back, Restaurant Owner!</p>
                         </div>
                         <div className="flex space-x-3">
-                            <Button variant="outline">Download Report</Button>
-                            <Button>View Analytics</Button>
+                            <Button variant="outline">Download Invoice</Button>
+                            <Button>Create Support Ticket</Button>
                         </div>
                     </div>
 
-                    {/* Statistics */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        {statistics.map((stat, index) => (
-                            <Card key={index}>
-                                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                    <CardTitle className="text-sm font-medium text-gray-500">
-                                        {stat.title}
-                                    </CardTitle>
-                                    {stat.icon}
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="text-2xl font-bold">{stat.value}</div>
-                                    <div className="flex items-center pt-1">
-                                        <span
-                                            className={`text-xs font-medium ${stat.trendDirection === "up"
-                                                    ? "text-green-600"
-                                                    : "text-red-600"
-                                                }`}
+                    {/* Subscription Summary */}
+                    <Card className="mb-8">
+                        <CardHeader>
+                            <div className="flex items-center justify-between">
+                                <CardTitle>Current Subscription</CardTitle>
+                                <Button variant="outline" size="sm">
+                                    Manage Subscription
+                                </Button>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                                <div>
+                                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 mr-2">
+                                        {subscription.plan}
+                                    </span>
+                                    <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                        {subscription.status}
+                                    </span>
+                                </div>
+                                <div className="mt-4 md:mt-0 text-sm">
+                                    <span className="text-gray-500">Next billing: </span>
+                                    <span className="font-medium">{subscription.nextBillingDate} • {subscription.amount}/month</span>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {subscription.features.map((feature, index) => (
+                                    <div key={index} className="flex items-center space-x-2">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="18"
+                                            height="18"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="text-green-500"
                                         >
-                                            {stat.trend}
-                                        </span>
-                                        <span className="text-xs text-gray-500 ml-1">
-                                            {stat.period}
-                                        </span>
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
+                                        <span className="text-sm">{feature}</span>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
 
                     {/* Main content area */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        {/* Recent Orders */}
+                        {/* Recent Invoices */}
                         <Card className="md:col-span-2">
                             <CardHeader>
                                 <div className="flex items-center justify-between">
-                                    <CardTitle>Recent Orders</CardTitle>
-                                    <Link href="/dashboard/orders" className="text-sm text-blue-600 hover:underline">
+                                    <CardTitle>Recent Invoices</CardTitle>
+                                    <Link href="/dashboard/invoices" className="text-sm text-blue-600 hover:underline">
                                         View All
                                     </Link>
                                 </div>
                                 <CardDescription>
-                                    You have received {recentOrders.length} orders today
+                                    Your billing history
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -293,30 +210,50 @@ export default function DashboardPage() {
                                     <table className="w-full">
                                         <thead>
                                             <tr className="text-xs font-medium text-gray-500 border-b">
-                                                <th className="pb-3 text-left">Order ID</th>
-                                                <th className="pb-3 text-left">Customer</th>
+                                                <th className="pb-3 text-left">Invoice ID</th>
                                                 <th className="pb-3 text-left">Date</th>
                                                 <th className="pb-3 text-left">Amount</th>
                                                 <th className="pb-3 text-left">Status</th>
+                                                <th className="pb-3 text-left">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {recentOrders.map((order, index) => (
+                                            {billingHistory.map((invoice, index) => (
                                                 <tr key={index} className="border-b border-gray-100 last:border-none">
                                                     <td className="py-3 text-sm font-medium">
-                                                        {order.id}
+                                                        {invoice.id}
                                                     </td>
-                                                    <td className="py-3 text-sm">{order.customer}</td>
                                                     <td className="py-3 text-sm text-gray-500">
-                                                        {order.date}
+                                                        {invoice.date}
                                                     </td>
-                                                    <td className="py-3 text-sm">{order.amount}</td>
+                                                    <td className="py-3 text-sm">{invoice.amount}</td>
                                                     <td className="py-3 text-sm">
                                                         <span
-                                                            className={`px-2 py-1 rounded-full text-xs font-medium ${order.statusColor}`}
+                                                            className={`px-2 py-1 rounded-full text-xs font-medium ${invoice.statusColor}`}
                                                         >
-                                                            {order.status}
+                                                            {invoice.status}
                                                         </span>
+                                                    </td>
+                                                    <td className="py-3 text-sm">
+                                                        <Button variant="ghost" size="sm" className="h-8">
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                width="18"
+                                                                height="18"
+                                                                viewBox="0 0 24 24"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                strokeWidth="2"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                className="mr-1"
+                                                            >
+                                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                                <polyline points="7 10 12 15 17 10" />
+                                                                <line x1="12" y1="15" x2="12" y2="3" />
+                                                            </svg>
+                                                            PDF
+                                                        </Button>
                                                     </td>
                                                 </tr>
                                             ))}
@@ -369,17 +306,17 @@ export default function DashboardPage() {
                         </Card>
                     </div>
 
-                    {/* Menu Performance */}
+                    {/* Support Tickets */}
                     <Card className="mb-8">
                         <CardHeader>
                             <div className="flex items-center justify-between">
-                                <CardTitle>Menu Performance</CardTitle>
-                                <Link href="/dashboard/menu" className="text-sm text-blue-600 hover:underline">
-                                    View Full Menu Analytics
+                                <CardTitle>Support Tickets</CardTitle>
+                                <Link href="/dashboard/tickets" className="text-sm text-blue-600 hover:underline">
+                                    View All Tickets
                                 </Link>
                             </div>
                             <CardDescription>
-                                Your top performing menu items this month
+                                Your recent support requests
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -387,132 +324,172 @@ export default function DashboardPage() {
                                 <table className="w-full">
                                     <thead>
                                         <tr className="text-xs font-medium text-gray-500 border-b">
-                                            <th className="pb-3 text-left">Item</th>
-                                            <th className="pb-3 text-right">Sales Count</th>
-                                            <th className="pb-3 text-right">Revenue</th>
-                                            <th className="pb-3 text-right">Growth</th>
+                                            <th className="pb-3 text-left">Ticket ID</th>
+                                            <th className="pb-3 text-left">Subject</th>
+                                            <th className="pb-3 text-left">Date</th>
+                                            <th className="pb-3 text-left">Status</th>
+                                            <th className="pb-3 text-left">Priority</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {menuPerformance.map((item, index) => (
+                                        {supportTickets.map((ticket, index) => (
                                             <tr key={index} className="border-b border-gray-100 last:border-none">
                                                 <td className="py-3 text-sm font-medium">
-                                                    {item.item}
+                                                    {ticket.id}
                                                 </td>
-                                                <td className="py-3 text-sm text-right">{item.sales}</td>
-                                                <td className="py-3 text-sm text-right">{item.revenue}</td>
-                                                <td className={`py-3 text-sm text-right ${item.growth.startsWith("+") ? "text-green-600" : "text-red-600"
-                                                    }`}>
-                                                    {item.growth}
+                                                <td className="py-3 text-sm">{ticket.subject}</td>
+                                                <td className="py-3 text-sm text-gray-500">
+                                                    {ticket.date}
                                                 </td>
+                                                <td className="py-3 text-sm">
+                                                    <span
+                                                        className={`px-2 py-1 rounded-full text-xs font-medium ${ticket.statusColor}`}
+                                                    >
+                                                        {ticket.status}
+                                                    </span>
+                                                </td>
+                                                <td className="py-3 text-sm">{ticket.priority}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
                         </CardContent>
+                        <CardFooter className="border-t pt-4 flex justify-start">
+                            <Button>
+                                Create New Ticket
+                            </Button>
+                        </CardFooter>
                     </Card>
 
                     {/* Quick Actions */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <Card className="hover:shadow-md transition-shadow">
-                            <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="32"
-                                    height="32"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    className="text-blue-500 mb-4"
-                                >
-                                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
-                                    <polyline points="13 2 13 9 20 9" />
-                                </svg>
-                                <h3 className="font-medium mb-1">Update Menu</h3>
-                                <p className="text-sm text-gray-500 mb-4">Add or modify items</p>
-                                <Button variant="outline" size="sm" className="w-full">
-                                    Go to Menu
-                                </Button>
+                        {/* Downloads */}
+                        <Card className="md:col-span-2">
+                            <CardHeader>
+                                <CardTitle>Downloads</CardTitle>
+                                <CardDescription>Access documentation and resources</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {downloads.map((item, index) => (
+                                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                            <div className="flex items-center space-x-3">
+                                                <div className="p-2 bg-blue-100 rounded">
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="20"
+                                                        height="20"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="2"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        className="text-blue-600"
+                                                    >
+                                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                                        <path d="M14 2v6h6" />
+                                                        <path d="M16 13H8" />
+                                                        <path d="M16 17H8" />
+                                                        <path d="M10 9H8" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-sm">{item.title}</p>
+                                                    <p className="text-xs text-gray-500">{item.type} • {item.size} • {item.date}</p>
+                                                </div>
+                                            </div>
+                                            <Button variant="ghost" size="sm" className="h-8">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="18"
+                                                    height="18"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    className="mr-1"
+                                                >
+                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                    <polyline points="7 10 12 15 17 10" />
+                                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                                </svg>
+                                                Download
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
                             </CardContent>
                         </Card>
 
-                        <Card className="hover:shadow-md transition-shadow">
-                            <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="32"
-                                    height="32"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    className="text-purple-500 mb-4"
-                                >
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                                    <line x1="16" y1="2" x2="16" y2="6" />
-                                    <line x1="8" y1="2" x2="8" y2="6" />
-                                    <line x1="3" y1="10" x2="21" y2="10" />
-                                </svg>
-                                <h3 className="font-medium mb-1">Reservations</h3>
-                                <p className="text-sm text-gray-500 mb-4">Manage bookings</p>
-                                <Button variant="outline" size="sm" className="w-full">
-                                    View Calendar
-                                </Button>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="hover:shadow-md transition-shadow">
-                            <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="32"
-                                    height="32"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    className="text-green-500 mb-4"
-                                >
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                    <circle cx="12" cy="7" r="4" />
-                                </svg>
-                                <h3 className="font-medium mb-1">Staff</h3>
-                                <p className="text-sm text-gray-500 mb-4">Schedule and manage</p>
-                                <Button variant="outline" size="sm" className="w-full">
-                                    Staff Portal
-                                </Button>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="hover:shadow-md transition-shadow">
-                            <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="32"
-                                    height="32"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    className="text-orange-500 mb-4"
-                                >
-                                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-                                </svg>
-                                <h3 className="font-medium mb-1">Marketing</h3>
-                                <p className="text-sm text-gray-500 mb-4">Promotions & campaigns</p>
-                                <Button variant="outline" size="sm" className="w-full">
-                                    Create Campaign
-                                </Button>
+                        {/* Contact Support */}
+                        <Card className="md:col-span-2 hover:shadow-md transition-shadow">
+                            <CardContent className="p-6">
+                                <div className="flex flex-col items-center justify-center text-center mb-6">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="40"
+                                        height="40"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        className="text-blue-500 mb-4"
+                                    >
+                                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                                    </svg>
+                                    <h3 className="text-lg font-medium mb-2">Need Help?</h3>
+                                    <p className="text-sm text-gray-500 mb-6">
+                                        Our support team is available 24/7 to assist you with any questions or issues you might have.
+                                    </p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+                                        <Button variant="outline" className="w-full">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="18"
+                                                height="18"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                className="mr-2"
+                                            >
+                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                            </svg>
+                                            Call Us
+                                        </Button>
+                                        <Button className="w-full">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="18"
+                                                height="18"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                className="mr-2"
+                                            >
+                                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                            </svg>
+                                            Live Chat
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="border-t pt-4 text-center">
+                                    <p className="text-sm text-gray-500 mb-2">Email us directly</p>
+                                    <a href="mailto:support@restaurantai.com" className="text-blue-600 hover:underline text-sm font-medium">
+                                        support@restaurantai.com
+                                    </a>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>

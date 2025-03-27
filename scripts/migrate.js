@@ -1,34 +1,39 @@
-const { neon } = require('@neondatabase/serverless');
-const { drizzle } = require('drizzle-orm/neon-http');
-const { migrate } = require('drizzle-orm/neon-http/migrator');
+const { Pool } = require('pg');
+const fs = require('fs');
 const path = require('path');
+require('dotenv').config({ path: '.env.local' });
 
-// Get the database URL from environment variables
-const databaseUrl = process.env.DATABASE_URL;
+async function runMigration() {
+  // Connect to the database
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
 
-if (!databaseUrl) {
-  console.error('No DATABASE_URL environment variable found');
-  process.exit(1);
-}
-
-async function main() {
-  console.log('Starting migration...');
-  
   try {
-    // Create a connection to the database
-    const sql = neon(databaseUrl);
-    const db = drizzle(sql);
+    const client = await pool.connect();
+    console.log('Connected to database successfully');
+
+    // Read the SQL file
+    const sqlPath = path.join(__dirname, '../drizzle/0002_support_tickets.sql');
+    const sql = fs.readFileSync(sqlPath, 'utf8');
+
+    // Execute the SQL statements
+    console.log('Running migration: 0002_support_tickets.sql');
+    await client.query(sql);
+    console.log('Migration completed successfully');
+
+    // Update the journal
+    console.log('Updating journal...');
     
-    // Run migrations from the 'drizzle' folder
-    await migrate(db, { migrationsFolder: path.join(__dirname, '../drizzle') });
-    
-    console.log('Migration completed successfully!');
-  } catch (error) {
-    console.error('Migration failed:', error);
-    process.exit(1);
+    client.release();
+  } catch (err) {
+    console.error('Migration failed:', err);
+  } finally {
+    pool.end();
   }
-  
-  process.exit(0);
 }
 
-main(); 
+runMigration(); 

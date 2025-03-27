@@ -113,4 +113,30 @@ export const userSubscriptions = pgTable('user_subscriptions', {
     paymentStatus: text('payment_status').default('paid'), // paid, pending, failed
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Support Tickets table
+export const supportTickets = pgTable('support_tickets', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').references(() => users.id).notNull(),
+    subject: text('subject').notNull(),
+    description: text('description').notNull(),
+    status: text('status').default('open'), // open, in_progress, resolved, closed
+    priority: text('priority').default('medium'), // low, medium, high
+    category: text('category').notNull(),
+    assignedTo: integer('assigned_to').references(() => users.id),
+    lastReplyBy: text('last_reply_by').default('user'), // user, admin
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Ticket Messages table
+export const ticketMessages = pgTable('ticket_messages', {
+    id: serial('id').primaryKey(),
+    ticketId: integer('ticket_id').references(() => supportTickets.id).notNull(),
+    userId: integer('user_id').references(() => users.id).notNull(),
+    message: text('message').notNull(),
+    isInternal: boolean('is_internal').default(false), // For admin notes not visible to user
+    attachments: text('attachments'), // JSON array of attachment URLs
+    createdAt: timestamp('created_at').defaultNow(),
 }); 

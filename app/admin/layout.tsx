@@ -35,6 +35,11 @@ async function AdminLayout({ children }: { children: ReactNode }) {
                             </Link>
                         </li>
                         <li>
+                            <Link href="/admin/tickets" className="block p-2 rounded hover:bg-gray-100">
+                                Support Tickets
+                            </Link>
+                        </li>
+                        <li>
                             <Link href="/admin/blog" className="block p-2 rounded hover:bg-gray-100">
                                 Blog Management
                             </Link>

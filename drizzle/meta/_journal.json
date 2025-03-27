@@ -1,19 +1,26 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
+  "version": "5",
+  "dialect": "pg",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1743071922901,
+      "version": "5",
+      "when": 1711541919161,
       "tag": "0000_cooing_venus",
       "breakpoints": true
     },
     {
       "idx": 1,
-      "version": "7",
-      "when": 1743077852914,
+      "version": "5",
+      "when": 1711543055453,
       "tag": "0001_omniscient_winter_soldier",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1711543200000,
+      "tag": "0002_support_tickets",
       "breakpoints": true
     }
   ]

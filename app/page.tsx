@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import AdminDashboardCarousel from "@/components/admin-dashboard-carousel"
 
 export default function Home() {
   return (
@@ -21,118 +22,7 @@ export default function Home() {
       {/* Admin Dashboard Preview */}
       <section className="container mx-auto mb-12 md:mb-20 px-4">
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 md:mb-6">Admin Dashboard</h2>
-        <div className="relative border border-gray-200 rounded-xl p-3 md:p-4 bg-white">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-[#e85c2c] mr-2"></div>
-              <span className="font-medium text-[#e85c2c] text-sm md:text-base">Dashboard</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="bg-gray-200 rounded-full px-2 md:px-3 py-1 text-xs flex items-center">
-                <span className="mr-2">Online Order</span>
-                <div className="w-6 md:w-8 h-4 bg-white rounded-full relative">
-                  <div className="absolute right-0 top-0 w-4 h-4 bg-[#e85c2c] rounded-full"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <h3 className="font-medium mb-2 text-sm md:text-base">Waiting List (12)</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-gray-50 p-2 rounded-lg">
-                  <div className="text-xs md:text-sm font-medium">John Doe</div>
-                  <div className="text-xs text-gray-500">Party of 4 • 15m</div>
-                  <div className="flex items-center mt-1">
-                    <div className="w-2 h-2 rounded-full bg-yellow-400 mr-1"></div>
-                    <span className="text-xs">Waiting</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="font-medium text-sm md:text-base">Orders (20)</h3>
-              <button className="text-xs bg-[#e85c2c] text-white px-2 py-1 rounded">View More</button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="bg-gray-50 p-2 rounded-lg">
-                  <div className="flex justify-between items-center mb-1">
-                    <div className="text-xs md:text-sm font-medium">Order #{i + 1}</div>
-                    <button className="text-gray-400">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="m9 18 6-6-6-6" />
-                      </svg>
-                    </button>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs">
-                      <span>Burger</span>
-                      <span>$ 9.99</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span>Fries and Drink</span>
-                      <span>$ 5.99</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span>Promo Fries</span>
-                      <span>$ 0.00</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="font-medium mb-2 text-sm md:text-base">Top Seller Menu</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {[
-                { name: "Margherita Pizza", price: "12.99", img: "/placeholder.svg?height=60&width=60" },
-                { name: "Chicken Curry", price: "15.99", img: "/placeholder.svg?height=60&width=60" },
-                { name: "New York Cheesecake", price: "8.99", img: "/placeholder.svg?height=60&width=60" },
-                { name: "Grilled Salmon", price: "18.99", img: "/placeholder.svg?height=60&width=60" },
-              ].map((item, i) => (
-                <div key={i} className="bg-gray-50 p-2 rounded-lg flex">
-                  <Image
-                    src={item.img || "/placeholder.svg"}
-                    alt={item.name}
-                    width={60}
-                    height={60}
-                    className="rounded mr-2 w-12 h-12 md:w-[60px] md:h-[60px] object-cover"
-                  />
-                  <div>
-                    <div className="text-xs md:text-sm font-medium">{item.name}</div>
-                    <div className="text-xs text-gray-500">Popular choice</div>
-                    <div className="text-xs md:text-sm font-medium mt-1">${item.price}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex justify-center mt-4">
-            <div className="flex space-x-1">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className={`w-2 h-2 rounded-full ${i === 0 ? "bg-[#e85c2c]" : "bg-gray-300"}`}></div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <AdminDashboardCarousel />
       </section>
 
       {/* Features Overview */}

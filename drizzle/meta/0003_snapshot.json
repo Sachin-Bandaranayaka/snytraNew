@@ -1,4 +1,6 @@
 {
+  "id": "4eb85040-5471-4024-aa22-5c41acec37fa",
+  "prevId": "2f3a0de5-a0a9-40b7-865f-fde1e753bce6",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -51,15 +53,15 @@
       "uniqueConstraints": {
         "blog_categories_slug_unique": {
           "name": "blog_categories_slug_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "slug"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       },
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.blog_posts": {
       "name": "blog_posts",
@@ -146,43 +148,148 @@
         "blog_posts_category_id_blog_categories_id_fk": {
           "name": "blog_posts_category_id_blog_categories_id_fk",
           "tableFrom": "blog_posts",
+          "tableTo": "blog_categories",
           "columnsFrom": [
             "category_id"
           ],
-          "tableTo": "blog_categories",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         },
         "blog_posts_author_id_users_id_fk": {
           "name": "blog_posts_author_id_users_id_fk",
           "tableFrom": "blog_posts",
+          "tableTo": "users",
           "columnsFrom": [
             "author_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "blog_posts_slug_unique": {
           "name": "blog_posts_slug_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "slug"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       },
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.companies": {
+      "name": "companies",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "company_name": {
+          "name": "company_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "industry": {
+          "name": "industry",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "city": {
+          "name": "city",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "postal_code": {
+          "name": "postal_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "country": {
+          "name": "country",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "business_size": {
+          "name": "business_size",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "number_of_locations": {
+          "name": "number_of_locations",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tax_id": {
+          "name": "tax_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "business_registration": {
+          "name": "business_registration",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expected_order_volume": {
+          "name": "expected_order_volume",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.contact_submissions": {
       "name": "contact_submissions",
@@ -245,8 +352,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.job_applications": {
       "name": "job_applications",
@@ -333,8 +440,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.newsletter": {
       "name": "newsletter",
@@ -386,15 +493,15 @@
       "uniqueConstraints": {
         "newsletter_email_unique": {
           "name": "newsletter_email_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "email"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       },
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.pricing_packages": {
       "name": "pricing_packages",
@@ -471,8 +578,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.reservations": {
       "name": "reservations",
@@ -541,22 +648,22 @@
         "reservations_user_id_users_id_fk": {
           "name": "reservations_user_id_users_id_fk",
           "tableFrom": "reservations",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.support_tickets": {
       "name": "support_tickets",
@@ -639,35 +746,35 @@
         "support_tickets_user_id_users_id_fk": {
           "name": "support_tickets_user_id_users_id_fk",
           "tableFrom": "support_tickets",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         },
         "support_tickets_assigned_to_users_id_fk": {
           "name": "support_tickets_assigned_to_users_id_fk",
           "tableFrom": "support_tickets",
+          "tableTo": "users",
           "columnsFrom": [
             "assigned_to"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.ticket_messages": {
       "name": "ticket_messages",
@@ -723,35 +830,35 @@
         "ticket_messages_ticket_id_support_tickets_id_fk": {
           "name": "ticket_messages_ticket_id_support_tickets_id_fk",
           "tableFrom": "ticket_messages",
+          "tableTo": "support_tickets",
           "columnsFrom": [
             "ticket_id"
           ],
-          "tableTo": "support_tickets",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         },
         "ticket_messages_user_id_users_id_fk": {
           "name": "ticket_messages_user_id_users_id_fk",
           "tableFrom": "ticket_messages",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.user_subscriptions": {
       "name": "user_subscriptions",
@@ -801,6 +908,18 @@
           "notNull": false,
           "default": "'paid'"
         },
+        "stripe_customer_id": {
+          "name": "stripe_customer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stripe_subscription_id": {
+          "name": "stripe_subscription_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -821,35 +940,35 @@
         "user_subscriptions_user_id_users_id_fk": {
           "name": "user_subscriptions_user_id_users_id_fk",
           "tableFrom": "user_subscriptions",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         },
         "user_subscriptions_package_id_pricing_packages_id_fk": {
           "name": "user_subscriptions_package_id_pricing_packages_id_fk",
           "tableFrom": "user_subscriptions",
+          "tableTo": "pricing_packages",
           "columnsFrom": [
             "package_id"
           ],
-          "tableTo": "pricing_packages",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.users": {
       "name": "users",
@@ -886,6 +1005,31 @@
           "notNull": false,
           "default": "'user'"
         },
+        "company_id": {
+          "name": "company_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "job_title": {
+          "name": "job_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone_number": {
+          "name": "phone_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "two_factor_enabled": {
+          "name": "two_factor_enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -907,28 +1051,26 @@
       "uniqueConstraints": {
         "users_email_unique": {
           "name": "users_email_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "email"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       },
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {},
   "schemas": {},
-  "_meta": {
-    "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "id": "2f3a0de5-a0a9-40b7-865f-fde1e753bce6",
-  "prevId": "01fc3c3d-f1e7-48c8-b1b9-f9d4b9a24736",
   "sequences": {},
+  "roles": {},
   "policies": {},
   "views": {},
-  "roles": {}
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
 }

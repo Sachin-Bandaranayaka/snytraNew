@@ -17,17 +17,31 @@ async function runMigration() {
     console.log('Connected to database successfully');
 
     // Read the SQL file
-    const sqlPath = path.join(__dirname, '../drizzle/0003_stripe_subscription_fields.sql');
+    const sqlPath = path.join(__dirname, '../drizzle/0003_sour_doctor_spectrum.sql');
     const sql = fs.readFileSync(sqlPath, 'utf8');
 
-    // Execute the SQL statements
-    console.log('Running migration: 0003_stripe_subscription_fields.sql');
-    await client.query(sql);
-    console.log('Migration completed successfully');
-
-    // Update the journal
-    console.log('Updating journal...');
+    // Split SQL by the statement breakpoint marker
+    const statements = sql.split('--> statement-breakpoint');
     
+    console.log(`Running migration: 0003_sour_doctor_spectrum.sql (${statements.length} statements)`);
+    
+    // Execute each SQL statement separately
+    for (let i = 0; i < statements.length; i++) {
+      const statement = statements[i].trim();
+      if (!statement) continue;
+      
+      try {
+        console.log(`Executing statement ${i + 1}/${statements.length}`);
+        await client.query(statement);
+        console.log(`Statement ${i + 1} executed successfully`);
+      } catch (error) {
+        console.warn(`Warning: Statement ${i + 1} failed: ${error.message}`);
+        // Continue with next statement instead of stopping the entire migration
+      }
+    }
+    
+    console.log('Migration completed with some warnings (some statements might have been skipped)');
+
     client.release();
   } catch (err) {
     console.error('Migration failed:', err);

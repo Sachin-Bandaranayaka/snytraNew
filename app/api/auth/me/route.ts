@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { db } from '@/lib/db';
-import { users } from '@/lib/schema';
+import { users, companies } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
@@ -32,6 +32,9 @@ export async function GET(request: NextRequest) {
             name: users.name,
             email: users.email,
             role: users.role,
+            companyId: users.companyId,
+            jobTitle: users.jobTitle,
+            phoneNumber: users.phoneNumber,
             createdAt: users.createdAt,
         }).from(users).where(eq(users.id, payload.id));
 
@@ -42,8 +45,20 @@ export async function GET(request: NextRequest) {
             );
         }
 
+        const user = userResults[0];
+        let companyData = null;
+
+        // Fetch company data if companyId exists
+        if (user.companyId) {
+            const companyResults = await db.select().from(companies).where(eq(companies.id, user.companyId));
+            if (companyResults.length > 0) {
+                companyData = companyResults[0];
+            }
+        }
+
         return NextResponse.json({
-            user: userResults[0]
+            user,
+            company: companyData
         });
 
     } catch (error) {

@@ -1,6 +1,12 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
+import { useAuth } from "@/context/auth-context"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Loading } from "@/components/ui/loading"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,19 +15,68 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Menu, X } from "lucide-react"
 
-export default function DashboardNavbar() {
+interface NavbarProps {
+    onMobileMenuToggle?: () => void;
+    isMobileMenuOpen?: boolean;
+}
+
+export default function DashboardNavbar({ onMobileMenuToggle, isMobileMenuOpen }: NavbarProps) {
+    const { user, logout } = useAuth()
+    const [isLoading, setIsLoading] = useState(true)
+
+    useEffect(() => {
+        if (user) {
+            setIsLoading(false)
+        }
+    }, [user])
+
+    const handleLogout = async () => {
+        try {
+            await logout()
+            window.location.href = "/signin"
+        } catch (error) {
+            console.error("Logout failed:", error)
+        }
+    }
+
+    const getUserInitials = () => {
+        if (!user || !user.name) return "U"
+        return user.name
+            .split(" ")
+            .map(n => n[0])
+            .join("")
+            .toUpperCase()
+            .substring(0, 2)
+    }
+
     return (
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
             <div className="px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
                 <div className="flex items-center">
+                    {/* Mobile menu button */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="mr-2 md:hidden"
+                        onClick={onMobileMenuToggle}
+                        aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                    >
+                        {isMobileMenuOpen ? (
+                            <X className="h-5 w-5" />
+                        ) : (
+                            <Menu className="h-5 w-5" />
+                        )}
+                    </Button>
+
                     <Link href="/dashboard" className="flex items-center">
-                        <Image src="/logo.png" alt="Restaurant AI Logo" width={200} height={200} className="mr-2" />
+                        <Image src="/logo.png" alt="Restaurant AI Logo" width={120} height={40} className="mr-2" />
                         <span className="text-xl font-semibold hidden md:inline-block">Restaurant AI</span>
                     </Link>
                 </div>
 
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 sm:space-x-4">
                     {/* Search */}
                     <div className="relative hidden md:block">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -69,39 +124,37 @@ export default function DashboardNavbar() {
                     {/* User Menu */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                                <Image
-                                    src="/avatar-placeholder.png"
-                                    alt="User"
-                                    className="rounded-full"
-                                    width={32}
-                                    height={32}
-                                />
+                            <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
+                                {isLoading ? (
+                                    <Loading size="sm" />
+                                ) : (
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src="/avatar-placeholder.png" alt={user?.name || "User"} />
+                                        <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                                    </Avatar>
+                                )}
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
-                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                            <DropdownMenuLabel className="font-normal">
+                                <div className="flex flex-col space-y-1">
+                                    <p className="text-sm font-medium leading-none">{user?.name || "User"}</p>
+                                    <p className="text-xs leading-none text-muted-foreground">{user?.email || ""}</p>
+                                </div>
+                            </DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                                <Link href="/dashboard/profile" className="flex w-full">
-                                    Profile
-                                </Link>
+                            <DropdownMenuItem asChild>
+                                <Link href="/dashboard/profile">Profile</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Link href="/dashboard/settings" className="flex w-full">
-                                    Settings
-                                </Link>
+                            <DropdownMenuItem asChild>
+                                <Link href="/dashboard/settings">Settings</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Link href="/dashboard/billing" className="flex w-full">
-                                    Billing
-                                </Link>
+                            <DropdownMenuItem asChild>
+                                <Link href="/dashboard/billing">Billing</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                                <Link href="/signin" className="flex w-full">
-                                    Log out
-                                </Link>
+                            <DropdownMenuItem onClick={handleLogout}>
+                                Log out
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

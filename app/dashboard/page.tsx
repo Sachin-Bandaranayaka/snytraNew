@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -11,49 +13,73 @@ import {
 } from "@/components/ui/card"
 import DashboardNavbar from "@/components/dashboard/navbar"
 import DashboardSidebar from "@/components/dashboard/sidebar"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+    companyId: number | null;
+    jobTitle: string | null;
+    phoneNumber: string | null;
+    createdAt: string;
+}
+
+interface Company {
+    id: number;
+    name: string;
+    industry: string | null;
+    address: string | null;
+    city: string | null;
+    state: string | null;
+    postalCode: string | null;
+    country: string | null;
+    businessSize: string | null;
+    numberOfLocations: number | null;
+    taxId: string | null;
+    businessRegistration: string | null;
+    expectedOrderVolume: string | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface Invoice {
+    id: string;
+    date: string;
+    amount: string;
+    status: string;
+    statusColor: string;
+}
+
+interface Subscription {
+    plan: string;
+    status: string;
+    nextBillingDate: string;
+    amount: string;
+    features: string[];
+}
 
 export default function DashboardPage() {
-    // Subscription details
-    const subscription = {
-        plan: "Pro",
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
+    const [company, setCompany] = useState<Company | null>(null);
+    const [invoices, setInvoices] = useState<Invoice[]>([]);
+    const [subscription, setSubscription] = useState<Subscription>({
+        plan: "Basic",
         status: "Active",
-        nextBillingDate: "May 15, 2023",
-        amount: "$49.99",
+        nextBillingDate: "Next month",
+        amount: "$0",
         features: [
             "Online Ordering System",
-            "AI Calling Assistant",
-            "WhatsApp Integration",
-            "SMS Marketing",
-            "5 Staff Accounts"
+            "Basic Menu Management",
+            "1 Staff Account"
         ]
-    };
+    });
 
-    // Billing summary
-    const billingHistory = [
-        {
-            id: "INV-2023-05",
-            date: "April 15, 2023",
-            amount: "$49.99",
-            status: "Paid",
-            statusColor: "bg-green-100 text-green-800",
-        },
-        {
-            id: "INV-2023-04",
-            date: "March 15, 2023",
-            amount: "$49.99",
-            status: "Paid",
-            statusColor: "bg-green-100 text-green-800",
-        },
-        {
-            id: "INV-2023-03",
-            date: "February 15, 2023",
-            amount: "$39.99",
-            status: "Paid",
-            statusColor: "bg-green-100 text-green-800",
-        },
-    ];
-
-    // Support tickets
+    // Support tickets (mock data for now)
     const supportTickets = [
         {
             id: "TKT-1285",
@@ -73,7 +99,7 @@ export default function DashboardPage() {
         },
     ];
 
-    // Downloads
+    // Downloads (mock data for now)
     const downloads = [
         {
             title: "Restaurant AI User Guide",
@@ -95,7 +121,7 @@ export default function DashboardPage() {
         },
     ];
 
-    // Recent notifications
+    // Recent notifications (mock data for now)
     const notifications = [
         {
             id: 1,
@@ -120,6 +146,130 @@ export default function DashboardPage() {
         },
     ];
 
+    // Fetch user data
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                setIsLoading(true);
+
+                // Fetch user data
+                const userResponse = await fetch('/api/auth/me');
+                if (!userResponse.ok) {
+                    if (userResponse.status === 401) {
+                        // Not authenticated
+                        router.push('/signin');
+                        return;
+                    }
+                    throw new Error('Failed to fetch user data');
+                }
+
+                const userData = await userResponse.json();
+                setUser(userData.user);
+                setCompany(userData.company);
+
+                console.log("User data loaded:", userData.user);
+
+                // If user has companyId, fetch subscription data
+                if (userData.user?.id) {
+                    try {
+                        // Fetch subscription data using real endpoint
+                        console.log("Fetching subscription data for user:", userData.user.id);
+                        const subscriptionResponse = await fetch(`/api/user/subscription?userId=${userData.user.id}`);
+                        if (subscriptionResponse.ok) {
+                            const subscriptionData = await subscriptionResponse.json();
+                            console.log("Subscription data:", subscriptionData);
+
+                            if (subscriptionData.hasSubscription && subscriptionData.subscription?.package) {
+                                const pkg = subscriptionData.subscription.package;
+                                const sub = subscriptionData.subscription.subscription;
+
+                                // Parse features from string to array
+                                let featuresArray: string[] = [];
+                                try {
+                                    featuresArray = JSON.parse(pkg.features || '[]');
+                                } catch (e) {
+                                    console.error('Error parsing features:', e);
+                                    featuresArray = pkg.features?.split(',') || [];
+                                }
+
+                                setSubscription({
+                                    plan: pkg.name,
+                                    status: sub.status,
+                                    nextBillingDate: new Date(sub.endDate).toLocaleDateString(),
+                                    amount: `$${(pkg.price / 100).toFixed(2)}`,
+                                    features: featuresArray
+                                });
+                            }
+                        } else {
+                            console.error("Failed to fetch subscription data:", await subscriptionResponse.text());
+                        }
+                    } catch (error) {
+                        console.error("Error fetching subscription data:", error);
+                    }
+
+                    try {
+                        // Fetch invoices data using real endpoint
+                        console.log("Fetching invoices data for user:", userData.user.id);
+                        const invoicesResponse = await fetch(`/api/user/invoices?userId=${userData.user.id}`);
+                        if (invoicesResponse.ok) {
+                            const invoicesData = await invoicesResponse.json();
+                            console.log("Invoices data:", invoicesData);
+
+                            // Transform Stripe invoices to our format
+                            if (invoicesData.invoices && invoicesData.invoices.length > 0) {
+                                const formattedInvoices = invoicesData.invoices.map((invoice: any) => ({
+                                    id: invoice.id,
+                                    date: new Date(invoice.created * 1000).toLocaleDateString(),
+                                    amount: `$${(invoice.amount_paid / 100).toFixed(2)}`,
+                                    status: invoice.status === 'paid' ? 'Paid' : invoice.status,
+                                    statusColor: invoice.status === 'paid'
+                                        ? 'bg-green-100 text-green-800'
+                                        : 'bg-yellow-100 text-yellow-800'
+                                }));
+
+                                setInvoices(formattedInvoices);
+                            } else {
+                                // If no invoices from Stripe, create some mock data
+                                setInvoices([
+                                    {
+                                        id: "INV-" + new Date().toISOString().slice(0, 7),
+                                        date: new Date().toLocaleDateString(),
+                                        amount: subscription.amount,
+                                        status: "Paid",
+                                        statusColor: "bg-green-100 text-green-800",
+                                    }
+                                ]);
+                            }
+                        } else {
+                            console.error("Failed to fetch invoices data:", await invoicesResponse.text());
+                        }
+                    } catch (error) {
+                        console.error("Error fetching invoices data:", error);
+                    }
+                } else {
+                    console.error("User ID not found in response:", userData);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, [router]);
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="flex flex-col items-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+                    <p className="mt-4 text-gray-700">Loading dashboard...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
             <DashboardNavbar />
@@ -133,7 +283,7 @@ export default function DashboardPage() {
                     <div className="flex justify-between items-center mb-8">
                         <div>
                             <h1 className="text-2xl font-bold">Dashboard</h1>
-                            <p className="text-gray-500">Welcome back, Restaurant Owner!</p>
+                            <p className="text-gray-500">Welcome back, {user?.name || 'User'}!</p>
                         </div>
                         <div className="flex space-x-3">
                             <Button variant="outline">Download Invoice</Button>
@@ -218,7 +368,7 @@ export default function DashboardPage() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {billingHistory.map((invoice, index) => (
+                                            {invoices.length > 0 ? invoices.map((invoice, index) => (
                                                 <tr key={index} className="border-b border-gray-100 last:border-none">
                                                     <td className="py-3 text-sm font-medium">
                                                         {invoice.id}
@@ -256,7 +406,13 @@ export default function DashboardPage() {
                                                         </Button>
                                                     </td>
                                                 </tr>
-                                            ))}
+                                            )) : (
+                                                <tr>
+                                                    <td colSpan={5} className="py-3 text-center text-sm text-gray-500">
+                                                        No invoices found
+                                                    </td>
+                                                </tr>
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
@@ -332,7 +488,7 @@ export default function DashboardPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {supportTickets.map((ticket, index) => (
+                                        {supportTickets.length > 0 ? supportTickets.map((ticket, index) => (
                                             <tr key={index} className="border-b border-gray-100 last:border-none">
                                                 <td className="py-3 text-sm font-medium">
                                                     {ticket.id}
@@ -350,7 +506,13 @@ export default function DashboardPage() {
                                                 </td>
                                                 <td className="py-3 text-sm">{ticket.priority}</td>
                                             </tr>
-                                        ))}
+                                        )) : (
+                                            <tr>
+                                                <td colSpan={5} className="py-3 text-center text-sm text-gray-500">
+                                                    No support tickets found
+                                                </td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -425,70 +587,54 @@ export default function DashboardPage() {
                             </CardContent>
                         </Card>
 
-                        {/* Contact Support */}
+                        {/* Company Information */}
                         <Card className="md:col-span-2 hover:shadow-md transition-shadow">
-                            <CardContent className="p-6">
-                                <div className="flex flex-col items-center justify-center text-center mb-6">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="40"
-                                        height="40"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        className="text-blue-500 mb-4"
-                                    >
-                                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                                    </svg>
-                                    <h3 className="text-lg font-medium mb-2">Need Help?</h3>
-                                    <p className="text-sm text-gray-500 mb-6">
-                                        Our support team is available 24/7 to assist you with any questions or issues you might have.
-                                    </p>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
-                                        <Button variant="outline" className="w-full">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="18"
-                                                height="18"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                className="mr-2"
-                                            >
-                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                                            </svg>
-                                            Call Us
-                                        </Button>
-                                        <Button className="w-full">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="18"
-                                                height="18"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                className="mr-2"
-                                            >
-                                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                                            </svg>
-                                            Live Chat
-                                        </Button>
-                                    </div>
-                                </div>
-                                <div className="border-t pt-4 text-center">
-                                    <p className="text-sm text-gray-500 mb-2">Email us directly</p>
-                                    <a href="mailto:support@restaurantai.com" className="text-blue-600 hover:underline text-sm font-medium">
-                                        support@restaurantai.com
-                                    </a>
+                            <CardHeader>
+                                <CardTitle>Company Information</CardTitle>
+                                <CardDescription>Details about your business</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {company ? (
+                                        <>
+                                            <div className="flex justify-between">
+                                                <span className="text-sm font-medium">Company Name:</span>
+                                                <span className="text-sm">{company.name}</span>
+                                            </div>
+                                            {company.industry && (
+                                                <div className="flex justify-between">
+                                                    <span className="text-sm font-medium">Industry:</span>
+                                                    <span className="text-sm">{company.industry}</span>
+                                                </div>
+                                            )}
+                                            {company.businessSize && (
+                                                <div className="flex justify-between">
+                                                    <span className="text-sm font-medium">Business Size:</span>
+                                                    <span className="text-sm">{company.businessSize}</span>
+                                                </div>
+                                            )}
+                                            {company.address && (
+                                                <div className="flex justify-between">
+                                                    <span className="text-sm font-medium">Address:</span>
+                                                    <span className="text-sm">
+                                                        {company.address}, {company.city}, {company.state} {company.postalCode}, {company.country}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <div className="border-t pt-4 mt-4">
+                                                <Link href="/dashboard/profile" className="text-blue-600 hover:underline text-sm font-medium">
+                                                    Update Company Information
+                                                </Link>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="text-center py-4">
+                                            <p className="text-sm text-gray-500 mb-4">No company information available</p>
+                                            <Button size="sm">
+                                                Add Company Details
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>

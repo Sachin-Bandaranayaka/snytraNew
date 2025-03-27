@@ -7,6 +7,29 @@ export const users = pgTable('users', {
     email: varchar('email', { length: 255 }).notNull().unique(),
     password: text('password'), // Hashed password
     role: text('role').default('user'), // user, admin, etc.
+    companyId: integer('company_id'),
+    jobTitle: text('job_title'),
+    phoneNumber: text('phone_number'),
+    twoFactorEnabled: boolean('two_factor_enabled').default(false),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Companies table
+export const companies = pgTable('companies', {
+    id: serial('id').primaryKey(),
+    name: text('company_name').notNull(),
+    industry: text('industry'),
+    address: text('address'),
+    city: text('city'),
+    state: text('state'),
+    postalCode: text('postal_code'),
+    country: text('country'),
+    businessSize: text('business_size'),
+    numberOfLocations: integer('number_of_locations'),
+    taxId: text('tax_id'),
+    businessRegistration: text('business_registration'),
+    expectedOrderVolume: text('expected_order_volume'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
 });

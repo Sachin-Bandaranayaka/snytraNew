@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import OrderManagementCarousel from "@/components/order-management-carousel"
 
 export default function WhatWeOfferPage() {
   return (
@@ -18,81 +19,7 @@ export default function WhatWeOfferPage() {
 
         {/* Order Management Dashboard Preview */}
         <section className="mb-20">
-          <div className="border border-gray-200 rounded-xl p-4 bg-white">
-            <div className="flex items-center mb-4">
-              <div className="w-3 h-3 rounded-full bg-[#e85c2c] mr-2"></div>
-              <span className="font-medium text-[#e85c2c]">Order Management</span>
-            </div>
-
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="font-medium">Order Metrics</h3>
-                <button className="text-xs bg-[#e85c2c] text-white px-2 py-1 rounded">View More</button>
-              </div>
-              <p className="text-xs text-gray-500 mb-4">Overview of orders for today</p>
-
-              <div className="grid grid-cols-4 gap-4 mb-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="text-sm text-gray-500 mb-2">Completed Orders</h4>
-                  <p className="text-2xl font-bold">110</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="text-sm text-gray-500 mb-2">In Progress Orders</h4>
-                  <p className="text-2xl font-bold">7</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="text-sm text-gray-500 mb-2">Pending Orders</h4>
-                  <p className="text-2xl font-bold">12</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="text-sm text-gray-500 mb-2">Cancelled Orders</h4>
-                  <p className="text-2xl font-bold">110</p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-medium mb-4">Orders (20)</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                {[...Array(12)].map((_, i) => (
-                  <div key={i} className="bg-gray-50 p-2 rounded-lg">
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="text-sm font-medium">Order #{i + 1}</div>
-                      <button className="text-gray-400">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="m9 18 6-6-6-6" />
-                        </svg>
-                      </button>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span>Burger</span>
-                        <span>$ 9.99</span>
-                      </div>
-                      <div className="flex justify-between text-xs">
-                        <span>Fries and Drink</span>
-                        <span>$ 5.99</span>
-                      </div>
-                      <div className="flex justify-between text-xs">
-                        <span>Promo Fries</span>
-                        <span>$ 0.00</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <OrderManagementCarousel />
         </section>
 
         {/* Our Offerings Section */}

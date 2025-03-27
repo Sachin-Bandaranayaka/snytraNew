@@ -1,0 +1,10 @@
+# Cookie for Authentication
+
+Replace this text with your authentication cookie value.
+You can get this by:
+1. Sign in to your application
+2. Open browser developer tools (F12)
+3. Go to the Application tab
+4. Look for Cookies under Storage
+5. Find the session or authentication cookie value
+6. Copy the entire cookie string here 

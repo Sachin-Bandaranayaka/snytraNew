@@ -133,8 +133,8 @@ export default function LeadGenerationPage() {
                                                 <td className="py-3 px-3">{lead.source}</td>
                                                 <td className="py-3 px-3">
                                                     <span className={`px-2 py-1 rounded-full text-xs ${lead.status === "New" ? "bg-blue-100 text-blue-800" :
-                                                            lead.status === "Contacted" ? "bg-yellow-100 text-yellow-800" :
-                                                                "bg-green-100 text-green-800"
+                                                        lead.status === "Contacted" ? "bg-yellow-100 text-yellow-800" :
+                                                            "bg-green-100 text-green-800"
                                                         }`}>
                                                         {lead.status}
                                                     </span>
@@ -395,4 +395,3 @@ export default function LeadGenerationPage() {
         </div>
     )
 }
-</rewritten_file >

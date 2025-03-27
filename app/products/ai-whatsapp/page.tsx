@@ -358,4 +358,3 @@ export default function AIWhatsAppPage() {
         </div>
     )
 }
-</rewritten_file >

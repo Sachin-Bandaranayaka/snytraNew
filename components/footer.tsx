@@ -8,7 +8,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="flex items-center mb-4">
-              <Image src="/logo.svg" alt="Restaurant Management Logo" width={40} height={40} className="mr-2" />
+              <Image src="/logo.png" alt="Restaurant Management Logo" width={200} height={200} className="mr-2" />
             </div>
             <p className="text-sm text-gray-600 mb-2">Empowering restaurants, one table at a time.</p>
             <p className="text-sm text-gray-600">Discover seamless dining with Our App</p>

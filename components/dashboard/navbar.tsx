@@ -16,7 +16,7 @@ export default function DashboardNavbar() {
             <div className="px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
                 <div className="flex items-center">
                     <Link href="/dashboard" className="flex items-center">
-                        <Image src="/logo.svg" alt="Restaurant AI Logo" width={40} height={40} className="mr-2" />
+                        <Image src="/logo.png" alt="Restaurant AI Logo" width={200} height={200} className="mr-2" />
                         <span className="text-xl font-semibold hidden md:inline-block">Restaurant AI</span>
                     </Link>
                 </div>

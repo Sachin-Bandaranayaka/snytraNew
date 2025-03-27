@@ -1,11 +1,71 @@
+"use client"
+
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import { useState } from "react"
+import { toast } from "sonner"
 
 export default function ContactPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: ""
+  })
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!formData.name || !formData.email || !formData.message) {
+      toast.error("Please fill in all required fields")
+      return
+    }
+
+    try {
+      setIsSubmitting(true)
+
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to submit form")
+      }
+
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        message: ""
+      })
+
+      toast.success("Your message has been sent successfully!")
+    } catch (error) {
+      console.error("Error submitting form:", error)
+      toast.error("Failed to submit form. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div className="bg-[#f8f5eb] min-h-screen">
       <Navbar />
@@ -105,36 +165,72 @@ export default function ContactPage() {
               <h2 className="text-2xl font-bold mb-4">Get in Touch</h2>
               <p className="text-gray-600 mb-6">You can reach us anytime</p>
 
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={handleSubmit}>
                 <div>
                   <label htmlFor="name" className="block mb-2 font-medium">
                     Name
                   </label>
-                  <Input id="name" type="text" placeholder="Enter your name" className="w-full" />
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Enter your name"
+                    className="w-full"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
 
                 <div>
                   <label htmlFor="email" className="block mb-2 font-medium">
                     E-mail
                   </label>
-                  <Input id="email" type="email" placeholder="Enter your e-mail" className="w-full" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your e-mail"
+                    className="w-full"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
 
                 <div>
                   <label htmlFor="phone" className="block mb-2 font-medium">
                     Phone Number
                   </label>
-                  <Input id="phone" type="tel" placeholder="Enter your password" className="w-full" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    className="w-full"
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
                 </div>
 
                 <div>
                   <label htmlFor="message" className="block mb-2 font-medium">
                     Message
                   </label>
-                  <Textarea id="message" placeholder="Enter your message" className="w-full min-h-[120px]" />
+                  <Textarea
+                    id="message"
+                    placeholder="Enter your message"
+                    className="w-full min-h-[120px]"
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
 
-                <Button className="w-full bg-[#e85c2c] hover:bg-[#d04a1d] text-white">Sign Up</Button>
+                <Button
+                  type="submit"
+                  className="w-full bg-[#e85c2c] hover:bg-[#d04a1d] text-white"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Sending..." : "Submit"}
+                </Button>
               </form>
             </div>
 

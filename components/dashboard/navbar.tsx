@@ -71,8 +71,8 @@ export default function DashboardNavbar({ onMobileMenuToggle, isMobileMenuOpen }
                     </Button>
 
                     <Link href="/dashboard" className="flex items-center">
-                        <Image src="/logo.png" alt="Restaurant AI Logo" width={120} height={40} className="mr-2" />
-                        <span className="text-xl font-semibold hidden md:inline-block">Restaurant AI</span>
+                        <Image src="/logo.png" alt="Business AI Logo" width={120} height={40} className="mr-2" />
+                        <span className="text-xl font-semibold hidden md:inline-block">Business AI</span>
                     </Link>
                 </div>
 

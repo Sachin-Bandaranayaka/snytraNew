@@ -29,6 +29,13 @@
       "when": 1743098817916,
       "tag": "0003_sour_doctor_spectrum",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1743105225761,
+      "tag": "0004_light_triathlon",
+      "breakpoints": true
     }
   ]
 }

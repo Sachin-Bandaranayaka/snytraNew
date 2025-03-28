@@ -28,7 +28,7 @@ export function Navbar() {
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <Link href="/">
-            <Image src="/logo.png" alt="Restaurant Management Logo" width={150} height={150} className="mr-2 w-auto h-8 md:h-10" />
+            <Image src="/logo.png" alt="Business Management Logo" width={150} height={150} className="mr-2 w-auto h-8 md:h-10" />
           </Link>
         </div>
 

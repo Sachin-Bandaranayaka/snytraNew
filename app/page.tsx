@@ -4,8 +4,38 @@ import { Card, CardContent } from "@/components/ui/card"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import AdminDashboardCarousel from "@/components/admin-dashboard-carousel"
+import AutoRotatingTestimonials from "@/components/auto-rotating-testimonials"
 
 export default function Home() {
+  // Testimonials data
+  const testimonials = [
+    {
+      name: "John Smith",
+      role: "Owner, The Gourmet Kitchen",
+      quote: "This platform has completely transformed how we manage our business. From inventory to customer orders, everything is streamlined.",
+    },
+    {
+      name: "Lisa Johnson",
+      role: "Manager, Seaside Bistro",
+      quote: "The analytics dashboard gives us incredible insights into our business. We've been able to optimize our menu and increase profits significantly.",
+    },
+    {
+      name: "Michael Chen",
+      role: "Chef & Owner, Fusion Flavors",
+      quote: "Customer engagement has never been easier. The feedback system has helped us improve our offerings and create a loyal customer base.",
+    },
+    {
+      name: "Amanda Rodriguez",
+      role: "Owner, Taste of Mexico",
+      quote: "The ordering system integration was seamless. Our customers love the easy online ordering, and our staff appreciate the organized workflow.",
+    },
+    {
+      name: "Robert Kim",
+      role: "General Manager, Seoul BBQ House",
+      quote: "Support has been fantastic. Whenever we've had questions, the team responds quickly and effectively. They truly care about our success.",
+    },
+  ];
+
   return (
     <div className="bg-[#f8f5eb]">
       <Navbar />
@@ -13,7 +43,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="container mx-auto py-6 sm:py-8 md:py-12 text-center px-4">
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#e85c2c] mb-3 md:mb-4">
-          Revolutionize Your <br className="hidden sm:block" /> Restaurant Management
+          Revolutionize Your <br className="hidden sm:block" /> Business Management
         </h1>
         <p className="text-base md:text-lg mb-6 max-w-2xl mx-auto">Smart tools to streamline your menu, orders, and operations.</p>
         <Button className="bg-[#e85c2c] hover:bg-[#d04a1d] text-white px-5 sm:px-6 py-4 sm:py-5 text-base">Get Started</Button>
@@ -146,12 +176,12 @@ export default function Home() {
       <section className="container mx-auto py-10 md:py-16 px-4">
         <div className="bg-white rounded-xl p-6 md:p-8 shadow-sm">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
-            Trusted by restaurants across <span className="text-[#e85c2c]">the globe</span>
+            Trusted by businesses across <span className="text-[#e85c2c]">the globe</span>
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center">
             <div>
               <div className="text-3xl md:text-4xl font-bold text-[#e85c2c]">10k+</div>
-              <p className="text-sm md:text-base text-gray-500 mt-2">Restaurants Served</p>
+              <p className="text-sm md:text-base text-gray-500 mt-2">Businesses Served</p>
             </div>
             <div>
               <div className="text-3xl md:text-4xl font-bold text-[#e85c2c]">500k+</div>
@@ -172,63 +202,18 @@ export default function Home() {
       {/* Testimonials Section */}
       <section className="container mx-auto py-10 md:py-16 px-4">
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-2">What Our Customers Say</h2>
-        <p className="text-center mb-8 md:mb-12">Hear from restaurant owners like you</p>
+        <p className="text-center mb-8 md:mb-12">Hear from business owners like you</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            {
-              name: "John Smith",
-              role: "Owner, The Gourmet Kitchen",
-              quote: "This platform has completely transformed how we manage our restaurant. From inventory to customer orders, everything is streamlined.",
-            },
-            {
-              name: "Lisa Johnson",
-              role: "Manager, Seaside Bistro",
-              quote: "The analytics dashboard gives us incredible insights into our business. We've been able to optimize our menu and increase profits significantly.",
-            },
-            {
-              name: "Michael Chen",
-              role: "Chef & Owner, Fusion Flavors",
-              quote: "Customer engagement has never been easier. The feedback system has helped us improve our dishes and create a loyal customer base.",
-            },
-          ].map((testimonial, i) => (
-            <Card key={i} className="border-0 shadow-sm overflow-hidden">
-              <CardContent className="p-6">
-                <div className="flex flex-col h-full">
-                  <div className="mb-4">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="32"
-                      height="32"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#e85c2c"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="opacity-50"
-                    >
-                      <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path>
-                      <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"></path>
-                    </svg>
-                  </div>
-                  <p className="text-gray-600 flex-grow text-sm md:text-base mb-4">{testimonial.quote}</p>
-                  <div>
-                    <div className="font-medium text-base">{testimonial.name}</div>
-                    <div className="text-gray-500 text-sm">{testimonial.role}</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="max-w-3xl mx-auto">
+          <AutoRotatingTestimonials testimonials={testimonials} rotationInterval={6000} />
         </div>
       </section>
 
       {/* CTA Section */}
       <section className="container mx-auto py-10 md:py-16 px-4 text-center">
-        <h2 className="text-2xl md:text-4xl font-bold mb-4">Ready to Transform Your Restaurant?</h2>
+        <h2 className="text-2xl md:text-4xl font-bold mb-4">Ready to Transform Your Business?</h2>
         <p className="mb-6 md:mb-8 max-w-2xl mx-auto text-sm md:text-base">
-          Join thousands of restaurants worldwide and start streamlining your operations today.
+          Join thousands of businesses worldwide and start streamlining your operations today.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Button className="bg-[#e85c2c] hover:bg-[#d04a1d] text-white px-8 py-6">Get Started</Button>

@@ -164,4 +164,28 @@ export const ticketMessages = pgTable('ticket_messages', {
     isInternal: boolean('is_internal').default(false), // For admin notes not visible to user
     attachments: text('attachments'), // JSON array of attachment URLs
     createdAt: timestamp('created_at').defaultNow(),
+});
+
+// FAQ Categories table
+export const faqCategories = pgTable('faq_categories', {
+    id: serial('id').primaryKey(),
+    title: text('title').notNull(),
+    slug: text('slug').notNull().unique(),
+    description: text('description'),
+    order: integer('order').default(0),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// FAQ Items table
+export const faqItems = pgTable('faq_items', {
+    id: serial('id').primaryKey(),
+    categoryId: integer('category_id').references(() => faqCategories.id).notNull(),
+    question: text('question').notNull(),
+    answer: text('answer').notNull(),
+    order: integer('order').default(0),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
 }); 

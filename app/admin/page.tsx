@@ -187,11 +187,18 @@ async function AdminDashboardPage() {
                 <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                         <a
+                            href="/admin/staff-management"
+                            className="flex items-center p-2 rounded-md hover:bg-gray-100"
+                        >
+                            <Users className="mr-2 h-4 w-4" />
+                            <span>Staff Management</span>
+                        </a>
+                        <a
                             href="/admin/users"
                             className="flex items-center p-2 rounded-md hover:bg-gray-100"
                         >
                             <Users className="mr-2 h-4 w-4" />
-                            <span>Manage Users</span>
+                            <span>User Accounts</span>
                         </a>
                         <a
                             href="/admin/blog"

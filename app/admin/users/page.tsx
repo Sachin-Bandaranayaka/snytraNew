@@ -86,8 +86,8 @@ async function UserManagementPage() {
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>
                                         <span className={`px-2 py-1 rounded text-xs ${user.role === 'admin'
-                                                ? 'bg-purple-100 text-purple-800'
-                                                : 'bg-gray-100 text-gray-800'
+                                            ? 'bg-purple-100 text-purple-800'
+                                            : 'bg-gray-100 text-gray-800'
                                             }`}>
                                             {user.role}
                                         </span>
@@ -95,8 +95,8 @@ async function UserManagementPage() {
                                     <TableCell>{user.createdAt}</TableCell>
                                     <TableCell>
                                         <span className={`px-2 py-1 rounded text-xs ${user.hasActiveSubscription
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-gray-100 text-gray-800'
+                                            ? 'bg-green-100 text-green-800'
+                                            : 'bg-gray-100 text-gray-800'
                                             }`}>
                                             {user.hasActiveSubscription ? 'Active' : 'None'}
                                         </span>

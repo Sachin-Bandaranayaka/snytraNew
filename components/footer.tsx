@@ -7,10 +7,12 @@ export function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8">
           <div className="col-span-2 sm:col-span-2 md:col-span-1 mb-6 md:mb-0">
-            <div className="flex items-center mb-4">
-              <Image src="/logo.png" alt="Restaurant Management Logo" width={200} height={200} className="w-40 md:w-auto h-auto mr-2" />
+            <div className="flex items-center">
+              <Link href="/" className="flex items-center">
+                <Image src="/logo.png" alt="Business Management Logo" width={200} height={200} className="w-40 md:w-auto h-auto mr-2" />
+              </Link>
+              <p className="text-sm text-gray-600 mb-2">Empowering businesses, one customer at a time.</p>
             </div>
-            <p className="text-sm text-gray-600 mb-2">Empowering restaurants, one table at a time.</p>
             <p className="text-sm text-gray-600">Discover seamless dining with Our App</p>
           </div>
 

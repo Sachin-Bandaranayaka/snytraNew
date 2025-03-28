@@ -58,7 +58,7 @@ export default function OnlineOrderingSystemPage() {
                         Online Ordering System
                     </div>
                     <h1 className="text-4xl md:text-5xl font-bold text-[#e85c2c] mb-4">
-                        Streamline Your Restaurant's <br /> Online Ordering
+                        Streamline Your Business's <br /> Online Ordering
                     </h1>
                     <p className="max-w-3xl mx-auto text-lg mb-8">
                         Increase revenue and reduce operational costs with our powerful online ordering system
@@ -168,7 +168,7 @@ export default function OnlineOrderingSystemPage() {
                 <section className="mb-20">
                     <h2 className="text-3xl font-bold text-center mb-2">Powerful Features to Grow Your Business</h2>
                     <p className="text-center mb-12 text-gray-600 max-w-3xl mx-auto">
-                        Our online ordering system is designed to help restaurants increase revenue and streamline operations
+                        Our online ordering system is designed to help businesses increase revenue and streamline operations
                     </p>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -237,7 +237,7 @@ export default function OnlineOrderingSystemPage() {
                                 </svg>
                             </div>
                             <h3 className="text-xl font-bold mb-2">Multi-location Support</h3>
-                            <p className="text-gray-600">Manage multiple restaurant locations from a single dashboard with location-specific menus.</p>
+                            <p className="text-gray-600">Manage multiple business locations from a single dashboard with location-specific menus.</p>
                         </div>
                     </div>
                 </section>
@@ -246,7 +246,7 @@ export default function OnlineOrderingSystemPage() {
                 <section className="mb-20">
                     <h2 className="text-3xl font-bold text-center mb-2">Transparent Pricing</h2>
                     <p className="text-center mb-12 text-gray-600 max-w-3xl mx-auto">
-                        Choose the plan that works best for your restaurant's online ordering needs
+                        Choose the plan that works best for your business's online ordering needs
                     </p>
 
                     <div className="grid md:grid-cols-3 gap-6">
@@ -287,7 +287,7 @@ export default function OnlineOrderingSystemPage() {
                 <section className="mb-20">
                     <h2 className="text-3xl font-bold text-center mb-2">What Our Customers Say</h2>
                     <p className="text-center mb-12 text-gray-600 max-w-3xl mx-auto">
-                        Join hundreds of restaurants that have transformed their online ordering experience
+                        Join hundreds of businesses that have transformed their online ordering experience
                     </p>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -349,8 +349,8 @@ export default function OnlineOrderingSystemPage() {
 
                 {/* CTA Section */}
                 <section className="bg-[#1e1e1e] text-white p-12 rounded-lg text-center">
-                    <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Restaurant's Online Ordering?</h2>
-                    <p className="mb-8 max-w-2xl mx-auto">Join hundreds of restaurants that have increased their revenue with our online ordering system</p>
+                    <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Business's Online Ordering?</h2>
+                    <p className="mb-8 max-w-2xl mx-auto">Join hundreds of businesses that have increased their revenue with our online ordering system</p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
                         <Button className="bg-[#e85c2c] hover:bg-[#d04a1d] text-white px-8 py-6 text-lg">Get Started Today</Button>
                         <Button variant="outline" className="border-white text-white hover:bg-white hover:text-[#1e1e1e] px-8 py-6 text-lg">Schedule a Demo</Button>

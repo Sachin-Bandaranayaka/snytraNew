@@ -4,6 +4,7 @@ import { ReactNode, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
+import { redirect } from 'next/navigation';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
     const { user, isLoading } = useAuth();
@@ -14,14 +15,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         if (!isLoading && user) {
             if (user.role !== 'admin') {
                 console.log('Not admin, redirecting');
-                router.push('/unauthorized');
+                redirect('/login?callbackUrl=/admin');
             } else {
                 console.log('Admin access granted to', user.email);
             }
         } else if (!isLoading && !user) {
             // If no user but finished loading, redirect to login
             console.log('No user, redirecting to login');
-            router.push('/signin?redirect=/admin');
+            redirect('/login?callbackUrl=/admin');
         }
     }, [user, isLoading, router]);
 
@@ -81,6 +82,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         <li>
                             <Link href="/admin/pricing" className="block p-2 rounded hover:bg-gray-100">
                                 Pricing Packages
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/admin/faq" className="block p-2 rounded hover:bg-gray-100">
+                                FAQ Management
                             </Link>
                         </li>
                         <li className="pt-4 border-t mt-4">

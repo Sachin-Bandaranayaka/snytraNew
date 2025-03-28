@@ -17,8 +17,20 @@ import { MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
+// Define a submission type
+interface ContactSubmission {
+    id: number;
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+    status: 'new' | 'read' | 'replied';
+    createdAt: string;
+    updatedAt: string;
+}
+
 export default function ContactSubmissionsPage() {
-    const [submissions, setSubmissions] = useState([]);
+    const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -39,7 +51,7 @@ export default function ContactSubmissionsPage() {
         fetchSubmissions();
     }, []);
 
-    const handleMarkAsRead = async (id) => {
+    const handleMarkAsRead = async (id: number) => {
         try {
             const response = await fetch(`/api/admin/contacts/${id}/mark-as-read`, {
                 method: 'POST',
@@ -62,9 +74,21 @@ export default function ContactSubmissionsPage() {
         }
     };
 
-    const handleReply = (email, name) => {
-        // Using window.location for mailto link
-        window.location.href = `mailto:${email}?subject=Re: Contact from ${name}`;
+    const handleReply = (email: string, name: string) => {
+        try {
+            // Create a properly formatted mailto URL
+            const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(`Re: Contact from ${name}`)}`;
+
+            // Open the email client in a new window/tab
+            window.open(mailtoUrl, '_blank');
+
+            // Optional: If we want to update the status to 'replied' we would need an API endpoint for that
+            // For now, just show a toast message
+            toast.success(`Opening email client to reply to ${name}`);
+        } catch (error) {
+            console.error('Error opening email client:', error);
+            toast.error('Failed to open email client');
+        }
     };
 
     if (loading) {

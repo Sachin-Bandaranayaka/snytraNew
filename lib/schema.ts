@@ -188,4 +188,16 @@ export const faqItems = pgTable('faq_items', {
     isActive: boolean('is_active').default(true),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// System Settings table
+export const systemSettings = pgTable('system_settings', {
+    id: serial('id').primaryKey(),
+    key: text('key').notNull().unique(),
+    value: text('value').notNull(),
+    description: text('description'),
+    category: text('category').default('general'),
+    updatedBy: integer('updated_by').references(() => users.id),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
 }); 

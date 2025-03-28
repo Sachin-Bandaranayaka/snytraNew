@@ -89,6 +89,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                                 FAQ Management
                             </Link>
                         </li>
+                        <li>
+                            <Link href="/admin/settings" className="block p-2 rounded hover:bg-gray-100">
+                                Site Settings
+                            </Link>
+                        </li>
                         <li className="pt-4 border-t mt-4">
                             <Link href="/dashboard" className="block p-2 rounded hover:bg-gray-100">
                                 Back to User Dashboard

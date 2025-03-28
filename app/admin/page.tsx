@@ -2,7 +2,7 @@ import { db } from '@/lib/db';
 import { users, userSubscriptions, blogPosts, pricingPackages, contactSubmissions } from '@/lib/schema';
 import { count } from 'drizzle-orm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CalendarDays, CreditCard, Users, FileText, MessageSquare } from 'lucide-react';
+import { CalendarDays, CreditCard, Users, FileText, MessageSquare, Settings } from 'lucide-react';
 
 async function AdminDashboardPage() {
     // Get counts for dashboard stats
@@ -213,6 +213,13 @@ async function AdminDashboardPage() {
                         >
                             <CreditCard className="mr-2 h-4 w-4" />
                             <span>Manage Pricing</span>
+                        </a>
+                        <a
+                            href="/admin/settings"
+                            className="flex items-center p-2 rounded-md hover:bg-gray-100"
+                        >
+                            <Settings className="mr-2 h-4 w-4" />
+                            <span>Site Settings</span>
                         </a>
                         <a
                             href="/admin/contacts"

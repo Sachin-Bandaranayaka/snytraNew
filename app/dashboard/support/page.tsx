@@ -25,8 +25,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import DashboardNavbar from "@/components/dashboard/navbar";
-import DashboardSidebar from "@/components/dashboard/sidebar";
 
 export default function SupportPage() {
     // FAQs
@@ -274,214 +272,204 @@ export default function SupportPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <DashboardNavbar />
+        <div>
+            {/* Page header */}
+            <div className="flex justify-between items-center mb-8">
+                <div>
+                    <h1 className="text-2xl font-bold">Help & Support</h1>
+                    <p className="text-gray-500">Get assistance with your Restaurant AI platform</p>
+                </div>
+            </div>
 
-            <div className="flex">
-                <DashboardSidebar />
+            {/* Support cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {supportOptions.map((option, index) => (
+                    <Card key={index} className="hover:shadow-md transition-shadow">
+                        <CardHeader>
+                            <div className="flex items-center space-x-2">
+                                {option.icon}
+                                <CardTitle className="text-lg">{option.title}</CardTitle>
+                            </div>
+                            <CardDescription>{option.description}</CardDescription>
+                        </CardHeader>
+                        <CardFooter>
+                            <Link href={option.link}>
+                                <Button variant="default" className="w-full">
+                                    {option.buttonText}
+                                </Button>
+                            </Link>
+                        </CardFooter>
+                    </Card>
+                ))}
+            </div>
 
-                {/* Main Content */}
-                <main className="flex-1 p-6 pb-12">
-                    {/* Page header */}
-                    <div className="flex justify-between items-center mb-8">
-                        <div>
-                            <h1 className="text-2xl font-bold">Help & Support</h1>
-                            <p className="text-gray-500">Get help with your Restaurant AI account</p>
-                        </div>
-                    </div>
-
-                    {/* Contact Support */}
-                    <div className="mb-8">
-                        <h2 className="text-lg font-semibold mb-4">Contact Support</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {supportOptions.map((option, index) => (
-                                <Card key={index} className="bg-white">
-                                    <CardContent className="p-6">
-                                        <div className="flex flex-col items-center text-center">
-                                            <div className="p-3 bg-gray-100 rounded-full mb-4">
-                                                {option.icon}
-                                            </div>
-                                            <h3 className="font-medium mb-2">{option.title}</h3>
-                                            <p className="text-sm text-gray-500 mb-4">{option.description}</p>
-                                            <Button asChild>
-                                                <Link href={option.link}>{option.buttonText}</Link>
-                                            </Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Help Resources */}
-                    <div className="mb-8">
-                        <h2 className="text-lg font-semibold mb-4">Self-Help Resources</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {helpResources.map((resource, index) => (
-                                <Card key={index} className="bg-white">
-                                    <CardContent className="p-6">
-                                        <div className="flex flex-col items-center text-center">
-                                            <div className="p-3 bg-gray-100 rounded-full mb-4">
-                                                {resource.icon}
-                                            </div>
-                                            <h3 className="font-medium mb-2">{resource.title}</h3>
-                                            <p className="text-sm text-gray-500 mb-4">{resource.description}</p>
-                                            <Button variant="outline" asChild>
-                                                <Link href={resource.link}>View Resource</Link>
-                                            </Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* FAQ Section */}
-                    <div className="mb-8">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Frequently Asked Questions</CardTitle>
-                                <CardDescription>
-                                    Find quick answers to common questions
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <h3 className="font-medium mb-3 text-blue-600">
-                                            Billing & Subscription
-                                        </h3>
-                                        <Accordion type="single" collapsible className="w-full">
-                                            {faqs
-                                                .filter((faq) => faq.category === "Billing & Subscription")
-                                                .map((faq, index) => (
-                                                    <AccordionItem key={index} value={`billing-${index}`}>
-                                                        <AccordionTrigger className="text-left">
-                                                            {faq.question}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="text-gray-600">
-                                                            {faq.answer}
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                ))}
-                                        </Accordion>
-
-                                        <h3 className="font-medium mb-3 mt-6 text-blue-600">
-                                            Account
-                                        </h3>
-                                        <Accordion type="single" collapsible className="w-full">
-                                            {faqs
-                                                .filter((faq) => faq.category === "Account")
-                                                .map((faq, index) => (
-                                                    <AccordionItem key={index} value={`account-${index}`}>
-                                                        <AccordionTrigger className="text-left">
-                                                            {faq.question}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="text-gray-600">
-                                                            {faq.answer}
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                ))}
-                                        </Accordion>
+            {/* Help Resources */}
+            <div className="mb-8">
+                <h2 className="text-lg font-semibold mb-4">Self-Help Resources</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {helpResources.map((resource, index) => (
+                        <Card key={index} className="bg-white">
+                            <CardContent className="p-6">
+                                <div className="flex flex-col items-center text-center">
+                                    <div className="p-3 bg-gray-100 rounded-full mb-4">
+                                        {resource.icon}
                                     </div>
-
-                                    <div>
-                                        <h3 className="font-medium mb-3 text-blue-600">
-                                            Technical
-                                        </h3>
-                                        <Accordion type="single" collapsible className="w-full">
-                                            {faqs
-                                                .filter((faq) => faq.category === "Technical")
-                                                .map((faq, index) => (
-                                                    <AccordionItem key={index} value={`technical-${index}`}>
-                                                        <AccordionTrigger className="text-left">
-                                                            {faq.question}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="text-gray-600">
-                                                            {faq.answer}
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                ))}
-                                        </Accordion>
-
-                                        <h3 className="font-medium mb-3 mt-6 text-blue-600">
-                                            Usage
-                                        </h3>
-                                        <Accordion type="single" collapsible className="w-full">
-                                            {faqs
-                                                .filter((faq) => faq.category === "Usage")
-                                                .map((faq, index) => (
-                                                    <AccordionItem key={index} value={`usage-${index}`}>
-                                                        <AccordionTrigger className="text-left">
-                                                            {faq.question}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="text-gray-600">
-                                                            {faq.answer}
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                ))}
-                                        </Accordion>
-                                    </div>
+                                    <h3 className="font-medium mb-2">{resource.title}</h3>
+                                    <p className="text-sm text-gray-500 mb-4">{resource.description}</p>
+                                    <Button variant="outline" asChild>
+                                        <Link href={resource.link}>View Resource</Link>
+                                    </Button>
                                 </div>
                             </CardContent>
-                            <CardFooter className="border-t flex justify-center pt-6">
-                                <p className="text-sm text-gray-500">
-                                    Can't find what you're looking for?{" "}
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button variant="link" className="p-0 h-auto">
-                                                Contact our support team
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="sm:max-w-[600px]">
-                                            <DialogHeader>
-                                                <DialogTitle>Contact Support</DialogTitle>
-                                                <DialogDescription>
-                                                    Fill out the form below and we'll get back to you as soon as possible.
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                            <div className="grid gap-4 py-4">
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <div className="grid gap-2">
-                                                        <label htmlFor="name" className="text-sm font-medium">
-                                                            Name
-                                                        </label>
-                                                        <Input id="name" />
-                                                    </div>
-                                                    <div className="grid gap-2">
-                                                        <label htmlFor="email" className="text-sm font-medium">
-                                                            Email
-                                                        </label>
-                                                        <Input id="email" type="email" />
-                                                    </div>
-                                                </div>
-                                                <div className="grid gap-2">
-                                                    <label htmlFor="subject" className="text-sm font-medium">
-                                                        Subject
-                                                    </label>
-                                                    <Input id="subject" />
-                                                </div>
-                                                <div className="grid gap-2">
-                                                    <label htmlFor="message" className="text-sm font-medium">
-                                                        Message
-                                                    </label>
-                                                    <Textarea
-                                                        id="message"
-                                                        rows={5}
-                                                        placeholder="Please describe your issue in detail"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <DialogFooter>
-                                                <Button type="submit">Send Message</Button>
-                                            </DialogFooter>
-                                        </DialogContent>
-                                    </Dialog>
-                                </p>
-                            </CardFooter>
                         </Card>
-                    </div>
-                </main>
+                    ))}
+                </div>
+            </div>
+
+            {/* FAQ Section */}
+            <div className="mb-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Frequently Asked Questions</CardTitle>
+                        <CardDescription>
+                            Find quick answers to common questions
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 className="font-medium mb-3 text-blue-600">
+                                    Billing & Subscription
+                                </h3>
+                                <Accordion type="single" collapsible className="w-full">
+                                    {faqs
+                                        .filter((faq) => faq.category === "Billing & Subscription")
+                                        .map((faq, index) => (
+                                            <AccordionItem key={index} value={`billing-${index}`}>
+                                                <AccordionTrigger className="text-left">
+                                                    {faq.question}
+                                                </AccordionTrigger>
+                                                <AccordionContent className="text-gray-600">
+                                                    {faq.answer}
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        ))}
+                                </Accordion>
+
+                                <h3 className="font-medium mb-3 mt-6 text-blue-600">
+                                    Account
+                                </h3>
+                                <Accordion type="single" collapsible className="w-full">
+                                    {faqs
+                                        .filter((faq) => faq.category === "Account")
+                                        .map((faq, index) => (
+                                            <AccordionItem key={index} value={`account-${index}`}>
+                                                <AccordionTrigger className="text-left">
+                                                    {faq.question}
+                                                </AccordionTrigger>
+                                                <AccordionContent className="text-gray-600">
+                                                    {faq.answer}
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        ))}
+                                </Accordion>
+                            </div>
+
+                            <div>
+                                <h3 className="font-medium mb-3 text-blue-600">
+                                    Technical
+                                </h3>
+                                <Accordion type="single" collapsible className="w-full">
+                                    {faqs
+                                        .filter((faq) => faq.category === "Technical")
+                                        .map((faq, index) => (
+                                            <AccordionItem key={index} value={`technical-${index}`}>
+                                                <AccordionTrigger className="text-left">
+                                                    {faq.question}
+                                                </AccordionTrigger>
+                                                <AccordionContent className="text-gray-600">
+                                                    {faq.answer}
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        ))}
+                                </Accordion>
+
+                                <h3 className="font-medium mb-3 mt-6 text-blue-600">
+                                    Usage
+                                </h3>
+                                <Accordion type="single" collapsible className="w-full">
+                                    {faqs
+                                        .filter((faq) => faq.category === "Usage")
+                                        .map((faq, index) => (
+                                            <AccordionItem key={index} value={`usage-${index}`}>
+                                                <AccordionTrigger className="text-left">
+                                                    {faq.question}
+                                                </AccordionTrigger>
+                                                <AccordionContent className="text-gray-600">
+                                                    {faq.answer}
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        ))}
+                                </Accordion>
+                            </div>
+                        </div>
+                    </CardContent>
+                    <CardFooter className="border-t flex justify-center pt-6">
+                        <p className="text-sm text-gray-500">
+                            Can't find what you're looking for?{" "}
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="link" className="p-0 h-auto">
+                                        Contact our support team
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[600px]">
+                                    <DialogHeader>
+                                        <DialogTitle>Contact Support</DialogTitle>
+                                        <DialogDescription>
+                                            Fill out the form below and we'll get back to you as soon as possible.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="grid gap-4 py-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid gap-2">
+                                                <label htmlFor="name" className="text-sm font-medium">
+                                                    Name
+                                                </label>
+                                                <Input id="name" />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <label htmlFor="email" className="text-sm font-medium">
+                                                    Email
+                                                </label>
+                                                <Input id="email" type="email" />
+                                            </div>
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <label htmlFor="subject" className="text-sm font-medium">
+                                                Subject
+                                            </label>
+                                            <Input id="subject" />
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <label htmlFor="message" className="text-sm font-medium">
+                                                Message
+                                            </label>
+                                            <Textarea
+                                                id="message"
+                                                rows={5}
+                                                placeholder="Please describe your issue in detail"
+                                            />
+                                        </div>
+                                    </div>
+                                    <DialogFooter>
+                                        <Button type="submit">Send Message</Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        </p>
+                    </CardFooter>
+                </Card>
             </div>
         </div>
     );

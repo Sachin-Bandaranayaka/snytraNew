@@ -27,8 +27,6 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import DashboardNavbar from "@/components/dashboard/navbar";
-import DashboardSidebar from "@/components/dashboard/sidebar";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -161,206 +159,189 @@ export default function InvoicesPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gray-50">
-                <DashboardNavbar />
-                <div className="flex">
-                    <DashboardSidebar />
-                    <main className="flex-1 p-6">
-                        <div className="flex justify-center items-center h-96">
-                            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-gray-900"></div>
-                        </div>
-                    </main>
-                </div>
+            <div className="flex justify-center items-center h-96">
+                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-gray-900"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <DashboardNavbar />
+        <div>
+            {/* Page header */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                <div className="mb-4 md:mb-0">
+                    <h1 className="text-2xl font-bold">Invoices</h1>
+                    <p className="text-gray-500">View and download your invoice history</p>
+                </div>
+                <div className="flex space-x-3">
+                    <Button variant="outline"
+                        onClick={() => window.open(filteredInvoices[0]?.invoice_pdf, '_blank')}
+                        disabled={!filteredInvoices.length || !filteredInvoices[0]?.invoice_pdf}
+                    >
+                        Export Latest
+                    </Button>
+                </div>
+            </div>
 
-            <div className="flex">
-                <DashboardSidebar />
-
-                {/* Main Content */}
-                <main className="flex-1 p-6">
-                    {/* Page header */}
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-                        <div className="mb-4 md:mb-0">
-                            <h1 className="text-2xl font-bold">Invoices</h1>
-                            <p className="text-gray-500">View and download your invoice history</p>
+            {/* Filters */}
+            <Card className="mb-8">
+                <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label className="text-sm font-medium mb-1 block text-gray-700">
+                                Search
+                            </label>
+                            <Input
+                                placeholder="Search invoices..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
                         </div>
-                        <div className="flex space-x-3">
-                            <Button variant="outline"
-                                onClick={() => window.open(filteredInvoices[0]?.invoice_pdf, '_blank')}
-                                disabled={!filteredInvoices.length || !filteredInvoices[0]?.invoice_pdf}
-                            >
-                                Export Latest
-                            </Button>
+                        <div>
+                            <label className="text-sm font-medium mb-1 block text-gray-700">
+                                Status
+                            </label>
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All</SelectItem>
+                                    <SelectItem value="paid">Paid</SelectItem>
+                                    <SelectItem value="open">Pending</SelectItem>
+                                    <SelectItem value="void">Voided</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium mb-1 block text-gray-700">
+                                Date Range
+                            </label>
+                            <Select value={dateRangeFilter} onValueChange={setDateRangeFilter}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select date range" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All time</SelectItem>
+                                    <SelectItem value="30days">Last 30 days</SelectItem>
+                                    <SelectItem value="6months">Last 6 months</SelectItem>
+                                    <SelectItem value="year">Last year</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="flex items-end">
+                            <Button className="w-full" onClick={handleApplyFilters}>Apply Filters</Button>
                         </div>
                     </div>
+                </CardContent>
+            </Card>
 
-                    {/* Filters */}
-                    <Card className="mb-8">
-                        <CardContent className="pt-6">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div>
-                                    <label className="text-sm font-medium mb-1 block text-gray-700">
-                                        Search
-                                    </label>
-                                    <Input
-                                        placeholder="Search invoices..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium mb-1 block text-gray-700">
-                                        Status
-                                    </label>
-                                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All</SelectItem>
-                                            <SelectItem value="paid">Paid</SelectItem>
-                                            <SelectItem value="open">Pending</SelectItem>
-                                            <SelectItem value="void">Voided</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium mb-1 block text-gray-700">
-                                        Date Range
-                                    </label>
-                                    <Select value={dateRangeFilter} onValueChange={setDateRangeFilter}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select date range" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All time</SelectItem>
-                                            <SelectItem value="30days">Last 30 days</SelectItem>
-                                            <SelectItem value="6months">Last 6 months</SelectItem>
-                                            <SelectItem value="year">Last year</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="flex items-end">
-                                    <Button className="w-full" onClick={handleApplyFilters}>Apply Filters</Button>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Invoices table */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Invoice History</CardTitle>
-                            <CardDescription>
-                                Showing {filteredInvoices.length} invoices
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {filteredInvoices.length > 0 ? (
-                                <div className="overflow-x-auto">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Invoice ID</TableHead>
-                                                <TableHead>Date</TableHead>
-                                                <TableHead>Amount</TableHead>
-                                                <TableHead>Status</TableHead>
-                                                <TableHead className="text-right">Actions</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {filteredInvoices.map((invoice) => (
-                                                <TableRow key={invoice.id}>
-                                                    <TableCell className="font-medium">
-                                                        {invoice.number}
-                                                    </TableCell>
-                                                    <TableCell>{formatDate(invoice.created)}</TableCell>
-                                                    <TableCell>{formatAmount(invoice.amount_paid)}</TableCell>
-                                                    <TableCell>
-                                                        <span
-                                                            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClassName(invoice.status)}`}
+            {/* Invoices table */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Invoice History</CardTitle>
+                    <CardDescription>
+                        Showing {filteredInvoices.length} invoices
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {filteredInvoices.length > 0 ? (
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Invoice ID</TableHead>
+                                        <TableHead>Date</TableHead>
+                                        <TableHead>Amount</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredInvoices.map((invoice) => (
+                                        <TableRow key={invoice.id}>
+                                            <TableCell className="font-medium">
+                                                {invoice.number}
+                                            </TableCell>
+                                            <TableCell>{formatDate(invoice.created)}</TableCell>
+                                            <TableCell>{formatAmount(invoice.amount_paid)}</TableCell>
+                                            <TableCell>
+                                                <span
+                                                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClassName(invoice.status)}`}
+                                                >
+                                                    {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="flex justify-end space-x-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 px-2 text-xs"
+                                                        onClick={() => window.open(invoice.hosted_invoice_url, '_blank')}
+                                                        disabled={!invoice.hosted_invoice_url}
+                                                    >
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            width="16"
+                                                            height="16"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="2"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            className="mr-1"
                                                         >
-                                                            {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
-                                                        </span>
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        <div className="flex justify-end space-x-2">
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                className="h-8 px-2 text-xs"
-                                                                onClick={() => window.open(invoice.hosted_invoice_url, '_blank')}
-                                                                disabled={!invoice.hosted_invoice_url}
+                                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                                            <polyline points="15 3 21 3 21 9"></polyline>
+                                                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                                                        </svg>
+                                                        View
+                                                    </Button>
+                                                    {invoice.invoice_pdf && (
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="h-8 px-2 text-xs"
+                                                            onClick={() => window.open(invoice.invoice_pdf, '_blank')}
+                                                        >
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                width="16"
+                                                                height="16"
+                                                                viewBox="0 0 24 24"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                strokeWidth="2"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                className="mr-1"
                                                             >
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    width="16"
-                                                                    height="16"
-                                                                    viewBox="0 0 24 24"
-                                                                    fill="none"
-                                                                    stroke="currentColor"
-                                                                    strokeWidth="2"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    className="mr-1"
-                                                                >
-                                                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                                                                    <polyline points="15 3 21 3 21 9"></polyline>
-                                                                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                                                                </svg>
-                                                                View
-                                                            </Button>
-                                                            {invoice.invoice_pdf && (
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    className="h-8 px-2 text-xs"
-                                                                    onClick={() => window.open(invoice.invoice_pdf, '_blank')}
-                                                                >
-                                                                    <svg
-                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                        width="16"
-                                                                        height="16"
-                                                                        viewBox="0 0 24 24"
-                                                                        fill="none"
-                                                                        stroke="currentColor"
-                                                                        strokeWidth="2"
-                                                                        strokeLinecap="round"
-                                                                        strokeLinejoin="round"
-                                                                        className="mr-1"
-                                                                    >
-                                                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                                                        <polyline points="7 10 12 15 17 10"></polyline>
-                                                                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                                                                    </svg>
-                                                                    PDF
-                                                                </Button>
-                                                            )}
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            ) : (
-                                <div className="text-center py-8">
-                                    <p className="text-gray-500">No invoices found</p>
-                                    {!invoices.length && (
-                                        <p className="text-gray-500 mt-2">Start your subscription to see invoices here</p>
-                                    )}
-                                </div>
+                                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                                                <polyline points="7 10 12 15 17 10"></polyline>
+                                                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                                                            </svg>
+                                                            PDF
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    ) : (
+                        <div className="text-center py-8">
+                            <p className="text-gray-500">No invoices found</p>
+                            {!invoices.length && (
+                                <p className="text-gray-500 mt-2">Start your subscription to see invoices here</p>
                             )}
-                        </CardContent>
-                    </Card>
-                </main>
-            </div>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
         </div>
     );
 } 

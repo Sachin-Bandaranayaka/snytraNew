@@ -6,17 +6,111 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const dashboardImages = [
-    { src: "/admin1.png", alt: "Admin Dashboard View 1", caption: "Order Management & Analytics", description: "Track orders in real-time, manage deliveries, and get insights into your restaurant's performance with powerful analytics dashboards." },
-    { src: "/admin2.png", alt: "Admin Dashboard View 2", caption: "Menu Performance Tracking", description: "Identify your top-selling items, analyze profit margins, and optimize your menu based on data-driven insights." },
-    { src: "/admin3.png", alt: "Admin Dashboard View 3", caption: "Customer Waiting List", description: "Efficiently manage table assignments, track waiting times, and ensure a smooth dining experience for your customers." },
-];
+interface CarouselImage {
+    id: number;
+    title: string;
+    description: string | null;
+    imageSrc: string;
+    altText: string | null;
+    carouselType: string;
+    order: number;
+    isActive: boolean;
+}
 
 export default function AdminDashboardCarousel() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
     const [autoplay, setAutoplay] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
+    const [dashboardImages, setDashboardImages] = useState<CarouselImage[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Fetch carousel images
+    useEffect(() => {
+        const fetchImages = async () => {
+            try {
+                const response = await fetch('/api/admin/carousel-images?type=admin-dashboard');
+                const data = await response.json();
+
+                if (data.success && data.images && data.images.length > 0) {
+                    setDashboardImages(data.images);
+                } else {
+                    // Fallback to default images if no data in DB
+                    setDashboardImages([
+                        {
+                            id: 1,
+                            title: "Order Management & Analytics",
+                            description: "Track orders in real-time, manage deliveries, and get insights into your restaurant's performance with powerful analytics dashboards.",
+                            imageSrc: "/admin1.png",
+                            altText: "Admin Dashboard View 1",
+                            carouselType: "admin-dashboard",
+                            order: 0,
+                            isActive: true
+                        },
+                        {
+                            id: 2,
+                            title: "Menu Performance Tracking",
+                            description: "Identify your top-selling items, analyze profit margins, and optimize your menu based on data-driven insights.",
+                            imageSrc: "/admin2.png",
+                            altText: "Admin Dashboard View 2",
+                            carouselType: "admin-dashboard",
+                            order: 1,
+                            isActive: true
+                        },
+                        {
+                            id: 3,
+                            title: "Customer Waiting List",
+                            description: "Efficiently manage table assignments, track waiting times, and ensure a smooth dining experience for your customers.",
+                            imageSrc: "/admin3.png",
+                            altText: "Admin Dashboard View 3",
+                            carouselType: "admin-dashboard",
+                            order: 2,
+                            isActive: true
+                        }
+                    ]);
+                }
+            } catch (error) {
+                console.error("Error fetching carousel images:", error);
+                // Use fallback images on error
+                setDashboardImages([
+                    {
+                        id: 1,
+                        title: "Order Management & Analytics",
+                        description: "Track orders in real-time, manage deliveries, and get insights into your restaurant's performance with powerful analytics dashboards.",
+                        imageSrc: "/admin1.png",
+                        altText: "Admin Dashboard View 1",
+                        carouselType: "admin-dashboard",
+                        order: 0,
+                        isActive: true
+                    },
+                    {
+                        id: 2,
+                        title: "Menu Performance Tracking",
+                        description: "Identify your top-selling items, analyze profit margins, and optimize your menu based on data-driven insights.",
+                        imageSrc: "/admin2.png",
+                        altText: "Admin Dashboard View 2",
+                        carouselType: "admin-dashboard",
+                        order: 1,
+                        isActive: true
+                    },
+                    {
+                        id: 3,
+                        title: "Customer Waiting List",
+                        description: "Efficiently manage table assignments, track waiting times, and ensure a smooth dining experience for your customers.",
+                        imageSrc: "/admin3.png",
+                        altText: "Admin Dashboard View 3",
+                        carouselType: "admin-dashboard",
+                        order: 2,
+                        isActive: true
+                    }
+                ]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchImages();
+    }, []);
 
     // Check if we're on mobile
     useEffect(() => {
@@ -36,7 +130,7 @@ export default function AdminDashboardCarousel() {
 
     // Auto-cycle through images
     useEffect(() => {
-        if (!autoplay) return;
+        if (!autoplay || dashboardImages.length <= 1) return;
 
         const interval = setInterval(() => {
             if (!isAnimating) {
@@ -45,7 +139,7 @@ export default function AdminDashboardCarousel() {
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [currentIndex, isAnimating, autoplay]);
+    }, [currentIndex, isAnimating, autoplay, dashboardImages.length]);
 
     // Handle animation
     useEffect(() => {
@@ -58,11 +152,13 @@ export default function AdminDashboardCarousel() {
     }, [isAnimating]);
 
     const goToNext = () => {
+        if (dashboardImages.length <= 1) return;
         setIsAnimating(true);
         setCurrentIndex((prevIndex) => (prevIndex + 1) % dashboardImages.length);
     };
 
     const goToPrev = () => {
+        if (dashboardImages.length <= 1) return;
         setIsAnimating(true);
         setCurrentIndex((prevIndex) =>
             prevIndex === 0 ? dashboardImages.length - 1 : prevIndex - 1
@@ -70,7 +166,7 @@ export default function AdminDashboardCarousel() {
     };
 
     const goToSlide = (index: number) => {
-        if (index === currentIndex) return;
+        if (index === currentIndex || dashboardImages.length <= 1) return;
         setIsAnimating(true);
         setCurrentIndex(index);
     };
@@ -107,6 +203,38 @@ export default function AdminDashboardCarousel() {
             goToPrev();
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="space-y-4">
+                <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-white shadow-md animate-pulse">
+                    <div className={cn(
+                        "relative overflow-hidden w-full bg-gray-200",
+                        isMobile ? "aspect-[4/3]" : "aspect-[16/9]"
+                    )}></div>
+                </div>
+                <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                    <div className="h-4 bg-gray-200 rounded w-1/4 mb-3"></div>
+                    <div className="h-3 bg-gray-200 rounded w-full"></div>
+                </div>
+            </div>
+        );
+    }
+
+    if (dashboardImages.length === 0) {
+        return (
+            <div className="space-y-4">
+                <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-white shadow-md">
+                    <div className={cn(
+                        "relative overflow-hidden w-full bg-gray-100 flex items-center justify-center",
+                        isMobile ? "aspect-[4/3]" : "aspect-[16/9]"
+                    )}>
+                        <p className="text-gray-500">No images available</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-4">
@@ -175,13 +303,13 @@ export default function AdminDashboardCarousel() {
                                     "font-medium text-white",
                                     isMobile ? "text-xs" : "text-sm md:text-base"
                                 )}>
-                                    {image.caption}
+                                    {image.title}
                                 </span>
                             </div>
 
                             <Image
-                                src={image.src}
-                                alt={image.alt}
+                                src={image.imageSrc}
+                                alt={image.altText || image.title}
                                 fill
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
                                 className="object-contain"
@@ -215,7 +343,7 @@ export default function AdminDashboardCarousel() {
             <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm transition-all duration-300">
                 <div className="flex items-center mb-2">
                     <div className="w-2 h-2 rounded-full bg-[#e85c2c] mr-2"></div>
-                    <h3 className="font-medium text-[#e85c2c]">{dashboardImages[currentIndex].caption}</h3>
+                    <h3 className="font-medium text-[#e85c2c]">{dashboardImages[currentIndex].title}</h3>
                 </div>
                 <p className={cn(
                     "text-gray-600",

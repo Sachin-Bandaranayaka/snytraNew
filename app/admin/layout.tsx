@@ -90,6 +90,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                             </Link>
                         </li>
                         <li>
+                            <Link href="/admin/carousel" className="block p-2 rounded hover:bg-gray-100">
+                                Carousel Images
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/admin/testimonials" className="block p-2 rounded hover:bg-gray-100">
+                                Testimonials
+                            </Link>
+                        </li>
+                        <li>
                             <Link href="/admin/settings" className="block p-2 rounded hover:bg-gray-100">
                                 Site Settings
                             </Link>

@@ -8,25 +8,116 @@ import { cn } from "@/lib/utils";
 
 // Testimonial data structure
 interface Testimonial {
+    id: number;
     name: string;
     role: string;
     quote: string;
-    imageSrc?: string;
+    imageSrc: string | null;
+    order: number;
+    isActive: boolean;
 }
 
 interface AutoRotatingTestimonialsProps {
-    testimonials: Testimonial[];
+    testimonials?: Testimonial[];
     rotationInterval?: number; // in milliseconds, default will be 5000 (5 seconds)
 }
 
 export default function AutoRotatingTestimonials({
-    testimonials,
+    testimonials: initialTestimonials,
     rotationInterval = 5000,
 }: AutoRotatingTestimonialsProps) {
+    const [testimonials, setTestimonials] = useState<Testimonial[]>(initialTestimonials || []);
+    const [isLoading, setIsLoading] = useState(!initialTestimonials);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+
+    // Fetch testimonials from API if not provided via props
+    useEffect(() => {
+        const fetchTestimonials = async () => {
+            if (initialTestimonials) {
+                return; // Skip fetch if we have testimonials from props
+            }
+
+            try {
+                setIsLoading(true);
+                const response = await fetch('/api/admin/testimonials');
+                const data = await response.json();
+
+                if (data.success && data.testimonials && data.testimonials.length > 0) {
+                    setTestimonials(data.testimonials);
+                } else {
+                    // Fallback data if API returns empty or fails
+                    setTestimonials([
+                        {
+                            id: 1,
+                            name: "Michael Johnson",
+                            role: "Restaurant Owner",
+                            quote: "This platform has transformed the way we manage reservations. Our bookings have increased by 30% and the interface is intuitive for both staff and customers.",
+                            imageSrc: null,
+                            order: 0,
+                            isActive: true
+                        },
+                        {
+                            id: 2,
+                            name: "Sarah Chen",
+                            role: "Cafe Manager",
+                            quote: "The order management system has streamlined our operations completely. What used to take hours now takes minutes, and we've seen customer satisfaction improve dramatically.",
+                            imageSrc: null,
+                            order: 1,
+                            isActive: true
+                        },
+                        {
+                            id: 3,
+                            name: "David Rodriguez",
+                            role: "Restaurant Chain Director",
+                            quote: "Managing multiple locations has never been easier. The analytics provide valuable insights that have helped us optimize staffing and inventory across all our restaurants.",
+                            imageSrc: null,
+                            order: 2,
+                            isActive: true
+                        }
+                    ]);
+                }
+            } catch (error) {
+                console.error("Error fetching testimonials:", error);
+                // Set fallback data on error
+                setTestimonials([
+                    {
+                        id: 1,
+                        name: "Michael Johnson",
+                        role: "Restaurant Owner",
+                        quote: "This platform has transformed the way we manage reservations. Our bookings have increased by 30% and the interface is intuitive for both staff and customers.",
+                        imageSrc: null,
+                        order: 0,
+                        isActive: true
+                    },
+                    {
+                        id: 2,
+                        name: "Sarah Chen",
+                        role: "Cafe Manager",
+                        quote: "The order management system has streamlined our operations completely. What used to take hours now takes minutes, and we've seen customer satisfaction improve dramatically.",
+                        imageSrc: null,
+                        order: 1,
+                        isActive: true
+                    },
+                    {
+                        id: 3,
+                        name: "David Rodriguez",
+                        role: "Restaurant Chain Director",
+                        quote: "Managing multiple locations has never been easier. The analytics provide valuable insights that have helped us optimize staffing and inventory across all our restaurants.",
+                        imageSrc: null,
+                        order: 2,
+                        isActive: true
+                    }
+                ]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchTestimonials();
+    }, [initialTestimonials]);
 
     // Check if we're on mobile
     useEffect(() => {
@@ -119,6 +210,28 @@ export default function AutoRotatingTestimonials({
             goToPrev();
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="relative overflow-hidden py-6">
+                <Card className="shadow-sm border-0">
+                    <CardContent className="p-6">
+                        <div className="flex flex-col h-full animate-pulse">
+                            <div className="w-12 h-6 bg-gray-200 rounded mb-4"></div>
+                            <div className="w-full h-24 bg-gray-200 rounded mb-4"></div>
+                            <div className="flex items-center">
+                                <div className="w-10 h-10 bg-gray-200 rounded-full mr-3"></div>
+                                <div>
+                                    <div className="w-32 h-5 bg-gray-200 rounded mb-1"></div>
+                                    <div className="w-24 h-4 bg-gray-200 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
 
     if (testimonials.length === 0) {
         return null;

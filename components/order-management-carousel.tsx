@@ -6,32 +6,111 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
-const dashboardImages = [
-    {
-        src: "/admin1.png",
-        alt: "Admin Dashboard View 1",
-        title: "Order Metrics",
-        description: "Track orders in real-time with comprehensive metrics dashboard"
-    },
-    {
-        src: "/admin2.png",
-        alt: "Admin Dashboard View 2",
-        title: "Menu Management",
-        description: "Analyze your top-performing menu items and optimize your offerings"
-    },
-    {
-        src: "/admin3.png",
-        alt: "Admin Dashboard View 3",
-        title: "Customer Management",
-        description: "Efficiently manage your waiting list and ensure a smooth customer experience"
-    },
-];
+interface CarouselImage {
+    id: number;
+    title: string;
+    description: string | null;
+    imageSrc: string;
+    altText: string | null;
+    carouselType: string;
+    order: number;
+    isActive: boolean;
+}
 
 export default function OrderManagementCarousel() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
     const [autoplay, setAutoplay] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
+    const [dashboardImages, setDashboardImages] = useState<CarouselImage[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Fetch carousel images
+    useEffect(() => {
+        const fetchImages = async () => {
+            try {
+                const response = await fetch('/api/admin/carousel-images?type=order-management');
+                const data = await response.json();
+
+                if (data.success && data.images && data.images.length > 0) {
+                    setDashboardImages(data.images);
+                } else {
+                    // Fallback to default images if no data in DB
+                    setDashboardImages([
+                        {
+                            id: 1,
+                            title: "Order Metrics",
+                            description: "Track orders in real-time with comprehensive metrics dashboard",
+                            imageSrc: "/admin1.png",
+                            altText: "Admin Dashboard View 1",
+                            carouselType: "order-management",
+                            order: 0,
+                            isActive: true
+                        },
+                        {
+                            id: 2,
+                            title: "Menu Management",
+                            description: "Analyze your top-performing menu items and optimize your offerings",
+                            imageSrc: "/admin2.png",
+                            altText: "Admin Dashboard View 2",
+                            carouselType: "order-management",
+                            order: 1,
+                            isActive: true
+                        },
+                        {
+                            id: 3,
+                            title: "Customer Management",
+                            description: "Efficiently manage your waiting list and ensure a smooth customer experience",
+                            imageSrc: "/admin3.png",
+                            altText: "Admin Dashboard View 3",
+                            carouselType: "order-management",
+                            order: 2,
+                            isActive: true
+                        }
+                    ]);
+                }
+            } catch (error) {
+                console.error("Error fetching carousel images:", error);
+                // Use fallback images on error
+                setDashboardImages([
+                    {
+                        id: 1,
+                        title: "Order Metrics",
+                        description: "Track orders in real-time with comprehensive metrics dashboard",
+                        imageSrc: "/admin1.png",
+                        altText: "Admin Dashboard View 1",
+                        carouselType: "order-management",
+                        order: 0,
+                        isActive: true
+                    },
+                    {
+                        id: 2,
+                        title: "Menu Management",
+                        description: "Analyze your top-performing menu items and optimize your offerings",
+                        imageSrc: "/admin2.png",
+                        altText: "Admin Dashboard View 2",
+                        carouselType: "order-management",
+                        order: 1,
+                        isActive: true
+                    },
+                    {
+                        id: 3,
+                        title: "Customer Management",
+                        description: "Efficiently manage your waiting list and ensure a smooth customer experience",
+                        imageSrc: "/admin3.png",
+                        altText: "Admin Dashboard View 3",
+                        carouselType: "order-management",
+                        order: 2,
+                        isActive: true
+                    }
+                ]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchImages();
+    }, []);
 
     // Check if we're on mobile
     useEffect(() => {
@@ -51,7 +130,7 @@ export default function OrderManagementCarousel() {
 
     // Auto-cycle through slides
     useEffect(() => {
-        if (!autoplay) return;
+        if (!autoplay || dashboardImages.length <= 1) return;
 
         const interval = setInterval(() => {
             if (!isAnimating) {
@@ -60,7 +139,7 @@ export default function OrderManagementCarousel() {
         }, 7000); // Longer interval for this section
 
         return () => clearInterval(interval);
-    }, [currentIndex, isAnimating, autoplay]);
+    }, [currentIndex, isAnimating, autoplay, dashboardImages.length]);
 
     // Handle animation
     useEffect(() => {
@@ -73,11 +152,13 @@ export default function OrderManagementCarousel() {
     }, [isAnimating]);
 
     const goToNext = () => {
+        if (dashboardImages.length <= 1) return;
         setIsAnimating(true);
         setCurrentIndex((prevIndex) => (prevIndex + 1) % dashboardImages.length);
     };
 
     const goToPrev = () => {
+        if (dashboardImages.length <= 1) return;
         setIsAnimating(true);
         setCurrentIndex((prevIndex) =>
             prevIndex === 0 ? dashboardImages.length - 1 : prevIndex - 1
@@ -85,7 +166,7 @@ export default function OrderManagementCarousel() {
     };
 
     const goToSlide = (index: number) => {
-        if (index === currentIndex) return;
+        if (index === currentIndex || dashboardImages.length <= 1) return;
         setIsAnimating(true);
         setCurrentIndex(index);
     };
@@ -121,6 +202,39 @@ export default function OrderManagementCarousel() {
             goToPrev();
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="border border-gray-200 rounded-xl p-4 bg-white">
+                <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-[#e85c2c] mr-2"></div>
+                        <span className="font-medium text-[#e85c2c]">Order Management</span>
+                    </div>
+                </div>
+                <div className="aspect-[16/9] md:aspect-[16/7] bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="mt-3 px-1">
+                    <div className="h-4 bg-gray-200 rounded w-full"></div>
+                </div>
+            </div>
+        );
+    }
+
+    if (dashboardImages.length === 0) {
+        return (
+            <div className="border border-gray-200 rounded-xl p-4 bg-white">
+                <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-[#e85c2c] mr-2"></div>
+                        <span className="font-medium text-[#e85c2c]">Order Management</span>
+                    </div>
+                </div>
+                <div className="aspect-[16/9] md:aspect-[16/7] bg-gray-100 rounded-lg flex items-center justify-center">
+                    <p className="text-gray-500">No images available</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="border border-gray-200 rounded-xl p-4 bg-white">
@@ -180,8 +294,8 @@ export default function OrderManagementCarousel() {
                             </div>
 
                             <Image
-                                src={image.src}
-                                alt={image.alt}
+                                src={image.imageSrc}
+                                alt={image.altText || image.title}
                                 fill
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
                                 className="object-contain"

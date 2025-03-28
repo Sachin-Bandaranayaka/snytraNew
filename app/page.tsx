@@ -6,33 +6,73 @@ import Footer from "@/components/footer"
 import AdminDashboardCarousel from "@/components/admin-dashboard-carousel"
 import AutoRotatingTestimonials from "@/components/auto-rotating-testimonials"
 
-export default function Home() {
-  // Testimonials data
-  const testimonials = [
+async function getTestimonials() {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/admin/testimonials`, {
+      cache: 'no-cache'
+    });
+    const data = await response.json();
+
+    if (data.success && data.testimonials && data.testimonials.length > 0) {
+      return data.testimonials;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching testimonials:", error);
+    return null;
+  }
+}
+
+export default async function Home() {
+  // Fetch testimonials from API
+  const testimonials = await getTestimonials();
+
+  // Fallback testimonials data if API fails
+  const fallbackTestimonials = [
     {
+      id: 1,
       name: "John Smith",
       role: "Owner, The Gourmet Kitchen",
       quote: "This platform has completely transformed how we manage our business. From inventory to customer orders, everything is streamlined.",
+      imageSrc: null,
+      order: 0,
+      isActive: true
     },
     {
+      id: 2,
       name: "Lisa Johnson",
       role: "Manager, Seaside Bistro",
       quote: "The analytics dashboard gives us incredible insights into our business. We've been able to optimize our menu and increase profits significantly.",
+      imageSrc: null,
+      order: 1,
+      isActive: true
     },
     {
+      id: 3,
       name: "Michael Chen",
       role: "Chef & Owner, Fusion Flavors",
       quote: "Customer engagement has never been easier. The feedback system has helped us improve our offerings and create a loyal customer base.",
+      imageSrc: null,
+      order: 2,
+      isActive: true
     },
     {
+      id: 4,
       name: "Amanda Rodriguez",
       role: "Owner, Taste of Mexico",
       quote: "The ordering system integration was seamless. Our customers love the easy online ordering, and our staff appreciate the organized workflow.",
+      imageSrc: null,
+      order: 3,
+      isActive: true
     },
     {
+      id: 5,
       name: "Robert Kim",
       role: "General Manager, Seoul BBQ House",
       quote: "Support has been fantastic. Whenever we've had questions, the team responds quickly and effectively. They truly care about our success.",
+      imageSrc: null,
+      order: 4,
+      isActive: true
     },
   ];
 
@@ -205,7 +245,7 @@ export default function Home() {
         <p className="text-center mb-8 md:mb-12">Hear from business owners like you</p>
 
         <div className="max-w-3xl mx-auto">
-          <AutoRotatingTestimonials testimonials={testimonials} rotationInterval={6000} />
+          <AutoRotatingTestimonials testimonials={testimonials || fallbackTestimonials} rotationInterval={6000} />
         </div>
       </section>
 

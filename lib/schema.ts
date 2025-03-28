@@ -200,4 +200,35 @@ export const systemSettings = pgTable('system_settings', {
     updatedBy: integer('updated_by').references(() => users.id),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Carousel Images table
+export const carouselImages = pgTable('carousel_images', {
+    id: serial('id').primaryKey(),
+    title: text('title').notNull(),
+    description: text('description'),
+    imageSrc: text('image_src').notNull(),
+    altText: text('alt_text'),
+    carouselType: text('carousel_type').notNull(), // admin-dashboard, order-management, etc.
+    order: integer('order').default(0),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+    createdBy: integer('created_by').references(() => users.id),
+    updatedBy: integer('updated_by').references(() => users.id),
+});
+
+// Testimonials table
+export const testimonials = pgTable('testimonials', {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    role: text('role').notNull(),
+    quote: text('quote').notNull(),
+    imageSrc: text('image_src'),
+    order: integer('order').default(0),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+    createdBy: integer('created_by').references(() => users.id),
+    updatedBy: integer('updated_by').references(() => users.id),
 }); 

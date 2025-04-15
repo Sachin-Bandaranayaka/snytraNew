@@ -40,12 +40,31 @@ export default function SubscriptionPage() {
 
             try {
                 setError(null);
+                console.log("Fetching subscription data for user:", user.id);
                 const response = await fetch(`/api/user/subscription?userId=${user.id}`);
+
                 if (!response.ok) {
+                    console.error("API response not OK:", response.status, response.statusText);
+
+                    // For development only: create mock data if API fails
+                    if (process.env.NODE_ENV === 'development') {
+                        console.log("Using mock subscription data for development");
+                        const mockData = {
+                            hasSubscription: false,
+                            subscription: null,
+                            stripeSubscription: null
+                        };
+                        setSubscriptionData(mockData);
+                        setHasSubscription(false);
+                        setIsLoading(false);
+                        return;
+                    }
+
                     throw new Error("Failed to fetch subscription data");
                 }
 
                 const data = await response.json();
+                console.log("Subscription data received:", data);
                 setSubscriptionData(data);
                 setHasSubscription(data.hasSubscription);
             } catch (error) {
@@ -76,7 +95,17 @@ export default function SubscriptionPage() {
             startDate: new Date(subscriptionData.subscription.subscription.startDate).toLocaleDateString(),
             features: subscriptionData.subscription.package.features
                 ? typeof subscriptionData.subscription.package.features === 'string'
-                    ? JSON.parse(subscriptionData.subscription.package.features)
+                    ? (() => {
+                        try {
+                            return JSON.parse(subscriptionData.subscription.package.features);
+                        } catch (error) {
+                            console.error("Error parsing features JSON:", error);
+                            // If it's not valid JSON, treat it as a single feature or return empty array
+                            return subscriptionData.subscription.package.features.trim()
+                                ? [subscriptionData.subscription.package.features]
+                                : [];
+                        }
+                    })()
                     : subscriptionData.subscription.package.features
                 : []
         }
@@ -163,17 +192,41 @@ export default function SubscriptionPage() {
 
             try {
                 setError(null);
+                console.log("Retrying subscription data fetch for user:", user.id);
                 const response = await fetch(`/api/user/subscription?userId=${user.id}`);
+
                 if (!response.ok) {
+                    console.error("API response not OK on retry:", response.status, response.statusText);
+
+                    // For development only: create mock data if API fails
+                    if (process.env.NODE_ENV === 'development') {
+                        console.log("Using mock subscription data for development (retry)");
+                        const mockData = {
+                            hasSubscription: false,
+                            subscription: null,
+                            stripeSubscription: null
+                        };
+                        setSubscriptionData(mockData);
+                        setHasSubscription(false);
+                        setIsLoading(false);
+                        return;
+                    }
+
                     throw new Error("Failed to fetch subscription data");
                 }
 
                 const data = await response.json();
+                console.log("Subscription data received on retry:", data);
                 setSubscriptionData(data);
                 setHasSubscription(data.hasSubscription);
             } catch (error) {
-                console.error("Error fetching subscription:", error);
+                console.error("Error fetching subscription on retry:", error);
                 setError("Failed to load subscription details. Please try again later.");
+                toast({
+                    title: "Error",
+                    description: "There was an error loading your subscription details.",
+                    variant: "destructive",
+                });
             } finally {
                 setIsLoading(false);
             }
@@ -270,8 +323,11 @@ export default function SubscriptionPage() {
                                     <div>
                                         <h3 className="text-sm font-medium text-gray-500 mb-3">Included Features</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            {subscription.features && Array.isArray(subscription.features) &&
-                                                subscription.features.map((feature: string, index: number) => (
+                                            {subscription.features &&
+                                                (Array.isArray(subscription.features)
+                                                    ? subscription.features
+                                                    : [subscription.features]
+                                                ).map((feature: string, index: number) => (
                                                     <div key={index} className="flex items-center">
                                                         <svg
                                                             className="h-5 w-5 text-green-500 mr-2"
@@ -285,7 +341,7 @@ export default function SubscriptionPage() {
                                                                 clipRule="evenodd"
                                                             />
                                                         </svg>
-                                                        <span>{feature}</span>
+                                                        <span>{typeof feature === 'string' ? feature : 'Feature'}</span>
                                                     </div>
                                                 ))}
                                         </div>

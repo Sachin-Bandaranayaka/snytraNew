@@ -12,7 +12,7 @@ try {
         console.error('Missing STRIPE_SECRET_KEY environment variable');
     } else {
         stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-            apiVersion: '2025-02-24.acacia',
+            apiVersion: '2023-10-16', // Use a stable version
         });
     }
 } catch (error) {
@@ -43,7 +43,9 @@ export async function GET(request: NextRequest) {
             ))
             .limit(1);
 
+        // Return no subscription if none found
         if (!subscription || subscription.length === 0) {
+            console.log(`No active subscription found for user ${userId}`);
             return NextResponse.json({
                 hasSubscription: false,
                 subscription: null,
@@ -51,12 +53,20 @@ export async function GET(request: NextRequest) {
             });
         }
 
+        console.log(`Found subscription for user ${userId}:`, JSON.stringify(subscription[0], null, 2));
+
         // If there's a Stripe subscription ID, fetch details from Stripe
         let stripeSubscription = null;
         if (subscription[0].subscription.stripeSubscriptionId && stripe) {
-            stripeSubscription = await stripe.subscriptions.retrieve(
-                subscription[0].subscription.stripeSubscriptionId
-            );
+            try {
+                stripeSubscription = await stripe.subscriptions.retrieve(
+                    subscription[0].subscription.stripeSubscriptionId
+                );
+                console.log(`Retrieved Stripe subscription: ${subscription[0].subscription.stripeSubscriptionId}`);
+            } catch (stripeError) {
+                console.error(`Error retrieving Stripe subscription: ${stripeError}`);
+                // Don't fail the request if Stripe data can't be retrieved
+            }
         }
 
         return NextResponse.json({

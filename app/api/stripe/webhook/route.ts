@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { db } from '@/lib/db';
-import { userSubscriptions, pricingPackages, users } from '@/lib/schema';
+import { userSubscriptions, pricingPackages, users, moduleAccess } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
 
 // Initialize Stripe with your secret key from environment variable
@@ -12,7 +12,7 @@ try {
         console.error('Missing STRIPE_SECRET_KEY environment variable');
     } else {
         stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-            apiVersion: '2025-02-24.acacia',
+            apiVersion: '2023-10-16', // Use stable API version
         });
     }
 } catch (error) {
@@ -116,6 +116,10 @@ export async function POST(request: NextRequest) {
                         }
                     });
                     console.log(`Subscription created/updated successfully for user ${userId}`);
+
+                    // Also enable module access for the user
+                    await enableModuleAccess(Number(userId));
+
                 } catch (dbError) {
                     console.error('Database error while processing subscription:', dbError);
                     return NextResponse.json({ error: 'Database error while processing subscription' }, { status: 500 });
@@ -159,6 +163,11 @@ export async function POST(request: NextRequest) {
                         .where(eq(userSubscriptions.id, existingSub.id));
 
                     console.log(`Subscription ${existingSub.id} updated with status: ${status}`);
+
+                    // If active, ensure module access is enabled
+                    if (status === 'active') {
+                        await enableModuleAccess(existingSub.userId);
+                    }
                 } catch (dbError) {
                     console.error('Database error while updating subscription:', dbError);
                     return NextResponse.json({ error: 'Database error while updating subscription' }, { status: 500 });
@@ -172,15 +181,24 @@ export async function POST(request: NextRequest) {
 
                 try {
                     // Find and update the subscription in our database
-                    await db
-                        .update(userSubscriptions)
-                        .set({
-                            status: 'cancelled',
-                            updatedAt: new Date()
-                        })
+                    const subs = await db
+                        .select()
+                        .from(userSubscriptions)
                         .where(eq(userSubscriptions.stripeSubscriptionId, deletedSubscription.id));
 
-                    console.log(`Subscription with Stripe ID ${deletedSubscription.id} marked as cancelled`);
+                    if (subs.length > 0) {
+                        await db
+                            .update(userSubscriptions)
+                            .set({
+                                status: 'cancelled',
+                                updatedAt: new Date()
+                            })
+                            .where(eq(userSubscriptions.stripeSubscriptionId, deletedSubscription.id));
+
+                        console.log(`Subscription with Stripe ID ${deletedSubscription.id} marked as cancelled`);
+                    } else {
+                        console.log(`No subscription found with Stripe ID: ${deletedSubscription.id}`);
+                    }
                 } catch (dbError) {
                     console.error('Database error while cancelling subscription:', dbError);
                     return NextResponse.json({ error: 'Database error while cancelling subscription' }, { status: 500 });
@@ -208,5 +226,85 @@ export async function POST(request: NextRequest) {
             { error: 'Webhook handler failed', message: err instanceof Error ? err.message : String(err) },
             { status: 500 }
         );
+    }
+}
+
+// Helper function to enable module access for a user
+async function enableModuleAccess(userId: number) {
+    try {
+        console.log(`Enabling module access for user ${userId}`);
+
+        // Enable order management module
+        await db.insert(moduleAccess).values({
+            companyId: userId,
+            moduleName: 'order_management',
+            isEnabled: true,
+            maxUsers: 5,
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        }).onConflictDoUpdate({
+            target: [moduleAccess.companyId, moduleAccess.moduleName],
+            set: {
+                isEnabled: true,
+                updatedAt: new Date(),
+            }
+        });
+
+        // Enable inventory management module
+        await db.insert(moduleAccess).values({
+            companyId: userId,
+            moduleName: 'inventory_management',
+            isEnabled: true,
+            maxUsers: 5,
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        }).onConflictDoUpdate({
+            target: [moduleAccess.companyId, moduleAccess.moduleName],
+            set: {
+                isEnabled: true,
+                updatedAt: new Date(),
+            }
+        });
+
+        // Enable staff management module
+        await db.insert(moduleAccess).values({
+            companyId: userId,
+            moduleName: 'staff_management',
+            isEnabled: true,
+            maxUsers: 5,
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        }).onConflictDoUpdate({
+            target: [moduleAccess.companyId, moduleAccess.moduleName],
+            set: {
+                isEnabled: true,
+                updatedAt: new Date(),
+            }
+        });
+
+        // Enable website management module
+        await db.insert(moduleAccess).values({
+            companyId: userId,
+            moduleName: 'website_management',
+            isEnabled: true,
+            maxUsers: 5,
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        }).onConflictDoUpdate({
+            target: [moduleAccess.companyId, moduleAccess.moduleName],
+            set: {
+                isEnabled: true,
+                updatedAt: new Date(),
+            }
+        });
+
+        console.log(`Module access enabled successfully for user ${userId}`);
+    } catch (error) {
+        console.error(`Error enabling module access for user ${userId}:`, error);
+        throw error;
     }
 } 

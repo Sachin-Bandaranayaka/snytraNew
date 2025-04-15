@@ -20,9 +20,14 @@ import { Menu, X } from "lucide-react"
 interface NavbarProps {
     onMobileMenuToggle?: () => void;
     isMobileMenuOpen?: boolean;
+    showMenuToggle?: boolean;
 }
 
-export default function DashboardNavbar({ onMobileMenuToggle, isMobileMenuOpen }: NavbarProps) {
+export default function DashboardNavbar({
+    onMobileMenuToggle,
+    isMobileMenuOpen,
+    showMenuToggle = true
+}: NavbarProps) {
     const { user, logout } = useAuth()
     const [isLoading, setIsLoading] = useState(true)
 
@@ -55,20 +60,22 @@ export default function DashboardNavbar({ onMobileMenuToggle, isMobileMenuOpen }
         <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
             <div className="px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
                 <div className="flex items-center">
-                    {/* Mobile menu button */}
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="mr-2 md:hidden"
-                        onClick={onMobileMenuToggle}
-                        aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-                    >
-                        {isMobileMenuOpen ? (
-                            <X className="h-5 w-5" />
-                        ) : (
-                            <Menu className="h-5 w-5" />
-                        )}
-                    </Button>
+                    {/* Mobile menu button - only show when sidebar is enabled */}
+                    {showMenuToggle && (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="mr-2 md:hidden"
+                            onClick={onMobileMenuToggle}
+                            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                        >
+                            {isMobileMenuOpen ? (
+                                <X className="h-5 w-5" />
+                            ) : (
+                                <Menu className="h-5 w-5" />
+                            )}
+                        </Button>
+                    )}
 
                     <Link href="/dashboard" className="flex items-center">
                         <Image src="/logo.png" alt="Business AI Logo" width={120} height={40} className="mr-2" />

@@ -741,6 +741,7 @@ export const dashboardWidgets = pgTable('dashboard_widgets', {
 // Restaurant Tables schema
 export const restaurantTables = pgTable('restaurant_tables', {
     id: serial('id').primaryKey(),
+    companyId: integer('company_id').references(() => users.id),
     tableNumber: integer('table_number').notNull(),
     capacity: integer('capacity').notNull(),
     location: text('location'), // e.g., "main floor", "patio", "bar area"

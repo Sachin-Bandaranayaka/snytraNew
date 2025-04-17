@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
                     menu_items."updatedAt" as "updatedAt"
                 FROM menu_items
                 LEFT JOIN menu_categories ON menu_items."categoryId" = menu_categories.id
-                WHERE menu_items."restaurant_id" = $1
+                WHERE menu_items."company_id" = $1
             `;
 
             const params = [user.id];
@@ -152,7 +152,7 @@ export async function GET(request: NextRequest) {
             const countQuery = `
                 SELECT COUNT(*) as count
                 FROM menu_items
-                WHERE menu_items."restaurant_id" = $1
+                WHERE menu_items."company_id" = $1
             `;
 
             // Apply the same filters to the count query
@@ -380,7 +380,7 @@ export async function POST(request: NextRequest) {
         // Create menu item using parameterized query
         const createMenuItemQuery = `
             INSERT INTO menu_items (
-                "restaurant_id", "categoryId", name, description, price, "image_url",
+                "company_id", "categoryId", name, description, price, "image_url",
                 "isVegetarian", "isVegan", "isGlutenFree", "spiceLevel", "preparationTime",
                 "isActive", "isFeatured", "displayOrder"
             )

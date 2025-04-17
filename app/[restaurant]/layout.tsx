@@ -173,10 +173,9 @@ export default async function RestaurantLayout({
     params: { restaurant: Promise<string> | string };
 }) {
     try {
-        // Must await the params in Next.js 15+
-        const restaurantSlug = typeof params.restaurant === 'string'
-            ? params.restaurant
-            : await params.restaurant;
+        // First await params itself, then access the restaurant property
+        const resolvedParams = await params;
+        const restaurantSlug = resolvedParams.restaurant;
 
         return (
             <RestaurantThemeProvider restaurantSlug={restaurantSlug}>

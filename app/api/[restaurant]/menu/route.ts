@@ -97,11 +97,12 @@ const mockMenuItems = [
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { restaurant: Promise<string> | string } }
+    context: { params: Promise<{ restaurant: string }> }
 ) {
     try {
-        // Must await the params in Next.js 15+
-        const restaurantSlug = await params.restaurant;
+        // First await params itself, then access the restaurant property
+        const params = await context.params;
+        const restaurantSlug = params.restaurant;
 
         // Find the company with the matching slug
         const company = await db.query.companies.findFirst({
@@ -201,11 +202,12 @@ export async function GET(
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { restaurant: Promise<string> | string } }
+    context: { params: Promise<{ restaurant: string }> }
 ) {
     try {
-        // Must await the params in Next.js 15+
-        const restaurantId = await params.restaurant;
+        // First await params itself, then access the restaurant property
+        const params = await context.params;
+        const restaurantId = params.restaurant;
 
         return NextResponse.json({
             success: true,

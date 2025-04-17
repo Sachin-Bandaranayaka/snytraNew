@@ -6,11 +6,12 @@ import { eq, and } from "drizzle-orm";
 // GET /api/[restaurant]/tables - Get all tables for a specific restaurant
 export async function GET(
     request: NextRequest,
-    { params }: { params: { restaurant: Promise<string> | string } }
+    context: { params: Promise<{ restaurant: string }> }
 ) {
     try {
-        // Must await the params in Next.js 15+
-        const restaurantSlug = await params.restaurant;
+        // First await params itself, then access the restaurant property
+        const params = await context.params;
+        const restaurantSlug = params.restaurant;
 
         // Find the company with the matching slug
         const company = await db.query.companies.findFirst({
@@ -33,11 +34,19 @@ export async function GET(
         const minCapacity = searchParams.get('minCapacity');
 
         // Build the query to get tables for this restaurant
-        let query = db.select().from(restaurantTables)
+        // Select only specific fields that exist in the database
+        let query = db.select({
+            id: restaurantTables.id,
+            tableNumber: restaurantTables.tableNumber,
+            capacity: restaurantTables.capacity,
+            location: restaurantTables.location,
+            status: restaurantTables.status
+        })
+            .from(restaurantTables)
             .where(
                 and(
                     eq(restaurantTables.companyId, company.id),
-                    eq(restaurantTables.isActive, true)
+                    eq(restaurantTables.isActive, true) // Only show active tables
                 )
             );
 

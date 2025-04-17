@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
             const rawMenuQuery = `
         SELECT COUNT(*) as count 
         FROM menu_items 
-        WHERE "restaurant_id" = ${user.id}
+        WHERE "company_id" = ${user.id}
       `;
 
             const rawMenuResult = await db.execute(rawMenuQuery);
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
             const rawOrdersQuery = `
         SELECT COUNT(*) as count 
         FROM orders 
-        WHERE "companyId" = ${user.id}
+        WHERE "company_id" = ${user.id}
       `;
 
             const rawOrdersResult = await db.execute(rawOrdersQuery);
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
             const rawInventoryQuery = `
         SELECT COUNT(*) as count 
         FROM inventory_items 
-        WHERE "companyId" = ${user.id}
+        WHERE "company_id" = ${user.id}
       `;
 
             const rawInventoryResult = await db.execute(rawInventoryQuery);

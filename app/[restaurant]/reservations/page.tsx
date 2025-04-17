@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useRestaurantTheme } from "@/context/restaurant-theme-context";
+import { use } from "react";
 
 interface Table {
     id: number;
@@ -14,7 +15,7 @@ interface Table {
     status: string;
 }
 
-export default function ReservationsPage({ params }: { params: { restaurant: string } }) {
+export default function ReservationsPage({ params }: { params: Promise<{ restaurant: string }> }) {
     const router = useRouter();
     const { settings, theme } = useRestaurantTheme();
     const [tables, setTables] = useState<Table[]>([]);
@@ -33,12 +34,16 @@ export default function ReservationsPage({ params }: { params: { restaurant: str
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    // Use React.use to unwrap the params Promise in client components
+    const resolvedParams = use(params);
+    const restaurantSlug = resolvedParams.restaurant;
+
     // Fetch available tables
     useEffect(() => {
         const fetchTables = async () => {
             setLoading(true);
             try {
-                const response = await fetch(`/api/${params.restaurant}/tables?status=available`);
+                const response = await fetch(`/api/${restaurantSlug}/tables?status=available`);
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch available tables");
@@ -56,7 +61,7 @@ export default function ReservationsPage({ params }: { params: { restaurant: str
         };
 
         fetchTables();
-    }, [params.restaurant]);
+    }, [restaurantSlug]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -85,7 +90,7 @@ export default function ReservationsPage({ params }: { params: { restaurant: str
                     tableId: "",
                     specialRequests: "",
                 });
-                router.push(`/${params.restaurant}/reservation-confirmation`);
+                router.push(`/${restaurantSlug}/reservation-confirmation`);
             }, 3000);
         }, 1500);
     };

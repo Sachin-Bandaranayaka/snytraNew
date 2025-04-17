@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRestaurantTheme } from "@/context/restaurant-theme-context";
+import { use } from "react";
 
 type MenuItem = {
     id: number;
@@ -17,7 +18,7 @@ type MenuItem = {
     isFeatured: boolean;
 };
 
-export default function MenuPage({ params }: { params: { restaurant: string } }) {
+export default function MenuPage({ params }: { params: Promise<{ restaurant: string }> }) {
     const { settings, theme, isLoading } = useRestaurantTheme();
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [filteredItems, setFilteredItems] = useState<MenuItem[]>([]);
@@ -30,6 +31,10 @@ export default function MenuPage({ params }: { params: { restaurant: string } })
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [vegetarianOnly, setVegetarianOnly] = useState<boolean>(false);
     const [glutenFreeOnly, setGlutenFreeOnly] = useState<boolean>(false);
+
+    // Use React.use to unwrap the params Promise in client components
+    const resolvedParams = use(params);
+    const restaurantSlug = resolvedParams.restaurant;
 
     const primaryColor = settings?.primaryColor || "#e85c2c";
     const secondaryColor = settings?.secondaryColor || "#f5f1e9";
@@ -45,7 +50,7 @@ export default function MenuPage({ params }: { params: { restaurant: string } })
         const fetchMenuItems = async () => {
             setLoading(true);
             try {
-                const response = await fetch(`/api/${params.restaurant}/menu`);
+                const response = await fetch(`/api/${restaurantSlug}/menu`);
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch menu items");
@@ -70,7 +75,7 @@ export default function MenuPage({ params }: { params: { restaurant: string } })
         };
 
         fetchMenuItems();
-    }, [params.restaurant]);
+    }, [restaurantSlug]);
 
     // Apply filters
     useEffect(() => {
@@ -151,7 +156,7 @@ export default function MenuPage({ params }: { params: { restaurant: string } })
 
                 {/* Debug info */}
                 <div className="bg-yellow-100 p-2 mb-4 text-sm">
-                    <p>Restaurant slug: {params.restaurant}</p>
+                    <p>Restaurant slug: {restaurantSlug}</p>
                 </div>
 
                 {/* Filters */}

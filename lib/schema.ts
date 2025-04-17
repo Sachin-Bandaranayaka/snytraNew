@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, timestamp, integer, boolean, foreignKey, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, varchar, timestamp, integer, boolean, foreignKey, jsonb, unique } from 'drizzle-orm/pg-core';
 
 // Users table
 export const users = pgTable('users', {
@@ -734,6 +734,66 @@ export const dashboardWidgets = pgTable('dashboard_widgets', {
     config: jsonb('config').notNull(),
     position: integer('position').notNull(),
     size: text('size').notNull().default('medium'), // small, medium, large
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Restaurant Tables schema
+export const restaurantTables = pgTable('restaurant_tables', {
+    id: serial('id').primaryKey(),
+    tableNumber: integer('table_number').notNull(),
+    capacity: integer('capacity').notNull(),
+    location: text('location'), // e.g., "main floor", "patio", "bar area"
+    shape: text('shape').default('rectangle'), // rectangle, square, round, oval
+    status: text('status').default('available'), // available, reserved, occupied, unavailable
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Table Reservations schema
+export const tableReservations = pgTable('table_reservations', {
+    id: serial('id').primaryKey(),
+    tableId: integer('table_id').references(() => restaurantTables.id),
+    customerName: text('customer_name').notNull(),
+    customerEmail: text('customer_email'),
+    customerPhone: text('customer_phone').notNull(),
+    partySize: integer('party_size').notNull(),
+    reservationDate: timestamp('reservation_date').notNull(),
+    startTime: text('start_time').notNull(), // e.g. "18:00"
+    endTime: text('end_time').notNull(), // e.g. "20:00"
+    duration: integer('duration').default(120), // in minutes
+    status: text('status').default('confirmed'), // confirmed, seated, completed, cancelled, no-show
+    source: text('source').default('website'), // website, phone, walk-in, third-party
+    specialRequests: text('special_requests'),
+    notes: text('notes'),
+    createdBy: integer('created_by').references(() => users.id),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Table Availability Time Slots
+export const tableTimeSlots = pgTable('table_time_slots', {
+    id: serial('id').primaryKey(),
+    dayOfWeek: integer('day_of_week').notNull(), // 0-6 (Sunday-Saturday)
+    openTime: text('open_time').notNull(), // e.g. "11:00"
+    closeTime: text('close_time').notNull(), // e.g. "22:00"
+    slotDuration: integer('slot_duration').default(30), // in minutes
+    maxReservationsPerSlot: integer('max_reservations').default(1),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Table Layouts/Floor Plans
+export const tableLayouts = pgTable('table_layouts', {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    description: text('description'),
+    layoutData: jsonb('layout_data'), // JSON data for floor plan
+    isDefault: boolean('is_default').default(false),
+    isActive: boolean('is_active').default(true),
+    createdBy: integer('created_by').references(() => users.id),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
 }); 

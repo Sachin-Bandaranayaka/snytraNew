@@ -52,31 +52,112 @@ export default function SettingsPage() {
     })
 
     useEffect(() => {
-        // Simulate API call to load settings
-        const timer = setTimeout(() => {
-            // In a real implementation, this would be replaced with an actual API call
-            setIsLoading(false)
-        }, 1000)
+        // Fetch settings from API
+        const fetchSettings = async () => {
+            try {
+                setIsLoading(true);
+                const response = await fetch('/api/user/company-settings');
 
-        return () => clearTimeout(timer)
-    }, [])
+                if (!response.ok) {
+                    throw new Error('Failed to fetch company settings');
+                }
+
+                const data = await response.json();
+
+                if (data.settings) {
+                    // Update company settings with API data
+                    setCompanySettings({
+                        name: data.settings.siteTitle || "My Restaurant",
+                        description: data.settings.siteDescription || "A delicious place to eat",
+                        address: data.settings.address || "",
+                        phone: data.settings.phone || "",
+                        email: data.settings.email || "",
+                        businessHours: data.settings.businessHours || "",
+                        logoUrl: data.settings.logoUrl || "https://placehold.co/200x200",
+                        primaryColor: data.settings.primaryColor || "#e85c2c",
+                        secondaryColor: data.settings.secondaryColor || "#f8f5eb",
+                        customDomain: data.settings.customDomain || "",
+                        socialMedia: data.settings.socialMedia || {
+                            facebook: "",
+                            instagram: "",
+                            twitter: ""
+                        }
+                    });
+                }
+
+                // For system settings, we could fetch from another endpoint or use the same
+                // This would depend on your actual API structure
+            } catch (error) {
+                console.error('Error fetching settings:', error);
+                toast({
+                    title: "Error",
+                    description: "Failed to load settings. Using default values.",
+                    variant: "destructive",
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchSettings();
+    }, [toast]);
 
     // Handle saving settings
     const handleSaveSettings = async (type: "company" | "system") => {
-        setIsSaving(true)
+        setIsSaving(true);
 
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        try {
+            if (type === "company") {
+                // Convert our UI format to API format
+                const apiSettings = {
+                    siteTitle: companySettings.name,
+                    siteDescription: companySettings.description,
+                    address: companySettings.address,
+                    phone: companySettings.phone,
+                    email: companySettings.email,
+                    businessHours: companySettings.businessHours,
+                    logoUrl: companySettings.logoUrl,
+                    primaryColor: companySettings.primaryColor,
+                    secondaryColor: companySettings.secondaryColor,
+                    customDomain: companySettings.customDomain,
+                    socialMedia: companySettings.socialMedia
+                };
 
-        // In a real implementation, this would be an API call to save settings
-        console.log(`Saving ${type} settings:`, type === "company" ? companySettings : systemSettings)
+                const response = await fetch('/api/user/company-settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ settings: apiSettings })
+                });
 
-        setIsSaving(false)
-        toast({
-            title: "Settings Saved",
-            description: `Your ${type} settings have been updated successfully.`,
-        })
-    }
+                if (!response.ok) {
+                    throw new Error('Failed to save company settings');
+                }
+            } else {
+                // For system settings, we would have another endpoint
+                // This is a placeholder for the actual implementation
+                console.log('Saving system settings:', systemSettings);
+
+                // Simulate API call for system settings
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            toast({
+                title: "Settings Saved",
+                description: `Your ${type} settings have been updated successfully.`,
+            });
+        } catch (error) {
+            console.error(`Error saving ${type} settings:`, error);
+            toast({
+                title: "Error",
+                description: `Failed to save ${type} settings. Please try again.`,
+                variant: "destructive",
+            });
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     if (isLoading) {
         return (

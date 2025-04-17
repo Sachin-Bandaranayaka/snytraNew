@@ -48,6 +48,30 @@ export async function middleware(request: NextRequest) {
 
     console.log(`Middleware running for path: ${pathname}`);
 
+    // Skip middleware for static assets and image paths
+    if (
+        pathname.includes('/_next/') ||
+        pathname.includes('/favicon.ico') ||
+        pathname.match(/\.(jpg|jpeg|png|gif|svg|webp)$/)
+    ) {
+        return NextResponse.next();
+    }
+
+    // Handle the case where "/restaurant" is accessed directly
+    // This is needed because Next.js 15 cannot await a dynamic segment when it's the literal word
+    if (pathname === '/restaurant' || pathname.startsWith('/restaurant/')) {
+        console.log('Redirecting from literal /restaurant path to /demo-restaurant');
+        const newPath = pathname.replace('/restaurant', '/demo-restaurant');
+        return NextResponse.redirect(new URL(newPath, request.url));
+    }
+
+    // Similarly, handle API routes with literal "restaurant"
+    if (pathname.startsWith('/api/restaurant/')) {
+        console.log('Redirecting from literal /api/restaurant path to /api/demo-restaurant');
+        const newPath = pathname.replace('/api/restaurant/', '/api/demo-restaurant/');
+        return NextResponse.redirect(new URL(newPath, request.url));
+    }
+
     // Add debugging to headers (visible in network tab)
     const response = NextResponse.next();
     response.headers.set('x-middleware-path', pathname);

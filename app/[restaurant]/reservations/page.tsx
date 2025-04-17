@@ -1,12 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { useRestaurantTheme } from "@/context/restaurant-theme-context";
 
-export default function ReservationsPage() {
+interface Table {
+    id: number;
+    tableNumber: string;
+    capacity: number;
+    location: string;
+    status: string;
+}
+
+export default function ReservationsPage({ params }: { params: { restaurant: string } }) {
     const router = useRouter();
+    const { settings, theme } = useRestaurantTheme();
+    const [tables, setTables] = useState<Table[]>([]);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -14,10 +25,38 @@ export default function ReservationsPage() {
         date: "",
         time: "",
         guests: 2,
+        tableId: "",
         specialRequests: "",
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formSubmitted, setFormSubmitted] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // Fetch available tables
+    useEffect(() => {
+        const fetchTables = async () => {
+            setLoading(true);
+            try {
+                const response = await fetch(`/api/${params.restaurant}/tables?status=available`);
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch available tables");
+                }
+
+                const data = await response.json();
+                setTables(data.tables || []);
+                setError(null);
+            } catch (err) {
+                console.error("Error fetching tables:", err);
+                setError("Unable to load available tables. Please try again later.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTables();
+    }, [params.restaurant]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -43,9 +82,10 @@ export default function ReservationsPage() {
                     date: "",
                     time: "",
                     guests: 2,
+                    tableId: "",
                     specialRequests: "",
                 });
-                router.push("/my-restaurant/reservation-confirmation");
+                router.push(`/${params.restaurant}/reservation-confirmation`);
             }, 3000);
         }, 1500);
     };
@@ -64,13 +104,17 @@ export default function ReservationsPage() {
 
     const timeSlots = generateTimeSlots();
 
+    // Colors from theme
+    const primaryColor = settings?.primaryColor || "#e85c2c";
+    const secondaryColor = settings?.secondaryColor || "#f5f1e9";
+
     return (
         <div className="py-8 px-4 md:px-8">
             <div className="max-w-5xl mx-auto">
                 {/* Banner */}
                 <div className="relative h-[200px] w-full mb-8 rounded-lg overflow-hidden">
                     <Image
-                        src="/restaurant-interior.jpg"
+                        src={settings?.bannerImageUrl || "/restaurant-interior.jpg"}
                         alt="Reservations Banner"
                         fill
                         className="object-cover"
@@ -107,7 +151,8 @@ export default function ReservationsPage() {
                                             id="name"
                                             name="name"
                                             required
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e85c2c]"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+                                            style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
                                             value={formData.name}
                                             onChange={handleChange}
                                         />
@@ -121,7 +166,8 @@ export default function ReservationsPage() {
                                             id="email"
                                             name="email"
                                             required
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e85c2c]"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+                                            style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
                                             value={formData.email}
                                             onChange={handleChange}
                                         />
@@ -137,7 +183,8 @@ export default function ReservationsPage() {
                                         id="phone"
                                         name="phone"
                                         required
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e85c2c]"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+                                        style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
                                         value={formData.phone}
                                         onChange={handleChange}
                                     />
@@ -154,7 +201,8 @@ export default function ReservationsPage() {
                                             name="date"
                                             required
                                             min={new Date().toISOString().split('T')[0]}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e85c2c]"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+                                            style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
                                             value={formData.date}
                                             onChange={handleChange}
                                         />
@@ -167,7 +215,8 @@ export default function ReservationsPage() {
                                             id="time"
                                             name="time"
                                             required
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e85c2c]"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+                                            style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
                                             value={formData.time}
                                             onChange={handleChange}
                                         >
@@ -185,7 +234,8 @@ export default function ReservationsPage() {
                                             id="guests"
                                             name="guests"
                                             required
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e85c2c]"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+                                            style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
                                             value={formData.guests}
                                             onChange={handleChange}
                                         >
@@ -197,6 +247,50 @@ export default function ReservationsPage() {
                                     </div>
                                 </div>
 
+                                {/* Table selection */}
+                                {!loading && tables.length > 0 && (
+                                    <div className="mb-4">
+                                        <label htmlFor="tableId" className="block text-sm font-medium text-gray-700 mb-1">
+                                            Select a Table *
+                                        </label>
+                                        <select
+                                            id="tableId"
+                                            name="tableId"
+                                            required
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+                                            style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
+                                            value={formData.tableId}
+                                            onChange={handleChange}
+                                        >
+                                            <option value="">Select a table</option>
+                                            {tables.map((table) => (
+                                                <option key={table.id} value={table.id}>
+                                                    Table {table.tableNumber} - {table.capacity} {table.capacity === 1 ? 'person' : 'people'}
+                                                    {table.location ? ` - ${table.location}` : ''}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+
+                                {loading && (
+                                    <div className="mb-4 p-4 bg-gray-50 rounded-md">
+                                        <div className="animate-pulse flex space-x-4">
+                                            <div className="flex-1 space-y-2">
+                                                <div className="h-4 bg-gray-200 rounded"></div>
+                                                <div className="h-4 bg-gray-200 rounded"></div>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-gray-500 mt-2">Loading available tables...</p>
+                                    </div>
+                                )}
+
+                                {!loading && error && (
+                                    <div className="mb-4 p-4 bg-red-50 rounded-md">
+                                        <p className="text-sm text-red-500">{error}</p>
+                                    </div>
+                                )}
+
                                 <div className="mb-6">
                                     <label htmlFor="specialRequests" className="block text-sm font-medium text-gray-700 mb-1">
                                         Special Requests (optional)
@@ -205,7 +299,8 @@ export default function ReservationsPage() {
                                         id="specialRequests"
                                         name="specialRequests"
                                         rows={3}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e85c2c]"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+                                        style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
                                         value={formData.specialRequests}
                                         onChange={handleChange}
                                         placeholder="Allergies, special occasions, seating preferences, etc."
@@ -215,8 +310,11 @@ export default function ReservationsPage() {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className={`w-full bg-[#e85c2c] text-white py-3 px-6 rounded-md flex items-center justify-center font-medium ${isSubmitting ? "opacity-80 cursor-not-allowed" : "hover:bg-[#d04b1c]"
-                                        } transition-colors`}
+                                    className="w-full py-3 px-6 rounded-md flex items-center justify-center font-medium transition-colors text-white"
+                                    style={{
+                                        backgroundColor: isSubmitting ? `${primaryColor}80` : primaryColor,
+                                        cursor: isSubmitting ? "not-allowed" : "pointer"
+                                    }}
                                 >
                                     {isSubmitting ? (
                                         <>
@@ -241,62 +339,57 @@ export default function ReservationsPage() {
 
                             <div className="space-y-4">
                                 <div className="flex items-start">
-                                    <svg className="w-5 h-5 text-[#e85c2c] mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <svg className="w-5 h-5 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ color: primaryColor }}>
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     <div>
                                         <h4 className="font-medium">Hours of Operation</h4>
                                         <p className="text-gray-600">
-                                            Monday - Thursday: 11:00 AM - 10:00 PM<br />
-                                            Friday - Saturday: 11:00 AM - 11:00 PM<br />
-                                            Sunday: 11:00 AM - 9:00 PM
+                                            {settings?.businessHours || "Monday - Thursday: 11:00 AM - 10:00 PM\nFriday - Saturday: 11:00 AM - 11:00 PM\nSunday: 11:00 AM - 9:00 PM"}
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-start">
-                                    <svg className="w-5 h-5 text-[#e85c2c] mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                    </svg>
-                                    <div>
-                                        <h4 className="font-medium">Phone</h4>
-                                        <p className="text-gray-600">(555) 123-4567</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start">
-                                    <svg className="w-5 h-5 text-[#e85c2c] mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                    </svg>
-                                    <div>
-                                        <h4 className="font-medium">Email</h4>
-                                        <p className="text-gray-600">reservations@restaurant.com</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start">
-                                    <svg className="w-5 h-5 text-[#e85c2c] mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <svg className="w-5 h-5 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ color: primaryColor }}>
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                     </svg>
                                     <div>
                                         <h4 className="font-medium">Location</h4>
                                         <p className="text-gray-600">
-                                            123 Main Street<br />
-                                            New York, NY 10001
+                                            {settings?.address || "123 Main Street\nCityville, State 12345"}
                                         </p>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="mt-6 pt-6 border-t border-gray-200">
-                                <h4 className="font-medium mb-3">Reservation Policy</h4>
-                                <ul className="text-gray-600 space-y-2 text-sm">
-                                    <li>• Reservations can be made up to 30 days in advance</li>
-                                    <li>• For parties larger than 10, please call us directly</li>
-                                    <li>• We hold reservations for 15 minutes past the reservation time</li>
-                                    <li>• Cancellations must be made at least 24 hours in advance</li>
-                                </ul>
+                                <div className="flex items-start">
+                                    <svg className="w-5 h-5 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ color: primaryColor }}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                    </svg>
+                                    <div>
+                                        <h4 className="font-medium">Contact</h4>
+                                        <p className="text-gray-600">
+                                            Phone: {settings?.phone || "(123) 456-7890"}<br />
+                                            Email: {settings?.email || "info@restaurant.com"}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start">
+                                    <svg className="w-5 h-5 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ color: primaryColor }}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <div>
+                                        <h4 className="font-medium">Reservation Policy</h4>
+                                        <ul className="text-gray-600 list-disc ml-4 mt-1 space-y-1">
+                                            <li>Reservations can be made up to 30 days in advance</li>
+                                            <li>We hold reservations for 15 minutes past the reservation time</li>
+                                            <li>For parties of 8 or more, please call us directly</li>
+                                            <li>Cancellations should be made at least 24 hours in advance</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

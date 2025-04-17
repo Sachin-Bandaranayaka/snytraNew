@@ -14,7 +14,8 @@ import {
     Settings,
     HelpCircle,
     ChevronLeft,
-    Star
+    Star,
+    Utensils
 } from "lucide-react"
 
 interface SidebarProps {
@@ -50,6 +51,11 @@ export default function DashboardSidebar({ isMobileOpen, onMobileClose }: Sideba
             title: "Dashboard",
             href: "/dashboard",
             icon: <LayoutDashboard size={20} />,
+        },
+        {
+            title: "Table Reservations",
+            href: "/dashboard/reservations",
+            icon: <Utensils size={20} />,
         },
         {
             title: "My Subscription",

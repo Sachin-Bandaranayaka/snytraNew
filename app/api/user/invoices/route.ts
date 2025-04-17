@@ -48,19 +48,33 @@ export async function GET(request: NextRequest) {
                 return NextResponse.json({ invoices: [] });
             }
 
+            // Skip Stripe API call if using bypass_verification value
+            if (userSub[0].stripeCustomerId === 'bypass_verification') {
+                console.log('Using bypass_verification customer ID - skipping Stripe API call');
+                // Return empty invoices array for bypass_verification
+                return NextResponse.json({ invoices: [] });
+            }
+
             // Check if Stripe is initialized
             if (!stripe) {
                 console.error('Stripe client not initialized');
                 return NextResponse.json({ invoices: [], error: 'Stripe not configured' });
             }
 
+            console.log('About to make Stripe API call with customer ID:', userSub[0].stripeCustomerId);
             // Fetch invoices from Stripe
-            const invoices = await stripe.invoices.list({
-                customer: userSub[0].stripeCustomerId,
-                limit: 10,
-            });
-
-            return NextResponse.json({ invoices: invoices.data });
+            try {
+                const invoices = await stripe.invoices.list({
+                    customer: userSub[0].stripeCustomerId,
+                    limit: 10,
+                });
+                console.log('Stripe invoices retrieved successfully');
+                return NextResponse.json({ invoices: invoices.data });
+            } catch (stripeError) {
+                console.error('Stripe API error:', stripeError);
+                // Return empty invoices array on Stripe errors
+                return NextResponse.json({ invoices: [] });
+            }
         } catch (dbError) {
             console.error('Database error:', dbError);
             // Return empty invoices array instead of error to ensure UI doesn't break

@@ -8,6 +8,11 @@ const notificationsSchema = z.object({
     smsNotifications: z.boolean(),
 });
 
+// Mark all as read validation schema
+const markAllReadSchema = z.object({
+    userId: z.string().or(z.number()).optional(),
+});
+
 // GET /api/user/notifications - Get all notifications for the current user
 export async function GET(request: NextRequest) {
     try {
@@ -116,6 +121,58 @@ export async function PUT(request: NextRequest) {
         console.error('Update notification preferences error:', error);
         return NextResponse.json(
             { error: 'Something went wrong while updating notification preferences' },
+            { status: 500 }
+        );
+    }
+}
+
+// Mark all notifications as read
+export async function PATCH(request: NextRequest) {
+    try {
+        // Get current user
+        const user = await getCurrentUser();
+
+        if (!user) {
+            return NextResponse.json(
+                { error: 'Not authenticated' },
+                { status: 401 }
+            );
+        }
+
+        // Parse request body
+        const body = await request.json();
+
+        // Validate input data
+        const validation = markAllReadSchema.safeParse(body);
+        if (!validation.success) {
+            return NextResponse.json(
+                { error: 'Invalid input', details: validation.error.format() },
+                { status: 400 }
+            );
+        }
+
+        const { userId } = validation.data;
+
+        // Verify user has permission
+        if (userId && user.id.toString() !== userId && user.role !== 'admin') {
+            return NextResponse.json(
+                { error: 'Unauthorized to mark these notifications as read' },
+                { status: 403 }
+            );
+        }
+
+        // In a real application, you would update the database
+        console.log(`User ${user.id} marked all notifications as read`);
+
+        // Return success response
+        return NextResponse.json({
+            message: 'All notifications marked as read'
+        });
+
+    } catch (error) {
+        console.error('Mark all notifications read error:', error);
+        return NextResponse.json(
+            { error: 'Something went wrong while marking notifications as read' },
             { status: 500 }
         );
     }

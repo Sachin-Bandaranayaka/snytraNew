@@ -5,10 +5,11 @@ import { eq, and } from "drizzle-orm";
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { restaurant: string } }
+    { params }: { params: { restaurant: Promise<string> | string } }
 ) {
     try {
-        const restaurantSlug = params.restaurant;
+        // Must await the params in Next.js 15+
+        const restaurantSlug = await params.restaurant;
 
         // Find the company with the matching custom domain or name
         const company = await db.query.companies.findFirst({

@@ -15,12 +15,20 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Bell, CheckCheck } from "lucide-react"
 
 interface NavbarProps {
     onMobileMenuToggle?: () => void;
     isMobileMenuOpen?: boolean;
     showMenuToggle?: boolean;
+}
+
+interface Notification {
+    id: number;
+    title: string;
+    content: string;
+    createdAt: string;
+    read: boolean;
 }
 
 export default function DashboardNavbar({
@@ -30,12 +38,88 @@ export default function DashboardNavbar({
 }: NavbarProps) {
     const { user, logout } = useAuth()
     const [isLoading, setIsLoading] = useState(true)
+    const [notifications, setNotifications] = useState<Notification[]>([])
+    const [notificationsLoading, setNotificationsLoading] = useState(false)
+    const [unreadCount, setUnreadCount] = useState(0)
 
     useEffect(() => {
         if (user) {
             setIsLoading(false)
+            fetchNotifications()
         }
     }, [user])
+
+    const fetchNotifications = async () => {
+        if (!user?.id) return
+
+        try {
+            setNotificationsLoading(true)
+            const response = await fetch(`/api/user/notifications?userId=${user.id}`)
+
+            if (response.ok) {
+                const data = await response.json()
+                if (data.notifications && Array.isArray(data.notifications)) {
+                    setNotifications(data.notifications)
+                    // Count unread notifications
+                    const unread = data.notifications.filter((n: Notification) => !n.read).length
+                    setUnreadCount(unread)
+                }
+            } else {
+                console.error("Failed to fetch notifications:", await response.text())
+            }
+        } catch (error) {
+            console.error("Error fetching notifications:", error)
+        } finally {
+            setNotificationsLoading(false)
+        }
+    }
+
+    const markAsRead = async (notificationId: number) => {
+        // In a real app, you would call an API endpoint to mark as read in the database
+        try {
+            // Update the local state
+            setNotifications(prev =>
+                prev.map(notification =>
+                    notification.id === notificationId
+                        ? { ...notification, read: true }
+                        : notification
+                )
+            )
+
+            // Update unread count
+            setUnreadCount(prev => Math.max(0, prev - 1))
+
+            // Call the API endpoint
+            await fetch(`/api/user/notifications/${notificationId}/read`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' }
+            })
+        } catch (error) {
+            console.error("Error marking notification as read:", error)
+        }
+    }
+
+    const markAllAsRead = async () => {
+        // In a real app, you would call an API endpoint to mark all as read
+        try {
+            // Update the local state
+            setNotifications(prev =>
+                prev.map(notification => ({ ...notification, read: true }))
+            )
+
+            // Reset unread count
+            setUnreadCount(0)
+
+            // Call the API endpoint
+            await fetch(`/api/user/notifications`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user?.id })
+            })
+        } catch (error) {
+            console.error("Error marking all notifications as read:", error)
+        }
+    }
 
     const handleLogout = async () => {
         try {
@@ -54,6 +138,28 @@ export default function DashboardNavbar({
             .join("")
             .toUpperCase()
             .substring(0, 2)
+    }
+
+    // Format time ago for notifications
+    const formatTimeAgo = (dateString: string) => {
+        const date = new Date(dateString)
+        const now = new Date()
+        const diffMs = now.getTime() - date.getTime()
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+        const diffMinutes = Math.floor(diffMs / (1000 * 60))
+
+        if (diffDays > 7) {
+            return date.toLocaleDateString()
+        } else if (diffDays > 0) {
+            return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+        } else if (diffHours > 0) {
+            return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+        } else if (diffMinutes > 0) {
+            return `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago`
+        } else {
+            return 'Just now'
+        }
     }
 
     return (
@@ -78,8 +184,8 @@ export default function DashboardNavbar({
                     )}
 
                     <Link href="/dashboard" className="flex items-center">
-                        <Image src="/logo.png" alt="Business AI Logo" width={120} height={40} className="mr-2" />
-                        <span className="text-xl font-semibold hidden md:inline-block">Business AI</span>
+                        <Image src="/logo.png" alt="Snytra Logo" width={120} height={40} className="mr-2" />
+                        <span className="text-xl font-semibold hidden md:inline-block">Snytra</span>
                     </Link>
                 </div>
 
@@ -110,23 +216,72 @@ export default function DashboardNavbar({
                     </div>
 
                     {/* Notifications */}
-                    <Button variant="ghost" size="icon" className="relative">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
-                            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-                            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-                        </svg>
-                        <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="relative">
+                                <Bell className="h-5 w-5" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                                )}
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-80">
+                            <DropdownMenuLabel className="font-normal flex justify-between items-center">
+                                <span>Notifications</span>
+                                {unreadCount > 0 && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={markAllAsRead}
+                                        className="h-8 text-xs flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                                    >
+                                        <CheckCheck className="h-3 w-3" />
+                                        Mark all as read
+                                    </Button>
+                                )}
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {notificationsLoading ? (
+                                <div className="p-4 flex justify-center">
+                                    <Loading size="sm" />
+                                </div>
+                            ) : notifications.length > 0 ? (
+                                <div className="max-h-80 overflow-y-auto">
+                                    {notifications.map(notification => (
+                                        <div
+                                            key={notification.id}
+                                            className={`px-3 py-2 ${!notification.read ? 'bg-blue-50' : ''} cursor-pointer hover:bg-gray-50`}
+                                            onClick={() => !notification.read && markAsRead(notification.id)}
+                                        >
+                                            <div className="flex items-start">
+                                                <div
+                                                    className={`w-2 h-2 mt-1.5 rounded-full flex-shrink-0 ${!notification.read ? 'bg-blue-500' : 'bg-gray-200'
+                                                        }`}
+                                                ></div>
+                                                <div className="ml-3 flex-1">
+                                                    <p className="text-sm font-medium">{notification.title}</p>
+                                                    <p className="text-xs text-gray-500 mt-0.5">{notification.content}</p>
+                                                    <p className="text-xs text-gray-400 mt-1">
+                                                        {formatTimeAgo(notification.createdAt)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="p-4 text-center text-sm text-gray-500">
+                                    No notifications
+                                </div>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                                <Link href="/dashboard" className="text-center justify-center text-sm text-blue-600">
+                                    View all notifications
+                                </Link>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
 
                     {/* User Menu */}
                     <DropdownMenu>

@@ -67,7 +67,9 @@ export const RestaurantThemeProvider = ({ children, restaurantSlug }: { children
 
             // If we're on the public-facing site, use the restaurant-specific endpoint
             if (restaurantSlug) {
-                endpoint = `/api/${restaurantSlug}/theme`;
+                // Check if restaurantSlug is literally 'restaurant' (which might be causing issues with dynamic routes)
+                const slug = restaurantSlug === 'restaurant' ? 'default-restaurant' : restaurantSlug;
+                endpoint = `/api/${slug}/theme`;
             }
 
             const response = await fetch(endpoint);

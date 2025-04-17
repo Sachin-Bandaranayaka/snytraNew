@@ -9,7 +9,7 @@ import { eq } from 'drizzle-orm';
 export async function requireAdmin(handler: Function) {
     return async (req: Request) => {
         try {
-            const cookieStore = cookies();
+            const cookieStore = await cookies();
             const token = cookieStore.get('auth-token')?.value;
 
             if (!token) {
@@ -52,8 +52,8 @@ export async function requireAdmin(handler: Function) {
                 );
             }
 
-            // Pass the admin user to the handler
-            return handler(req, user);
+            // Pass the admin user to the handler and await the result
+            return await handler(req, user);
         } catch (error) {
             console.error('Admin auth error:', error);
             return NextResponse.json(

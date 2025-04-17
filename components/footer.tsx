@@ -9,7 +9,7 @@ export function Footer() {
           <div className="col-span-2 sm:col-span-2 md:col-span-1 mb-6 md:mb-0">
             <div className="flex items-center">
               <Link href="/" className="flex items-center">
-                <Image src="/logo.png" alt="Business Management Logo" width={200} height={200} className="w-40 md:w-auto h-auto mr-2" />
+                <Image src="/logo.png" alt="Snytra Logo" width={200} height={200} className="w-40 md:w-auto h-auto mr-2" />
               </Link>
               <p className="text-sm text-gray-600 mb-2">Empowering businesses, one customer at a time.</p>
             </div>

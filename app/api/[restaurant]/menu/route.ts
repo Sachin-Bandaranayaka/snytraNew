@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { menuItems, menuCategories, companies } from "@/lib/schema";
+import { eq, and } from "drizzle-orm";
 
 // Mock data - in a real app, this would come from a database
-const menuItems = [
+const mockMenuItems = [
     {
         id: 1,
         name: "Classic Burger",
@@ -94,61 +97,115 @@ const menuItems = [
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { restaurant: string } }
+    { params }: { params: { restaurant: Promise<string> | string } }
 ) {
-    // Get query parameters
-    const searchParams = request.nextUrl.searchParams;
-    const category = searchParams.get("category");
-    const featured = searchParams.get("featured");
-    const vegetarian = searchParams.get("vegetarian");
-    const glutenFree = searchParams.get("glutenFree");
-    const search = searchParams.get("search");
+    try {
+        // Must await the params in Next.js 15+
+        const restaurantSlug = await params.restaurant;
 
-    // Filter menu items based on query parameters
-    let filteredItems = [...menuItems];
+        // Find the company with the matching slug
+        const company = await db.query.companies.findFirst({
+            where: (companies) => {
+                return eq(companies.name, restaurantSlug);
+            },
+        });
 
-    if (category && category !== "All") {
-        filteredItems = filteredItems.filter(item => item.category === category);
-    }
+        if (!company) {
+            return NextResponse.json(
+                { error: "Restaurant not found" },
+                { status: 404 }
+            );
+        }
 
-    if (featured === "true") {
-        filteredItems = filteredItems.filter(item => item.isFeatured);
-    }
+        // Get query parameters
+        const searchParams = request.nextUrl.searchParams;
+        const category = searchParams.get("category");
+        const featured = searchParams.get("featured");
+        const vegetarian = searchParams.get("vegetarian");
+        const glutenFree = searchParams.get("glutenFree");
+        const search = searchParams.get("search");
 
-    if (vegetarian === "true") {
-        filteredItems = filteredItems.filter(item => item.isVegetarian);
-    }
+        // Build the query to get menu items
+        let query = db.select({
+            id: menuItems.id,
+            name: menuItems.name,
+            description: menuItems.description,
+            price: menuItems.price,
+            imageUrl: menuItems.imageUrl,
+            isVegetarian: menuItems.isVegetarian,
+            isGlutenFree: menuItems.isGlutenFree,
+            isFeatured: menuItems.isFeatured,
+            categoryId: menuItems.categoryId,
+            category: menuCategories.name,
+        })
+            .from(menuItems)
+            .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
+            .where(eq(menuItems.companyId, company.id));
 
-    if (glutenFree === "true") {
-        filteredItems = filteredItems.filter(item => item.isGlutenFree);
-    }
+        // Apply filters
+        if (category && category !== "All") {
+            query = query.where(eq(menuCategories.name, category));
+        }
 
-    if (search) {
-        const searchLower = search.toLowerCase();
-        filteredItems = filteredItems.filter(item =>
-            item.name.toLowerCase().includes(searchLower) ||
-            item.description.toLowerCase().includes(searchLower)
+        if (featured === "true") {
+            query = query.where(eq(menuItems.isFeatured, true));
+        }
+
+        if (vegetarian === "true") {
+            query = query.where(eq(menuItems.isVegetarian, true));
+        }
+
+        if (glutenFree === "true") {
+            query = query.where(eq(menuItems.isGlutenFree, true));
+        }
+
+        // Execute the query
+        const items = await query;
+
+        // Process search query separately since it's more complex
+        let filteredItems = items;
+        if (search) {
+            const searchLower = search.toLowerCase();
+            filteredItems = items.filter(item =>
+                item.name.toLowerCase().includes(searchLower) ||
+                (item.description && item.description.toLowerCase().includes(searchLower))
+            );
+        }
+
+        // Format prices (from cents to dollars) and return
+        const formattedItems = filteredItems.map(item => ({
+            id: item.id,
+            name: item.name,
+            description: item.description || "",
+            price: item.price / 100, // Convert from cents to dollars
+            imageUrl: item.imageUrl || `/placeholder-food.jpg`,
+            category: item.category || "Uncategorized",
+            isVegetarian: item.isVegetarian || false,
+            isGlutenFree: item.isGlutenFree || false,
+            isFeatured: item.isFeatured || false,
+        }));
+
+        return NextResponse.json({
+            items: formattedItems,
+            totalCount: formattedItems.length,
+            restaurant: restaurantSlug
+        });
+    } catch (error) {
+        console.error("Error fetching restaurant menu:", error);
+        return NextResponse.json(
+            { error: "Failed to fetch menu items" },
+            { status: 500 }
         );
     }
-
-    // In a real app, you would fetch data specific to the restaurant
-    const restaurantId = params.restaurant;
-
-    return NextResponse.json({
-        items: filteredItems,
-        totalCount: filteredItems.length,
-        restaurant: restaurantId
-    });
 }
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { restaurant: string } }
+    { params }: { params: { restaurant: Promise<string> | string } }
 ) {
     try {
-        // This would create a new menu item in a real app
-        // For this demo, we'll just return a success message
-        const restaurantId = params.restaurant;
+        // Must await the params in Next.js 15+
+        const restaurantId = await params.restaurant;
 
         return NextResponse.json({
             success: true,

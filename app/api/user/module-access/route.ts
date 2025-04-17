@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
             // Admin has access to all modules
             modules = [
                 ...modules,
+                { id: 'reservations', name: 'Table Reservations', icon: 'Utensils', path: '/dashboard/reservations' },
                 { id: 'inventory', name: 'Inventory Management', icon: 'Package', path: '/dashboard/management/inventory' },
                 { id: 'orders', name: 'Order Management', icon: 'ShoppingCart', path: '/dashboard/management/orders' },
                 { id: 'menu', name: 'Menu Management', icon: 'MenuSquare', path: '/dashboard/management/menu' },
@@ -39,6 +40,7 @@ export async function GET(request: NextRequest) {
             modules = [
                 ...modules,
                 { id: 'dashboard', name: 'Dashboard', icon: 'LayoutDashboard', path: '/dashboard/management' },
+                { id: 'reservations', name: 'Table Reservations', icon: 'Utensils', path: '/dashboard/reservations' },
                 { id: 'orders', name: 'Order Management', icon: 'ShoppingCart', path: '/dashboard/management/orders' },
                 { id: 'inventory', name: 'Inventory Management', icon: 'Package', path: '/dashboard/management/inventory' },
                 { id: 'menu', name: 'Menu Management', icon: 'MenuSquare', path: '/dashboard/management/menu' },
@@ -50,6 +52,7 @@ export async function GET(request: NextRequest) {
             // Regular user has limited access
             modules = [
                 ...modules,
+                { id: 'reservations', name: 'Table Reservations', icon: 'Utensils', path: '/dashboard/reservations' },
                 { id: 'orders', name: 'Orders', icon: 'ShoppingCart', path: '/dashboard/orders' },
                 { id: 'profile', name: 'Profile', icon: 'User', path: '/dashboard/profile' },
                 { id: 'support', name: 'Support', icon: 'LifeBuoy', path: '/dashboard/support' },

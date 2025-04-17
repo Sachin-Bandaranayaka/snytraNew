@@ -59,10 +59,15 @@ export async function GET(request: NextRequest) {
         let stripeSubscription = null;
         if (subscription[0].subscription.stripeSubscriptionId && stripe) {
             try {
-                stripeSubscription = await stripe.subscriptions.retrieve(
-                    subscription[0].subscription.stripeSubscriptionId
-                );
-                console.log(`Retrieved Stripe subscription: ${subscription[0].subscription.stripeSubscriptionId}`);
+                // Skip Stripe API call if using bypass_verification value
+                if (subscription[0].subscription.stripeSubscriptionId === 'bypass_verification') {
+                    console.log('Using bypass_verification subscription ID - skipping Stripe API call');
+                } else {
+                    stripeSubscription = await stripe.subscriptions.retrieve(
+                        subscription[0].subscription.stripeSubscriptionId
+                    );
+                    console.log(`Retrieved Stripe subscription: ${subscription[0].subscription.stripeSubscriptionId}`);
+                }
             } catch (stripeError) {
                 console.error(`Error retrieving Stripe subscription: ${stripeError}`);
                 // Don't fail the request if Stripe data can't be retrieved

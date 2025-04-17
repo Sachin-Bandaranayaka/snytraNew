@@ -16,6 +16,7 @@ import {
     Globe,
     ChevronRight,
     ChevronLeft,
+    Utensils
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -30,6 +31,7 @@ export default function ManagementLayout({
     // Define all possible modules with default false state
     const [moduleAccess, setModuleAccess] = useState({
         dashboard: true, // Show dashboard by default
+        reservations: true, // Add reservations module with default access
         orders: false,
         inventory: false,
         menu: false,
@@ -55,6 +57,7 @@ export default function ManagementLayout({
                         // Start with all modules disabled
                         const newAccessMap = {
                             dashboard: false,
+                            reservations: false, // Add reservations module
                             orders: false,
                             inventory: false,
                             menu: false,
@@ -117,6 +120,18 @@ export default function ManagementLayout({
                                 >
                                     <LayoutDashboard size={20} />
                                     {!collapsed && <span>Dashboard</span>}
+                                </Link>
+                            </SidebarItem>
+                        )}
+
+                        {moduleAccess.reservations && (
+                            <SidebarItem active={pathname.includes("/dashboard/reservations")}>
+                                <Link
+                                    href="/dashboard/reservations"
+                                    className="flex items-center gap-2 py-2"
+                                >
+                                    <Utensils size={20} />
+                                    {!collapsed && <span>Table Reservations</span>}
                                 </Link>
                             </SidebarItem>
                         )}

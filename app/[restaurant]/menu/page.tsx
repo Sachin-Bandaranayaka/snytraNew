@@ -149,6 +149,11 @@ export default function MenuPage({ params }: { params: { restaurant: string } })
                     </div>
                 </div>
 
+                {/* Debug info */}
+                <div className="bg-yellow-100 p-2 mb-4 text-sm">
+                    <p>Restaurant slug: {params.restaurant}</p>
+                </div>
+
                 {/* Filters */}
                 <div className="mb-8 flex flex-col md:flex-row gap-4">
                     <div className="flex-1">
@@ -215,20 +220,20 @@ export default function MenuPage({ params }: { params: { restaurant: string } })
                 ) : (
                     <div
                         className={`grid gap-6 ${menuLayout === 'grid'
-                                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-                                : menuLayout === 'list'
-                                    ? 'grid-cols-1'
-                                    : 'grid-cols-1 md:grid-cols-2'
+                            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                            : menuLayout === 'list'
+                                ? 'grid-cols-1'
+                                : 'grid-cols-1 md:grid-cols-2'
                             }`}
                     >
                         {filteredItems.map((item) => (
                             <div
                                 key={item.id}
                                 className={`bg-white overflow-hidden ${menuLayout === 'grid'
-                                        ? 'rounded-lg shadow'
-                                        : menuLayout === 'list'
-                                            ? 'flex gap-4 rounded-lg shadow p-4'
-                                            : 'rounded-lg shadow-lg'
+                                    ? 'rounded-lg shadow'
+                                    : menuLayout === 'list'
+                                        ? 'flex gap-4 rounded-lg shadow p-4'
+                                        : 'rounded-lg shadow-lg'
                                     }`}
                             >
                                 {menuLayout === 'list' ? (

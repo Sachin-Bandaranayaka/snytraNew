@@ -54,81 +54,132 @@ export default function StaffManagementPage() {
     const [staff, setStaff] = useState<StaffMember[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [activeTab, setActiveTab] = useState("all");
+    const [error, setError] = useState<string | null>(null);
 
-    // Mock data for demonstration
+    // Fetch data from API
     useEffect(() => {
-        // In a real application, this would be fetched from an API
-        const mockStaffData: StaffMember[] = [
-            {
-                id: 1,
-                name: "Alex Johnson",
-                email: "alex@example.com",
-                role: "Kitchen",
-                department: "Chef",
-                status: "Active",
-                enrolledAt: "May 12, 2024"
-            },
-            {
-                id: 2,
-                name: "Jamie Smith",
-                email: "jamie@example.com",
-                role: "Restaurant",
-                department: "Server",
-                status: "Active",
-                enrolledAt: "May 10, 2024"
-            },
-            {
-                id: 3,
-                name: "Taylor Brown",
-                email: "taylor@example.com",
-                role: "Admin",
-                department: "Manager",
-                status: "Active",
-                enrolledAt: "April 28, 2024"
-            },
-            {
-                id: 4,
-                name: "Morgan Wilson",
-                email: "morgan@example.com",
-                role: "Kitchen",
-                department: "Sous Chef",
-                status: "Active",
-                enrolledAt: "May 5, 2024"
-            },
-            {
-                id: 5,
-                name: "Jordan Lee",
-                email: "jordan@example.com",
-                role: "Restaurant",
-                department: "Host",
-                status: "Active",
-                enrolledAt: "May 8, 2024"
-            },
-            {
-                id: 6,
-                name: "Casey Miller",
-                email: "casey@example.com",
-                role: "Admin",
-                department: "Accountant",
-                status: "Active",
-                enrolledAt: "April 15, 2024"
-            },
-            {
-                id: 7,
-                name: "Riley Davis",
-                email: "riley@example.com",
-                role: "Kitchen",
-                department: "Line Cook",
-                status: "Active",
-                enrolledAt: "May 3, 2024"
-            }
-        ];
+        const fetchStaffData = async () => {
+            try {
+                setLoading(true);
 
-        setTimeout(() => {
-            setStaff(mockStaffData);
-            setLoading(false);
-        }, 800); // Simulate loading delay
-    }, []);
+                let userData;
+                try {
+                    const response = await fetch('/api/admin/users');
+                    if (response.ok) {
+                        userData = await response.json();
+                    } else {
+                        console.error('API response not OK:', response.status, response.statusText);
+                        throw new Error('Failed to fetch staff data');
+                    }
+                } catch (apiError) {
+                    console.error('API error:', apiError);
+                    // Let the outer try-catch handle this error
+                    throw apiError;
+                }
+
+                // Transform user data to match StaffMember interface
+                const staffData: StaffMember[] = userData.map((user: any) => ({
+                    id: user.id,
+                    name: user.name || 'Unknown',
+                    email: user.email || '',
+                    role: user.role || 'Staff',
+                    department: user.department || (user.role === 'admin' ? 'Management' :
+                        user.role === 'kitchen' ? 'Kitchen' : 'Restaurant'),
+                    status: user.status || 'Active',
+                    avatar: user.avatar,
+                    enrolledAt: user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    }) : 'Unknown'
+                }));
+
+                setStaff(staffData);
+                setError(null);
+            } catch (err) {
+                console.error('Error fetching staff data:', err);
+                setError('Failed to load staff data. Please try again.');
+
+                // Always use mock data when there's an error
+                const mockStaffData: StaffMember[] = [
+                    {
+                        id: 1,
+                        name: "Alex Johnson",
+                        email: "alex@example.com",
+                        role: "Kitchen",
+                        department: "Chef",
+                        status: "Active",
+                        enrolledAt: "May 12, 2024"
+                    },
+                    {
+                        id: 2,
+                        name: "Jamie Smith",
+                        email: "jamie@example.com",
+                        role: "Restaurant",
+                        department: "Server",
+                        status: "Active",
+                        enrolledAt: "May 10, 2024"
+                    },
+                    {
+                        id: 3,
+                        name: "Taylor Brown",
+                        email: "taylor@example.com",
+                        role: "Admin",
+                        department: "Manager",
+                        status: "Active",
+                        enrolledAt: "April 28, 2024"
+                    },
+                    {
+                        id: 4,
+                        name: "Morgan Wilson",
+                        email: "morgan@example.com",
+                        role: "Kitchen",
+                        department: "Sous Chef",
+                        status: "Active",
+                        enrolledAt: "May 5, 2024"
+                    },
+                    {
+                        id: 5,
+                        name: "Jordan Lee",
+                        email: "jordan@example.com",
+                        role: "Restaurant",
+                        department: "Host",
+                        status: "Active",
+                        enrolledAt: "May 8, 2024"
+                    },
+                    {
+                        id: 6,
+                        name: "Casey Miller",
+                        email: "casey@example.com",
+                        role: "Admin",
+                        department: "Accountant",
+                        status: "Active",
+                        enrolledAt: "April 15, 2024"
+                    },
+                    {
+                        id: 7,
+                        name: "Riley Davis",
+                        email: "riley@example.com",
+                        role: "Kitchen",
+                        department: "Line Cook",
+                        status: "Active",
+                        enrolledAt: "May 3, 2024"
+                    }
+                ];
+                setStaff(mockStaffData);
+
+                toast({
+                    title: "Error loading data",
+                    description: "Using mock data instead. Check console for details.",
+                    variant: "destructive",
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStaffData();
+    }, [toast]);
 
     const filteredStaff = staff.filter((member) => {
         // First apply role/department filter based on active tab
@@ -182,26 +233,101 @@ export default function StaffManagementPage() {
         }
     };
 
-    const handleAddStaff = () => {
-        toast({
-            title: "Feature coming soon",
-            description: "This functionality will be available in a future update.",
-        });
+    const handleAddStaff = async () => {
+        // In a real implementation, you would open a dialog to collect user information
+        const newUser = {
+            name: "New Staff Member",
+            email: "newstaff@example.com",
+            role: "staff",
+            department: "Restaurant",
+            status: "Active",
+        };
+
+        try {
+            const response = await fetch('/api/admin/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newUser),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to add staff member');
+            }
+
+            const result = await response.json();
+            toast({
+                title: "Staff added",
+                description: `${newUser.name} has been added successfully.`,
+            });
+
+            // Refresh staff list
+            const staffResponse = await fetch('/api/admin/users');
+            if (staffResponse.ok) {
+                const userData = await staffResponse.json();
+                // Transform user data to match StaffMember interface
+                const staffData: StaffMember[] = userData.map((user: any) => ({
+                    id: user.id,
+                    name: user.name || 'Unknown',
+                    email: user.email || '',
+                    role: user.role || 'Staff',
+                    department: user.department || (user.role === 'admin' ? 'Management' :
+                        user.role === 'kitchen' ? 'Kitchen' : 'Restaurant'),
+                    status: user.status || 'Active',
+                    avatar: user.avatar,
+                    enrolledAt: user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    }) : 'Unknown'
+                }));
+                setStaff(staffData);
+            }
+        } catch (error) {
+            console.error('Error adding staff member:', error);
+            toast({
+                title: "Error",
+                description: "Failed to add staff member. Please try again.",
+                variant: "destructive",
+            });
+        }
     };
 
-    const handleEditStaff = (id: number) => {
+    const handleEditStaff = async (id: number) => {
+        // In a real implementation, you would open a dialog to edit user information
         toast({
             title: "Edit staff member",
             description: `Editing staff with ID: ${id}`,
         });
     };
 
-    const handleDeleteStaff = (id: number) => {
-        toast({
-            title: "Delete staff member",
-            description: `Delete request for staff with ID: ${id}`,
-            variant: "destructive",
-        });
+    const handleDeleteStaff = async (id: number) => {
+        try {
+            const response = await fetch(`/api/admin/users?id=${id}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete staff member');
+            }
+
+            // Remove the deleted staff member from the state
+            const updatedStaff = staff.filter(member => member.id !== id);
+            setStaff(updatedStaff);
+
+            toast({
+                title: "Staff member deleted",
+                description: "The staff member has been removed successfully.",
+            });
+        } catch (error) {
+            console.error('Error deleting staff member:', error);
+            toast({
+                title: "Error",
+                description: "Failed to delete staff member. Please try again.",
+                variant: "destructive",
+            });
+        }
     };
 
     if (loading) {

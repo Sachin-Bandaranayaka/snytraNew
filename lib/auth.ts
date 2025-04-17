@@ -55,7 +55,7 @@ export async function requireAuth(handler: Function) {
             );
         }
 
-        return handler(req, user);
+        return await handler(req, user);
     };
 }
 
@@ -78,6 +78,6 @@ export async function requireAdmin(handler: Function) {
             );
         }
 
-        return handler(req, user);
+        return await handler(req, user);
     };
 } 

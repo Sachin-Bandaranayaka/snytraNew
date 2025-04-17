@@ -78,13 +78,8 @@ export default function WebsiteManagementPage() {
             }
         }
 
-        // In development, use the mock data instead of making an API call
-        setTimeout(() => {
-            setIsLoading(false)
-        }, 1000)
-
-        // Uncomment the following line in production
-        // fetchWebsiteData()
+        // Fetch the real data
+        fetchWebsiteData()
     }, [toast])
 
     // Save website settings
@@ -92,17 +87,17 @@ export default function WebsiteManagementPage() {
         try {
             setIsSaving(true)
 
-            // In production, this would be an API call
-            // const response = await fetch('/api/user/website', {
-            //   method: 'POST',
-            //   headers: {
-            //     'Content-Type': 'application/json'
-            //   },
-            //   body: JSON.stringify({ settings: websiteData.settings })
-            // })
+            const response = await fetch('/api/user/website', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ settings: websiteData.settings })
+            })
 
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 1000))
+            if (!response.ok) {
+                throw new Error('Failed to save settings')
+            }
 
             setIsSaving(false)
             toast({
@@ -125,13 +120,13 @@ export default function WebsiteManagementPage() {
         try {
             setIsPublishing(true)
 
-            // In production, this would be an API call
-            // const response = await fetch('/api/user/website/publish', {
-            //   method: 'POST'
-            // })
+            const response = await fetch('/api/user/website/publish', {
+                method: 'POST'
+            })
 
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 2000))
+            if (!response.ok) {
+                throw new Error('Failed to publish website')
+            }
 
             setIsPublishing(false)
             toast({

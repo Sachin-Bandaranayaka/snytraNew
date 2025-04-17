@@ -8,10 +8,10 @@ import { RestaurantThemeProvider, useRestaurantTheme } from "@/context/restauran
 // Component that uses the theme context
 function RestaurantLayoutContent({
     children,
-    params,
+    restaurantSlug,
 }: {
     children: ReactNode;
-    params: { restaurant: string };
+    restaurantSlug: string;
 }) {
     const { settings, theme, isLoading } = useRestaurantTheme();
 
@@ -21,7 +21,7 @@ function RestaurantLayoutContent({
     const accentColor = theme?.accentColor || "#1a1a0f";
 
     // Use site title if available, otherwise use restaurant name
-    const siteTitle = settings?.siteTitle || params.restaurant;
+    const siteTitle = settings?.siteTitle || restaurantSlug;
 
     // Dynamic style for buttons based on theme
     const buttonStyle = theme?.buttonStyle === 'pill'
@@ -36,7 +36,7 @@ function RestaurantLayoutContent({
             <div className="min-h-screen flex items-center justify-center bg-gray-100">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading {params.restaurant}...</p>
+                    <p className="text-gray-600">Loading {restaurantSlug}...</p>
                 </div>
             </div>
         );
@@ -48,7 +48,7 @@ function RestaurantLayoutContent({
             {/* Header/Navbar */}
             <header style={{ backgroundColor: accentColor }} className="text-white py-4 px-4 md:px-8">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
-                    <Link href={`/${params.restaurant}`} className="flex items-center">
+                    <Link href={`/${restaurantSlug}`} className="flex items-center">
                         <div className="relative h-12 w-12">
                             <Image
                                 src={settings?.logoUrl || "/logo.png"}
@@ -62,25 +62,25 @@ function RestaurantLayoutContent({
                     </Link>
 
                     <nav className="hidden md:flex items-center space-x-8">
-                        <Link href={`/${params.restaurant}`} className="hover:text-orange-300 transition-colors">
+                        <Link href={`/${restaurantSlug}`} className="hover:text-orange-300 transition-colors">
                             Home
                         </Link>
-                        <Link href={`/${params.restaurant}/about`} className="hover:text-orange-300 transition-colors">
+                        <Link href={`/${restaurantSlug}/about`} className="hover:text-orange-300 transition-colors">
                             About Us
                         </Link>
-                        <Link href={`/${params.restaurant}/menu`} className="hover:text-orange-300 transition-colors">
+                        <Link href={`/${restaurantSlug}/menu`} className="hover:text-orange-300 transition-colors">
                             Menu
                         </Link>
-                        <Link href={`/${params.restaurant}/reservations`} className="hover:text-orange-300 transition-colors">
+                        <Link href={`/${restaurantSlug}/reservations`} className="hover:text-orange-300 transition-colors">
                             Reservations
                         </Link>
-                        <Link href={`/${params.restaurant}/contact`} className="hover:text-orange-300 transition-colors">
+                        <Link href={`/${restaurantSlug}/contact`} className="hover:text-orange-300 transition-colors">
                             Contact Us
                         </Link>
                     </nav>
 
                     <Link
-                        href={`/${params.restaurant}/signup`}
+                        href={`/${restaurantSlug}/signup`}
                         className={`bg-[${primaryColor}] text-white px-4 py-2 ${buttonStyle} hover:opacity-90 transition-colors`}
                         style={{ backgroundColor: primaryColor }}
                     >
@@ -129,8 +129,8 @@ function RestaurantLayoutContent({
                         <div className="col-span-1">
                             <h3 className="font-medium text-gray-900 mb-4">Company</h3>
                             <ul className="space-y-2 text-sm text-gray-700">
-                                <li><Link href={`/${params.restaurant}/about`}>About us</Link></li>
-                                <li><Link href={`/${params.restaurant}/contact`}>Contact us</Link></li>
+                                <li><Link href={`/${restaurantSlug}/about`}>About us</Link></li>
+                                <li><Link href={`/${restaurantSlug}/contact`}>Contact us</Link></li>
                                 <li><Link href="#">Privacy policy</Link></li>
                                 <li><Link href="#">Terms of service</Link></li>
                                 <li><Link href="#">Careers</Link></li>
@@ -165,18 +165,34 @@ function RestaurantLayoutContent({
 }
 
 // Wrapper component to provide the theme context
-export default function RestaurantLayout({
+export default async function RestaurantLayout({
     children,
     params,
 }: {
     children: ReactNode;
-    params: { restaurant: string };
+    params: { restaurant: Promise<string> | string };
 }) {
-    return (
-        <RestaurantThemeProvider restaurantSlug={params.restaurant}>
-            <RestaurantLayoutContent params={params}>
-                {children}
-            </RestaurantLayoutContent>
-        </RestaurantThemeProvider>
-    );
+    try {
+        // Must await the params in Next.js 15+
+        const restaurantSlug = typeof params.restaurant === 'string'
+            ? params.restaurant
+            : await params.restaurant;
+
+        return (
+            <RestaurantThemeProvider restaurantSlug={restaurantSlug}>
+                <RestaurantLayoutContent restaurantSlug={restaurantSlug}>
+                    {children}
+                </RestaurantLayoutContent>
+            </RestaurantThemeProvider>
+        );
+    } catch (error) {
+        console.error("Error in restaurant layout:", error);
+        // Provide a fallback UI
+        return (
+            <div className="p-8">
+                <h1 className="text-2xl font-bold text-red-500">Error loading restaurant</h1>
+                <p>We're having trouble loading this restaurant page.</p>
+            </div>
+        );
+    }
 } 

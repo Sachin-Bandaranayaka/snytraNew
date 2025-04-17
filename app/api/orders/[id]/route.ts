@@ -214,10 +214,16 @@ function formatCurrency(amount: number): string {
     return `₹${(amount / 100).toFixed(2)}`
 }
 
-function formatDate(date: Date): string {
+function formatDate(date: any): string {
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+        return 'Invalid date';
+    }
     return date.toISOString().split('T')[0]
 }
 
-function formatTime(date: Date): string {
+function formatTime(date: any): string {
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+        return 'Invalid time';
+    }
     return date.toTimeString().split(' ')[0].substring(0, 5)
 } 

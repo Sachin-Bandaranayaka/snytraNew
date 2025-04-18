@@ -4,6 +4,38 @@ import { jwtVerify } from 'jose';
 import { db } from './db';
 import { users } from './schema';
 import { eq } from 'drizzle-orm';
+import { NextAuthOptions } from 'next-auth';
+
+// NextAuth options for authentication configuration
+export const authOptions: NextAuthOptions = {
+    // Define your auth providers, callbacks, and options here
+    // This is intentionally minimal, just to satisfy the import
+    // You should configure this with your actual authentication needs
+    providers: [],
+    secret: process.env.AUTH_SECRET || 'fallback-secret',
+    session: {
+        strategy: 'jwt',
+    },
+    pages: {
+        signIn: '/login',
+    },
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id;
+                token.role = user.role;
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            if (session.user) {
+                session.user.id = token.id as number;
+                session.user.role = token.role as string;
+            }
+            return session;
+        },
+    },
+};
 
 // Get the current user from the auth token
 export async function getCurrentUser() {

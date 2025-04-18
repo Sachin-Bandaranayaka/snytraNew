@@ -1,0 +1,1 @@
+eq(menuCategories.companyid, user.id) 

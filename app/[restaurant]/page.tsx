@@ -2,29 +2,65 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRestaurantTheme } from "@/context/restaurant-theme-context";
+import { useState, useEffect } from "react";
 
 export default function RestaurantHome() {
+    const { settings, theme } = useRestaurantTheme();
+    const [imagesLoaded, setImagesLoaded] = useState(false);
+
+    // Create placeholders for missing images
+    const placeholderImages = {
+        hero: settings?.heroImage || "https://placehold.co/1200x600?text=Restaurant+Hero",
+        food: ["https://placehold.co/600x400?text=Food+Item", "https://placehold.co/600x400?text=Food+Item"],
+        avatar: "https://placehold.co/100x100?text=Avatar"
+    };
+
+    useEffect(() => {
+        // Mark images as loaded to prevent layout shift
+        setImagesLoaded(true);
+    }, []);
+
+    // Apply theme settings if available
+    const primaryColor = settings?.primaryColor || "#e85c2c";
+    const secondaryColor = settings?.secondaryColor || "#f8f5eb";
+    const accentColor = theme?.accentColor || "#1a1a0f";
+    const buttonStyle = theme?.buttonStyle || "rounded";
+
+    const getBorderRadius = () => {
+        switch (buttonStyle) {
+            case "squared": return "rounded-none";
+            case "pill": return "rounded-full";
+            default: return "rounded-md";
+        }
+    };
+
+    const borderRadius = getBorderRadius();
+
     return (
-        <div>
+        <div style={{
+            backgroundColor: secondaryColor,
+            color: accentColor
+        }}>
             {/* Hero Section */}
             <section className="py-12 md:py-20">
                 <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center">
                     <div className="flex-1 mb-8 md:mb-0 pr-0 md:pr-10">
-                        <h1 className="text-4xl md:text-5xl font-bold text-[#e85c2c] mb-4">
-                            Taste the Difference.<br />
-                            Experience the Flavor.
+                        <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: primaryColor }}>
+                            {settings?.siteTitle || "Restaurant Name"}
                         </h1>
                         <p className="text-gray-700 mb-8">Dine-in, Order, and Reserve Effortlessly.</p>
                         <div className="flex space-x-4">
                             <Link
-                                href="/menu"
-                                className="bg-white border border-gray-300 text-gray-800 px-6 py-3 rounded-md hover:bg-gray-50 transition-colors"
+                                href="#menu"
+                                className={`bg-white border border-gray-300 text-gray-800 px-6 py-3 ${borderRadius} hover:bg-gray-50 transition-colors`}
                             >
                                 View Menu
                             </Link>
                             <Link
-                                href="/reservations"
-                                className="bg-[#e85c2c] text-white px-6 py-3 rounded-md hover:bg-[#d04b1c] transition-colors"
+                                href="#contact"
+                                className={`px-6 py-3 ${borderRadius} hover:opacity-90 transition-colors text-white`}
+                                style={{ backgroundColor: primaryColor }}
                             >
                                 Reserve a Table
                             </Link>
@@ -32,11 +68,15 @@ export default function RestaurantHome() {
                     </div>
                     <div className="flex-1 relative w-full h-[250px] md:h-[400px]">
                         <Image
-                            src="/restaurant-interior.jpg"
+                            src={placeholderImages.hero}
                             alt="Restaurant Interior"
                             fill
                             className="object-cover rounded-lg"
                             priority
+                            onError={(e) => {
+                                // Fallback to placeholder on error
+                                e.currentTarget.src = "https://placehold.co/1200x600?text=Restaurant+Hero";
+                            }}
                         />
                     </div>
                 </div>
@@ -45,15 +85,16 @@ export default function RestaurantHome() {
             {/* Restaurant Features */}
             <section className="py-12 md:py-16 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
-                    <h2 className="text-3xl md:text-4xl font-bold text-center text-[#e85c2c] mb-12">
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: primaryColor }}>
                         Restaurant Features
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="bg-white p-6 rounded-lg text-center">
                             <div className="flex justify-center mb-4">
-                                <div className="bg-red-100 p-3 rounded-full">
+                                <div className="p-3 rounded-full" style={{ backgroundColor: `${primaryColor}20` }}>
                                     <svg
-                                        className="h-6 w-6 text-[#e85c2c]"
+                                        className="h-6 w-6"
+                                        style={{ color: primaryColor }}
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         xmlns="http://www.w3.org/2000/svg"
@@ -67,9 +108,10 @@ export default function RestaurantHome() {
 
                         <div className="bg-white p-6 rounded-lg text-center">
                             <div className="flex justify-center mb-4">
-                                <div className="bg-red-100 p-3 rounded-full">
+                                <div className="p-3 rounded-full" style={{ backgroundColor: `${primaryColor}20` }}>
                                     <svg
-                                        className="h-6 w-6 text-[#e85c2c]"
+                                        className="h-6 w-6"
+                                        style={{ color: primaryColor }}
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         xmlns="http://www.w3.org/2000/svg"
@@ -83,9 +125,10 @@ export default function RestaurantHome() {
 
                         <div className="bg-white p-6 rounded-lg text-center">
                             <div className="flex justify-center mb-4">
-                                <div className="bg-red-100 p-3 rounded-full">
+                                <div className="p-3 rounded-full" style={{ backgroundColor: `${primaryColor}20` }}>
                                     <svg
-                                        className="h-6 w-6 text-[#e85c2c]"
+                                        className="h-6 w-6"
+                                        style={{ color: primaryColor }}
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         xmlns="http://www.w3.org/2000/svg"
@@ -99,9 +142,10 @@ export default function RestaurantHome() {
 
                         <div className="bg-white p-6 rounded-lg text-center">
                             <div className="flex justify-center mb-4">
-                                <div className="bg-red-100 p-3 rounded-full">
+                                <div className="p-3 rounded-full" style={{ backgroundColor: `${primaryColor}20` }}>
                                     <svg
-                                        className="h-6 w-6 text-[#e85c2c]"
+                                        className="h-6 w-6"
+                                        style={{ color: primaryColor }}
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         xmlns="http://www.w3.org/2000/svg"
@@ -117,19 +161,20 @@ export default function RestaurantHome() {
             </section>
 
             {/* Popular Dishes */}
-            <section className="py-12 md:py-16">
+            <section className="py-12 md:py-16" id="menu">
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
                     <div className="text-center mb-6">
-                        <h2 className="text-3xl md:text-4xl font-bold text-[#e85c2c] mb-2">
+                        <h2 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: primaryColor }}>
                             Popular Dishes
                         </h2>
-                        <p className="text-gray-700">Our best seller</p>
+                        <p className="text-gray-700">Our best sellers</p>
                     </div>
 
                     <div className="flex justify-center mb-8">
                         <Link
-                            href="/menu"
-                            className="bg-[#e85c2c] text-white px-6 py-3 rounded-md hover:bg-[#d04b1c] transition-colors"
+                            href="#order"
+                            className={`text-white px-6 py-3 ${borderRadius} hover:opacity-90 transition-colors`}
+                            style={{ backgroundColor: primaryColor }}
                         >
                             Order Now
                         </Link>
@@ -140,14 +185,17 @@ export default function RestaurantHome() {
                             <div key={index} className="bg-white p-4 rounded-lg">
                                 <div className="relative w-full h-40 mb-3">
                                     <Image
-                                        src={index % 2 === 0 ? "/burger.jpg" : "/pizza.jpg"}
-                                        alt={index % 2 === 0 ? "Burger" : "Pizza"}
+                                        src={placeholderImages.food[index % 2]}
+                                        alt={`Food item ${index + 1}`}
                                         fill
                                         className="object-cover rounded-lg"
+                                        onError={(e) => {
+                                            e.currentTarget.src = "https://placehold.co/600x400?text=Food+Item";
+                                        }}
                                     />
                                 </div>
                                 <h3 className="font-medium text-gray-800 mb-2">
-                                    {index % 2 === 0 ? "Burger" : "Pizza"}
+                                    {index % 2 === 0 ? "Signature Dish" : "Special Pizza"}
                                 </h3>
                                 <div className="flex text-yellow-400">
                                     {[...Array(5)].map((_, i) => (
@@ -167,13 +215,27 @@ export default function RestaurantHome() {
                 </div>
             </section>
 
+            {/* About Section */}
+            {settings?.aboutText && (
+                <section className="py-12 md:py-16 bg-white">
+                    <div className="max-w-3xl mx-auto px-4 md:px-8 text-center">
+                        <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: primaryColor }}>
+                            About Us
+                        </h2>
+                        <p className="text-gray-700 leading-relaxed">
+                            {settings.aboutText}
+                        </p>
+                    </div>
+                </section>
+            )}
+
             {/* Customer Reviews */}
             <section className="py-12 md:py-16 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
-                    <h2 className="text-3xl md:text-4xl font-bold text-center text-[#e85c2c] mb-4">
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4" style={{ color: primaryColor }}>
                         Customer Reviews
                     </h2>
-                    <p className="text-center text-gray-700 mb-10">What our customers says about us.</p>
+                    <p className="text-center text-gray-700 mb-10">What our customers say about us.</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[1, 2, 3].map((item, index) => (
@@ -181,14 +243,17 @@ export default function RestaurantHome() {
                                 <div className="flex items-center mb-4">
                                     <div className="h-12 w-12 relative mr-4">
                                         <Image
-                                            src="/avatar.jpg"
+                                            src={placeholderImages.avatar}
                                             alt="Customer"
                                             fill
                                             className="object-cover rounded-full"
+                                            onError={(e) => {
+                                                e.currentTarget.src = "https://placehold.co/100x100?text=Avatar";
+                                            }}
                                         />
                                     </div>
                                     <div>
-                                        <h3 className="font-medium text-gray-800">Alex</h3>
+                                        <h3 className="font-medium text-gray-800">Customer {index + 1}</h3>
                                         <div className="flex text-yellow-400">
                                             {[...Array(5)].map((_, i) => (
                                                 <svg
@@ -204,7 +269,7 @@ export default function RestaurantHome() {
                                     </div>
                                 </div>
                                 <p className="text-gray-700">
-                                    Great food, great service! The burgers are incredible. Will definitely be back!
+                                    Great food, great service! Will definitely be back again.
                                 </p>
                             </div>
                         ))}
@@ -212,17 +277,71 @@ export default function RestaurantHome() {
                 </div>
             </section>
 
-            {/* Map */}
-            <section className="py-8">
+            {/* Contact Section */}
+            <section className="py-12 md:py-16" id="contact">
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
-                    <div className="h-[300px] w-full bg-gray-200 rounded-lg">
-                        {/* In a real implementation, you would integrate a map service like Google Maps */}
-                        <div className="h-full w-full flex items-center justify-center">
-                            <p className="text-gray-500">Restaurant location map</p>
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-6" style={{ color: primaryColor }}>
+                        Visit Us
+                    </h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <div className="bg-white p-6 rounded-lg shadow-sm">
+                                <h3 className="text-xl font-bold mb-4">Contact Information</h3>
+
+                                {settings?.address && (
+                                    <div className="flex items-start mb-4">
+                                        <svg className="h-5 w-5 mr-3 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <div>
+                                            <p className="font-medium">Address</p>
+                                            <p className="text-gray-600">{settings.address}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {settings?.contactNumber && (
+                                    <div className="flex items-start mb-4">
+                                        <svg className="h-5 w-5 mr-3 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                        </svg>
+                                        <div>
+                                            <p className="font-medium">Phone</p>
+                                            <p className="text-gray-600">{settings.contactNumber}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex items-start">
+                                    <svg className="h-5 w-5 mr-3 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div>
+                                        <p className="font-medium">Hours</p>
+                                        <p className="text-gray-600">Open daily: 10:00 AM - 10:00 PM</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="h-[300px] md:h-[400px] bg-gray-200 rounded-lg overflow-hidden">
+                            <div className="h-full w-full flex items-center justify-center">
+                                <p className="text-gray-500">Restaurant location map</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
+
+            {/* Footer */}
+            <footer className="py-8 text-white" style={{ backgroundColor: accentColor }}>
+                <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
+                    <p className="mb-4">{settings?.siteTitle || "Restaurant Name"} © {new Date().getFullYear()}</p>
+                    <p className="text-sm opacity-75">Website powered by Snytra</p>
+                </div>
+            </footer>
         </div>
     );
 } 

@@ -1,0 +1,32 @@
+{
+    "mcpServers": {
+        "Neon": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@neondatabase/mcp-server-neon",
+                "start",
+                "napi_gggm4nakt2qr4qh8evw1t7cfkhfum3fosz8co3si5t39b6idj3fl24sg69c3fpg7"
+            ]
+        },
+        "NeonLocal": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@neondatabase/mcp-server-neon"
+            ]
+        },
+        "NeonLoopback": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-remote",
+                "--hostname",
+                "127.0.0.1",
+                "--port",
+                "8000",
+                "https://mcp.neon.tech/sse"
+            ]
+        }
+    }
+}

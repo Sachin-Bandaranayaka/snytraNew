@@ -51,7 +51,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             .where(
                 and(
                     eq(menuItems.id, parseInt(params.id)),
-                    eq(menuItems.companyId, user.id)
+                    eq(menuItems.companyid, user.id)
                 )
             )
             .limit(1)
@@ -137,7 +137,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             .where(
                 and(
                     eq(menuItems.id, parseInt(params.id)),
-                    eq(menuItems.companyId, user.id)
+                    eq(menuItems.companyid, user.id)
                 )
             )
             .limit(1)
@@ -257,7 +257,7 @@ export async function DELETE(
             .where(
                 and(
                     eq(menuItems.id, id),
-                    eq(menuItems.companyId, user.id)
+                    eq(menuItems.companyid, user.id)
                 )
             )
             .limit(1)
@@ -275,7 +275,7 @@ export async function DELETE(
             .where(
                 and(
                     eq(menuItems.id, id),
-                    eq(menuItems.companyId, user.id)
+                    eq(menuItems.companyid, user.id)
                 )
             )
 

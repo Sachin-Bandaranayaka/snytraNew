@@ -157,7 +157,7 @@ export default function ReservationsPage({ params }: { params: Promise<{ restaur
                                             name="name"
                                             required
                                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
-                                            style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
+                                            style={{ borderColor: "gray", boxShadow: `0 0 0 3px ${primaryColor}` } as any}
                                             value={formData.name}
                                             onChange={handleChange}
                                         />
@@ -172,7 +172,7 @@ export default function ReservationsPage({ params }: { params: Promise<{ restaur
                                             name="email"
                                             required
                                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
-                                            style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
+                                            style={{ borderColor: "gray", boxShadow: `0 0 0 3px ${primaryColor}` } as any}
                                             value={formData.email}
                                             onChange={handleChange}
                                         />
@@ -189,7 +189,7 @@ export default function ReservationsPage({ params }: { params: Promise<{ restaur
                                         name="phone"
                                         required
                                         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
-                                        style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
+                                        style={{ borderColor: "gray", boxShadow: `0 0 0 3px ${primaryColor}` } as any}
                                         value={formData.phone}
                                         onChange={handleChange}
                                     />
@@ -207,7 +207,7 @@ export default function ReservationsPage({ params }: { params: Promise<{ restaur
                                             required
                                             min={new Date().toISOString().split('T')[0]}
                                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
-                                            style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
+                                            style={{ borderColor: "gray", boxShadow: `0 0 0 3px ${primaryColor}` } as any}
                                             value={formData.date}
                                             onChange={handleChange}
                                         />
@@ -221,7 +221,7 @@ export default function ReservationsPage({ params }: { params: Promise<{ restaur
                                             name="time"
                                             required
                                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
-                                            style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
+                                            style={{ borderColor: "gray", boxShadow: `0 0 0 3px ${primaryColor}` } as any}
                                             value={formData.time}
                                             onChange={handleChange}
                                         >
@@ -240,7 +240,7 @@ export default function ReservationsPage({ params }: { params: Promise<{ restaur
                                             name="guests"
                                             required
                                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
-                                            style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
+                                            style={{ borderColor: "gray", boxShadow: `0 0 0 3px ${primaryColor}` } as any}
                                             value={formData.guests}
                                             onChange={handleChange}
                                         >
@@ -263,7 +263,7 @@ export default function ReservationsPage({ params }: { params: Promise<{ restaur
                                             name="tableId"
                                             required
                                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
-                                            style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
+                                            style={{ borderColor: "gray", boxShadow: `0 0 0 3px ${primaryColor}` } as any}
                                             value={formData.tableId}
                                             onChange={handleChange}
                                         >
@@ -305,7 +305,7 @@ export default function ReservationsPage({ params }: { params: Promise<{ restaur
                                         name="specialRequests"
                                         rows={3}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
-                                        style={{ borderColor: "gray", "--tw-ring-color": primaryColor } as any}
+                                        style={{ borderColor: "gray", boxShadow: `0 0 0 3px ${primaryColor}` } as any}
                                         value={formData.specialRequests}
                                         onChange={handleChange}
                                         placeholder="Allergies, special occasions, seating preferences, etc."
@@ -402,4 +402,4 @@ export default function ReservationsPage({ params }: { params: Promise<{ restaur
             </div>
         </div>
     );
-} 
+}

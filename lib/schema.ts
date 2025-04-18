@@ -267,35 +267,37 @@ export const companySettings = pgTable('company_settings', {
 // Menu Categories
 export const menuCategories = pgTable('menu_categories', {
     id: serial('id').primaryKey(),
-    companyId: integer('company_id').references(() => users.id).notNull(),
+    companyid: integer('companyid').references(() => users.id).notNull(),
+    restaurant_id: integer('restaurant_id').notNull(),
     name: text('name').notNull(),
     description: text('description'),
     imageUrl: text('image_url'),
-    displayOrder: integer('display_order').default(0),
-    isActive: boolean('is_active').default(true),
-    createdAt: timestamp('created_at').defaultNow(),
-    updatedAt: timestamp('updated_at').defaultNow(),
+    displayOrder: integer('displayOrder').default(0),
+    isActive: boolean('isActive').default(true),
+    createdAt: timestamp('createdAt').defaultNow(),
+    updatedAt: timestamp('updatedAt').defaultNow(),
 });
 
 // Menu Items
 export const menuItems = pgTable('menu_items', {
     id: serial('id').primaryKey(),
-    companyId: integer('company_id').references(() => users.id).notNull(),
-    categoryId: integer('category_id').references(() => menuCategories.id).notNull(),
+    companyid: integer('companyid').references(() => users.id).notNull(),
+    restaurant_id: integer('restaurant_id').notNull(),
+    categoryId: integer('categoryId').references(() => menuCategories.id).notNull(),
     name: text('name').notNull(),
     description: text('description'),
     price: integer('price').notNull(), // Price in cents
     imageUrl: text('image_url'),
-    isVegetarian: boolean('is_vegetarian').default(false),
-    isVegan: boolean('is_vegan').default(false),
-    isGlutenFree: boolean('is_gluten_free').default(false),
-    spiceLevel: integer('spice_level'),
-    preparationTime: integer('preparation_time'), // In minutes
-    isActive: boolean('is_active').default(true),
-    isFeatured: boolean('is_featured').default(false),
-    displayOrder: integer('display_order').default(0),
-    createdAt: timestamp('created_at').defaultNow(),
-    updatedAt: timestamp('updated_at').defaultNow(),
+    isVegetarian: boolean('isVegetarian').default(false),
+    isVegan: boolean('isVegan').default(false),
+    isGlutenFree: boolean('isGlutenFree').default(false),
+    spiceLevel: integer('spiceLevel'),
+    preparationTime: integer('preparationTime'), // In minutes
+    isActive: boolean('isActive').default(true),
+    isFeatured: boolean('isFeatured').default(false),
+    displayOrder: integer('displayOrder').default(0),
+    createdAt: timestamp('createdAt').defaultNow(),
+    updatedAt: timestamp('updatedAt').defaultNow(),
 });
 
 // Inventory Items

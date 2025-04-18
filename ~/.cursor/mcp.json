@@ -5,6 +5,8 @@
             "args": [
                 "-y",
                 "mcp-remote",
+                "--port",
+                "8000",
                 "https://mcp.neon.tech/sse"
             ]
         }

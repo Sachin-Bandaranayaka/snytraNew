@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { menuCategories, users, menuItems } from '@/lib/schema'
-import { eq, and, asc } from 'drizzle-orm'
+import { eq, and, asc, sql } from 'drizzle-orm'
 import { getCurrentUser } from '@/lib/auth'
 
 // GET all menu categories for the current user's company
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
         const offset = (page - 1) * limit
 
         // Build query conditions
-        let conditions = [eq(menuCategories.companyId, user.id)]
+        let conditions = [eq(menuCategories.companyid, user.id)]
 
         if (active) {
             conditions.push(eq(menuCategories.isActive, true))
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
 
         // Get total count for pagination
         const countResult = await db
-            .select({ count: db.fn.count() })
+            .select({ count: sql`count(*)` })
             .from(menuCategories)
             .where(and(...conditions))
 
@@ -116,6 +116,7 @@ export async function GET(request: NextRequest) {
                     name: "Pizza",
                     description: "Italian dish with a round, flattened base of dough topped with various ingredients",
                     companyId: 1,
+                    restaurant_id: 1,
                     displayOrder: 1,
                     isActive: true,
                     createdAt: new Date().toISOString(),
@@ -126,6 +127,7 @@ export async function GET(request: NextRequest) {
                     name: "Salad",
                     description: "Mix of fresh vegetables, often with dressing",
                     companyId: 1,
+                    restaurant_id: 1,
                     displayOrder: 2,
                     isActive: true,
                     createdAt: new Date().toISOString(),
@@ -136,6 +138,7 @@ export async function GET(request: NextRequest) {
                     name: "Pasta",
                     description: "Italian food typically made from wheat flour and shaped into various forms",
                     companyId: 1,
+                    restaurant_id: 1,
                     displayOrder: 3,
                     isActive: true,
                     createdAt: new Date().toISOString(),
@@ -171,18 +174,34 @@ export async function POST(request: NextRequest) {
         if (!user) {
             // For development environment, use mock data
             if (process.env.NODE_ENV === 'development') {
-                const body = await request.json();
-                return NextResponse.json({
-                    success: true,
-                    message: 'Mock category created successfully',
-                    category: {
-                        id: Math.floor(100 + Math.random() * 900),
-                        name: body.name,
-                        description: body.description,
-                        createdAt: new Date().toISOString()
-                    },
-                    mock: true
-                });
+                try {
+                    const requestBody = await request.json();
+                    return NextResponse.json({
+                        success: true,
+                        message: 'Mock category created successfully',
+                        category: {
+                            id: Math.floor(100 + Math.random() * 900),
+                            name: requestBody.name,
+                            description: requestBody.description,
+                            createdAt: new Date().toISOString()
+                        },
+                        mock: true
+                    });
+                } catch (error) {
+                    // If JSON parsing fails, try to get form data
+                    const formData = await request.formData();
+                    return NextResponse.json({
+                        success: true,
+                        message: 'Mock category created successfully',
+                        category: {
+                            id: Math.floor(100 + Math.random() * 900),
+                            name: formData.get('name')?.toString() || 'Mock Category',
+                            description: formData.get('description')?.toString() || '',
+                            createdAt: new Date().toISOString()
+                        },
+                        mock: true
+                    });
+                }
             }
 
             return NextResponse.json(
@@ -191,15 +210,44 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Parse request body
-        const requestBody = await request.json()
-        const {
-            name,
-            description,
-            imageUrl,
-            displayOrder,
-            isActive
-        } = requestBody
+        // Parse request body - handle both JSON and FormData
+        let name, description, imageUrl, displayOrder, isActive;
+
+        const contentType = request.headers.get('content-type') || '';
+
+        if (contentType.includes('multipart/form-data')) {
+            // Handle FormData
+            const formData = await request.formData();
+            name = formData.get('name')?.toString();
+            description = formData.get('description')?.toString();
+
+            // Handle file upload if needed
+            const image = formData.get('image') as File | null;
+            if (image && image instanceof File) {
+                // In a real application, you would upload the image to a storage service
+                // For now, we'll just use a placeholder URL
+                imageUrl = `https://via.placeholder.com/500x500?text=${encodeURIComponent(name || 'Category')}`;
+            }
+
+            displayOrder = formData.get('displayOrder') ? parseInt(formData.get('displayOrder') as string) : 0;
+            isActive = formData.get('isActive') === 'true';
+        } else {
+            // Try to parse as JSON
+            try {
+                const requestBody = await request.json();
+                name = requestBody.name;
+                description = requestBody.description;
+                imageUrl = requestBody.imageUrl;
+                displayOrder = requestBody.displayOrder || 0;
+                isActive = requestBody.isActive !== false;
+            } catch (parseError) {
+                console.error('Error parsing request body:', parseError);
+                return NextResponse.json(
+                    { error: 'Invalid request format. Expected JSON or FormData.' },
+                    { status: 400 }
+                );
+            }
+        }
 
         // Validate required fields
         if (!name) {
@@ -213,7 +261,8 @@ export async function POST(request: NextRequest) {
         const result = await db
             .insert(menuCategories)
             .values({
-                companyId: user.id,
+                companyid: user.id,
+                restaurant_id: user.id, // Use the same ID for restaurant_id as companyid
                 name,
                 description,
                 imageUrl,
@@ -235,29 +284,15 @@ export async function POST(request: NextRequest) {
 
         // For development environment, return mock success
         if (process.env.NODE_ENV === 'development') {
-            try {
-                const body = await request.json();
-                return NextResponse.json({
-                    success: true,
-                    message: 'Mock category created successfully (error fallback)',
-                    category: {
-                        id: Math.floor(100 + Math.random() * 900),
-                        name: body.name || 'Mock Category'
-                    },
-                    mock: true
-                });
-            } catch (e) {
-                // If we can't parse the request body, just return a generic mock
-                return NextResponse.json({
-                    success: true,
-                    message: 'Mock category created successfully (generic fallback)',
-                    category: {
-                        id: Math.floor(100 + Math.random() * 900),
-                        name: 'Mock Category'
-                    },
-                    mock: true
-                });
-            }
+            return NextResponse.json({
+                success: true,
+                message: 'Mock category created successfully (error fallback)',
+                category: {
+                    id: Math.floor(100 + Math.random() * 900),
+                    name: 'Generic Mock Category'
+                },
+                mock: true
+            });
         }
 
         return NextResponse.json(
@@ -307,7 +342,7 @@ export async function DELETE(request: NextRequest) {
             .where(
                 and(
                     eq(menuItems.categoryId, parseInt(id)),
-                    eq(menuItems.companyId, user.id)
+                    eq(menuItems.companyid, user.id)
                 )
             )
 
@@ -326,7 +361,7 @@ export async function DELETE(request: NextRequest) {
             .where(
                 and(
                     eq(menuCategories.id, parseInt(id)),
-                    eq(menuCategories.companyId, user.id)
+                    eq(menuCategories.companyid, user.id)
                 )
             )
 

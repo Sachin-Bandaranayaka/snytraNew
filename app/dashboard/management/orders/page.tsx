@@ -60,6 +60,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import OrderForm from "./order-form"
+import { ManagementPageLayout, PrimaryButton } from "@/components/ui/management-page-layout"
 
 // Interface definitions
 interface OrderItem {
@@ -133,7 +134,7 @@ const getTypeIcon = (type: string) => {
     }
 }
 
-export default function OrderManagement() {
+export default function OrdersManagementPage() {
     const { toast } = useToast()
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(true)
@@ -363,88 +364,90 @@ export default function OrderManagement() {
     }
 
     return (
-        <div className="w-full">
-            <div className="flex flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-3xl font-bold text-[#e85c2c]">Orders Management</h1>
-                    <div className="flex gap-2">
-                        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="bg-[#e85c2c] hover:bg-[#d24e20] text-white">
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    New Order
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-                                <DialogHeader>
-                                    <DialogTitle>Create New Order</DialogTitle>
-                                    <DialogDescription>
-                                        Fill out the form below to create a new order.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <OrderForm onSuccess={handleNewOrderSuccess} />
-                            </DialogContent>
-                        </Dialog>
+        <ManagementPageLayout
+            title="Orders Management"
+            description="Manage and track all customer orders"
+            headerAction={
+                <PrimaryButton>New Order</PrimaryButton>
+            }
+        >
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <Card>
+                    <div className="flex items-center gap-3">
+                        <div className="bg-orange-100 p-3 rounded-full">
+                            <svg className="w-6 h-6 text-[#e85c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p className="text-gray-600 text-sm">Total Orders</p>
+                            <p className="text-2xl font-bold">{pagination.total}</p>
+                            <p className="text-xs text-gray-500">Orders across all statuses</p>
+                        </div>
                     </div>
-                </div>
+                </Card>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-                            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{pagination.total}</div>
-                            <p className="text-xs text-muted-foreground">
-                                Orders across all statuses
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.created}</div>
-                            <p className="text-xs text-muted-foreground">
-                                Orders waiting to be processed
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-                            <CreditCard className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.inProgress}</div>
-                            <p className="text-xs text-muted-foreground">
-                                Orders currently being prepared
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Completed Today</CardTitle>
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.completed}</div>
-                            <p className="text-xs text-muted-foreground">
-                                Orders completed today
-                            </p>
-                        </CardContent>
-                    </Card>
-                </div>
+                <Card>
+                    <div className="flex items-center gap-3">
+                        <div className="bg-orange-100 p-3 rounded-full">
+                            <svg className="w-6 h-6 text-[#e85c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p className="text-gray-600 text-sm">Pending</p>
+                            <p className="text-2xl font-bold">{stats.created}</p>
+                            <p className="text-xs text-gray-500">Orders waiting to be processed</p>
+                        </div>
+                    </div>
+                </Card>
 
-                <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-semibold">All Orders</h2>
-                    <Button variant="outline" className="gap-1">
-                        <Download className="h-4 w-4" />
-                        Export
-                    </Button>
+                <Card>
+                    <div className="flex items-center gap-3">
+                        <div className="bg-orange-100 p-3 rounded-full">
+                            <svg className="w-6 h-6 text-[#e85c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p className="text-gray-600 text-sm">In Progress</p>
+                            <p className="text-2xl font-bold">{stats.inProgress}</p>
+                            <p className="text-xs text-gray-500">Orders currently being prepared</p>
+                        </div>
+                    </div>
+                </Card>
+
+                <Card>
+                    <div className="flex items-center gap-3">
+                        <div className="bg-orange-100 p-3 rounded-full">
+                            <svg className="w-6 h-6 text-[#e85c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p className="text-gray-600 text-sm">Completed Today</p>
+                            <p className="text-2xl font-bold">{stats.completed}</p>
+                            <p className="text-xs text-gray-500">Orders completed today</p>
+                        </div>
+                    </div>
+                </Card>
+            </div>
+
+            <Card title="All Orders" className="mb-8">
+                <div className="flex justify-between items-center mb-6">
+                    <div className="flex gap-3">
+                        <button className="py-2 border-b-2 border-[#e85c2c] text-[#e85c2c] font-medium">All Orders</button>
+                        <button className="py-2 border-b-2 border-transparent text-gray-500 hover:text-gray-800">Active</button>
+                        <button className="py-2 border-b-2 border-transparent text-gray-500 hover:text-gray-800">Completed</button>
+                    </div>
+                    <div>
+                        <button className="text-[#e85c2c] font-medium flex items-center gap-1">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Export
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex items-center space-x-2 mb-4">
@@ -672,7 +675,7 @@ export default function OrderManagement() {
                         )}
                     </TabsContent>
                 </Tabs>
-            </div>
-        </div>
+            </Card>
+        </ManagementPageLayout>
     );
 }

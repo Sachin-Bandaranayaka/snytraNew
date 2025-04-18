@@ -141,7 +141,7 @@ export async function GET(
         })
             .from(menuItems)
             .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
-            .where(eq(menuItems.companyId, company.id));
+            .where(eq(menuItems.companyid, company.id));
 
         // Apply filters
         if (category && category !== "All") {

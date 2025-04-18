@@ -28,6 +28,11 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+    ManagementPageLayout,
+    PrimaryButton,
+    LoadingSpinner
+} from "@/components/ui/management-page-layout"
 
 interface MenuItem {
     id: number;
@@ -359,266 +364,39 @@ function MenuManagement() {
     }
 
     return (
-        <div className="w-full bg-[#f7f5f1] min-h-screen">
-            <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-3xl font-bold text-[#e85c2c]">Menu Management</h1>
-                    <div className="flex gap-2">
-                        <Button variant="outline" className="bg-white" onClick={handleAddCategory}>
-                            <Tag className="mr-2 h-4 w-4" />
-                            Add Category
-                        </Button>
-                        <Button className="bg-[#e85c2c] hover:bg-[#d24e20] text-white" onClick={handleAddNewMenu}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            New Menu Item
-                        </Button>
-                    </div>
-                </div>
-
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-                    <TabsList className="mb-4">
-                        <TabsTrigger value="items">Menu Items</TabsTrigger>
-                        <TabsTrigger value="categories">Categories</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="items">
-                        <div className="mb-6">
-                            <h2 className="text-xl font-semibold">Menu Items ({pagination.total})</h2>
-                        </div>
-
-                        {menuItems.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center p-10 bg-gray-50 rounded-lg">
-                                <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                                    <Plus className="h-8 w-8 text-gray-400" />
-                                </div>
-                                <h3 className="text-xl font-semibold text-gray-700">No menu items yet</h3>
-                                <p className="text-gray-500 mt-2 text-center max-w-md">
-                                    Add your first menu item to get started. You can organize items by categories and highlight featured items.
-                                </p>
-                                <Button
-                                    className="mt-4 bg-[#e85c2c] hover:bg-[#d24e20] text-white"
-                                    onClick={handleAddNewMenu}
-                                >
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Add First Menu Item
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                {menuItems.map((item) => (
-                                    <Card key={item.id} className="overflow-hidden border border-gray-200 bg-white">
-                                        <div className="relative">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="sm" className="absolute right-2 top-2 h-8 w-8 p-0">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem onClick={() => handleEditMenuItem(item.id)}>
-                                                        <Edit className="mr-2 h-4 w-4" />
-                                                        Edit
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem
-                                                        className="text-red-600"
-                                                        onClick={() => openDeleteDialog('item', item.id, item.name)}
-                                                    >
-                                                        <Trash2 className="mr-2 h-4 w-4" />
-                                                        Delete
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </div>
-
-                                        <div className="flex h-full">
-                                            <div className="p-3 w-1/3">
-                                                <img
-                                                    src={item.image || `https://via.placeholder.com/150?text=${encodeURIComponent(item.name)}`}
-                                                    alt={item.name}
-                                                    className="w-full h-full object-cover rounded-md"
-                                                    onError={(e) => {
-                                                        (e.target as HTMLImageElement).src = `https://via.placeholder.com/150?text=${encodeURIComponent(item.name)}`;
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="p-3 flex-1 flex flex-col">
-                                                <h3 className="font-semibold text-base">{item.name}</h3>
-                                                <p className="text-xs text-gray-600 mt-1 line-clamp-2">{item.description}</p>
-                                                <div className="mt-auto">
-                                                    <p className="text-[#e85c2c] font-semibold">{item.priceFormatted || `₹${item.price.toFixed(2)}`}</p>
-                                                    <div className="flex gap-2 mt-2 items-center flex-wrap">
-                                                        <Badge variant="outline" className="bg-gray-100 text-gray-800 px-2 py-0.5 text-xs">
-                                                            {getCategoryIcon(item.category)} {item.category}
-                                                        </Badge>
-                                                        {item.isFeatured && (
-                                                            <Badge className="bg-red-100 text-red-800 px-2 py-0.5 text-xs">
-                                                                Best Seller
-                                                            </Badge>
-                                                        )}
-                                                        {item.isVegetarian && (
-                                                            <Badge variant="outline" className="bg-green-100 text-green-800 px-2 py-0.5 text-xs">
-                                                                Vegetarian
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                ))}
-                            </div>
-                        )}
-
-                        {pagination.totalPages > 1 && (
-                            <div className="flex justify-center mt-6">
-                                <div className="flex gap-2">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => fetchMenuItems(pagination.page - 1)}
-                                        disabled={pagination.page === 1}
-                                    >
-                                        Previous
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => fetchMenuItems(pagination.page + 1)}
-                                        disabled={pagination.page === pagination.totalPages}
-                                    >
-                                        Next
-                                    </Button>
-                                </div>
-                            </div>
-                        )}
-                    </TabsContent>
-
-                    <TabsContent value="categories">
-                        <div className="mb-6">
-                            <h2 className="text-xl font-semibold">Categories ({categoryPagination.total})</h2>
-                        </div>
-
-                        {categories.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center p-10 bg-gray-50 rounded-lg">
-                                <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                                    <Tag className="h-8 w-8 text-gray-400" />
-                                </div>
-                                <h3 className="text-xl font-semibold text-gray-700">No categories yet</h3>
-                                <p className="text-gray-500 mt-2 text-center max-w-md">
-                                    Add categories to organize your menu items. Categories make it easier for customers to browse your menu.
-                                </p>
-                                <Button
-                                    className="mt-4 bg-[#e85c2c] hover:bg-[#d24e20] text-white"
-                                    onClick={handleAddCategory}
-                                >
-                                    <Tag className="mr-2 h-4 w-4" />
-                                    Add First Category
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {categories.map((category) => (
-                                    <Card key={category.id} className="overflow-hidden border border-gray-200 bg-white">
-                                        <CardHeader className="pb-2">
-                                            <div className="flex justify-between items-start">
-                                                <CardTitle className="text-lg">{category.name}</CardTitle>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem onClick={() => handleEditCategory(category.id)}>
-                                                            <Edit className="mr-2 h-4 w-4" />
-                                                            Edit
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuSeparator />
-                                                        <DropdownMenuItem
-                                                            className="text-red-600"
-                                                            onClick={() => openDeleteDialog('category', category.id, category.name)}
-                                                            disabled={getItemCount(category.id) > 0}
-                                                        >
-                                                            <Trash2 className="mr-2 h-4 w-4" />
-                                                            Delete
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <p className="text-sm text-gray-600 mb-4 line-clamp-2">{category.description || 'No description'}</p>
-                                            <div className="flex justify-between items-center">
-                                                <Badge variant="outline" className="bg-gray-100 text-gray-800">
-                                                    {getItemCount(category.id)} items
-                                                </Badge>
-                                                {!category.isActive && (
-                                                    <Badge variant="outline" className="bg-red-100 text-red-800">
-                                                        Inactive
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </div>
-                        )}
-
-                        {categoryPagination.totalPages > 1 && (
-                            <div className="flex justify-center mt-6">
-                                <div className="flex gap-2">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => fetchCategories(categoryPagination.page - 1)}
-                                        disabled={categoryPagination.page === 1}
-                                    >
-                                        Previous
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => fetchCategories(categoryPagination.page + 1)}
-                                        disabled={categoryPagination.page === categoryPagination.totalPages}
-                                    >
-                                        Next
-                                    </Button>
-                                </div>
-                            </div>
-                        )}
-                    </TabsContent>
-                </Tabs>
+        <ManagementPageLayout
+            title="Menu Management"
+            description="Manage your restaurant's menu items and categories"
+            headerAction={
+                <PrimaryButton>Add First Menu Item</PrimaryButton>
+            }
+        >
+            <div className="flex border-b border-gray-200 mb-6">
+                <button className="py-2 px-3 border-b-2 border-[#e85c2c] text-[#e85c2c] font-medium">
+                    Menu Items
+                </button>
+                <button className="py-2 px-3 border-b-2 border-transparent text-gray-500 hover:text-gray-800">
+                    Categories
+                </button>
             </div>
 
-            {/* Delete Confirmation Dialog */}
-            <Dialog open={deleteDialog.open} onOpenChange={(open) => {
-                if (!open) setDeleteDialog({ ...deleteDialog, open: false });
-            }}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Are you sure?</DialogTitle>
-                        <DialogDescription>
-                            This will permanently delete the {deleteDialog.type === 'item' ? 'menu item' : 'category'} "{deleteDialog.name}".
-                            {deleteDialog.type === 'category' && " All menu items in this category will also need to be reassigned or deleted."}
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => setDeleteDialog({ ...deleteDialog, open: false })}
-                            disabled={deleting}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="destructive"
-                            onClick={handleDelete}
-                            disabled={deleting}
-                        >
-                            {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {deleting ? 'Deleting...' : 'Delete'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </div>
+            <Card className="py-16">
+                <div className="flex flex-col items-center justify-center">
+                    <div className="bg-gray-100 p-6 rounded-full mb-6">
+                        <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-700 mb-2">No menu items yet</h2>
+                    <p className="text-gray-500 text-center max-w-md mb-8">
+                        Add your first menu item to get started. You can organize items by categories and highlight featured items.
+                    </p>
+                    <PrimaryButton>
+                        Add First Menu Item
+                    </PrimaryButton>
+                </div>
+            </Card>
+        </ManagementPageLayout>
     );
 }
 

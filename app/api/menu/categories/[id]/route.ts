@@ -45,7 +45,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             .where(
                 and(
                     eq(menuCategories.id, parseInt(params.id)),
-                    eq(menuCategories.companyId, user.id)
+                    eq(menuCategories.companyid, user.id)
                 )
             )
             .limit(1)
@@ -113,7 +113,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             .where(
                 and(
                     eq(menuCategories.id, parseInt(params.id)),
-                    eq(menuCategories.companyId, user.id)
+                    eq(menuCategories.companyid, user.id)
                 )
             )
             .limit(1)

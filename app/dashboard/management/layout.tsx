@@ -125,9 +125,9 @@ export default function ManagementLayout({
                         )}
 
                         {moduleAccess.reservations && (
-                            <SidebarItem active={pathname.includes("/dashboard/reservations")}>
+                            <SidebarItem active={pathname.includes("/dashboard/management/reservations")}>
                                 <Link
-                                    href="/dashboard/reservations"
+                                    href="/dashboard/management/reservations"
                                     className="flex items-center gap-2 py-2"
                                 >
                                     <Utensils size={20} />

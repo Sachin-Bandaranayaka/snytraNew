@@ -25,6 +25,12 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import InventoryForm from "./inventory-form";
+import {
+    ManagementPageLayout,
+    PrimaryButton,
+    SecondaryButton,
+    LoadingSpinner
+} from "@/components/ui/management-page-layout"
 
 interface InventoryItem {
     id: string;
@@ -94,7 +100,7 @@ const MOCK_INVENTORY: InventoryItem[] = [
     }
 ];
 
-export default function InventoryPage() {
+export default function InventoryManagementPage() {
     const [activeTab, setActiveTab] = useState("all");
     const [loading, setLoading] = useState(true);
     const [inventory, setInventory] = useState<InventoryItem[]>([]);
@@ -249,158 +255,96 @@ export default function InventoryPage() {
     }
 
     return (
-        <div className="w-full">
-            <div className="flex flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-3xl font-bold text-[#e85c2c]">Inventory Management</h1>
-                    <div className="flex gap-2">
-                        {usingMockData && (
-                            <Button
-                                variant="outline"
-                                className="bg-white flex items-center gap-1"
-                                onClick={fetchInventory}
-                            >
-                                <RefreshCcw className="h-4 w-4" />
-                                Reconnect
-                            </Button>
-                        )}
-                        <Button
-                            variant="outline"
-                            className="bg-white"
-                            disabled={usingMockData}
-                        >
-                            Update Stock
-                        </Button>
-                        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button
-                                    className="bg-[#e85c2c] hover:bg-[#d24e20] text-white"
-                                    disabled={usingMockData}
-                                >
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    New Stock
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-                                <DialogHeader>
-                                    <DialogTitle>Add New Inventory Item</DialogTitle>
-                                    <DialogDescription>
-                                        Fill out the form below to add a new item to inventory.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <InventoryForm onSuccess={handleNewItemSuccess} />
-                            </DialogContent>
-                        </Dialog>
-                    </div>
+        <ManagementPageLayout
+            title="Inventory Management"
+            description="View the current stocks levels of items"
+            headerAction={
+                <PrimaryButton>Add New Item</PrimaryButton>
+            }
+        >
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6 flex items-start gap-3">
+                <div className="text-yellow-500 mt-1">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
                 </div>
+                <div>
+                    <p className="font-medium text-yellow-800">Demo mode: Using sample data</p>
+                    <p className="text-yellow-700 text-sm">Signal timed out</p>
+                </div>
+            </div>
 
-                {usingMockData && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 flex items-center">
-                        <AlertCircle className="h-5 w-5 text-yellow-500 mr-2" />
-                        <div>
-                            <p className="text-sm font-medium text-yellow-800">Demo Mode: Using sample data</p>
-                            <p className="text-xs text-yellow-700 mt-0.5">
-                                {error || "Could not connect to the server. Functionality is limited."}
-                            </p>
+            <Card title="Stock Items" className="mb-6">
+                <div className="flex flex-col gap-4">
+                    <div className="flex justify-between items-center">
+                        <div className="relative w-64">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Search inventory..."
+                                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400"
+                            />
+                        </div>
+                        <button className="flex items-center gap-2 text-gray-600 border border-gray-300 rounded-md px-3 py-2 hover:bg-gray-50">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                            Filter
+                        </button>
+                    </div>
+
+                    <div className="border-b border-gray-200">
+                        <div className="flex gap-6">
+                            <button className="py-2 px-3 border-b-2 border-[#e85c2c] text-[#e85c2c] font-medium">
+                                All Items ({stats.total})
+                            </button>
+                            <button className="py-2 px-3 border-b-2 border-transparent text-gray-500 hover:text-gray-800">
+                                Low Stock ({stats.lowStock})
+                            </button>
+                            <button className="py-2 px-3 border-b-2 border-transparent text-gray-500 hover:text-gray-800">
+                                Out of Stock ({stats.outOfStock})
+                            </button>
                         </div>
                     </div>
-                )}
 
-                <div>
-                    <h2 className="text-xl font-semibold mb-2">Stock Items</h2>
-                    <p className="text-muted-foreground text-sm mb-4">View the current stocks levels of items</p>
-                </div>
-
-                <div className="flex items-center space-x-2 mb-4">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                        <Input
-                            type="search"
-                            placeholder="Search inventory..."
-                            className="pl-8"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-                    <Button variant="outline" className="gap-1">
-                        <Filter className="h-4 w-4" />
-                        Filter
-                    </Button>
-                </div>
-
-                <div className="flex border-b mb-4">
-                    <button
-                        className={`px-4 py-2 ${activeTab === "all" ? "border-b-2 border-[#e85c2c] text-[#e85c2c] font-medium" : "text-gray-600"}`}
-                        onClick={() => handleTabChange("all")}
-                    >
-                        All Items ({stats.total})
-                    </button>
-                    <button
-                        className={`px-4 py-2 ${activeTab === "low" ? "border-b-2 border-[#e85c2c] text-[#e85c2c] font-medium" : "text-gray-600"}`}
-                        onClick={() => handleTabChange("low")}
-                    >
-                        Low Stock ({stats.lowStock})
-                    </button>
-                    <button
-                        className={`px-4 py-2 ${activeTab === "out" ? "border-b-2 border-[#e85c2c] text-[#e85c2c] font-medium" : "text-gray-600"}`}
-                        onClick={() => handleTabChange("out")}
-                    >
-                        Out of Stock ({stats.outOfStock})
-                    </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-                    {filteredInventory.map((item) => (
-                        <Card key={item.id} className="overflow-hidden border border-gray-200">
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="p-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
+                        {filteredInventory.map((item) => (
+                            <div className="border border-gray-200 rounded-lg overflow-hidden">
+                                <div className="p-4">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="flex flex-col">
+                                            <h3 className="font-semibold">{item.name}</h3>
+                                            <span className="text-gray-500">{item.quantity} {item.unit || 'units'}</span>
+                                            {item.costPerUnitFormatted && (
+                                                <span className="text-gray-500">{item.costPerUnitFormatted} per {item.unit || 'unit'}</span>
+                                            )}
+                                        </div>
+                                        <Badge variant={getBadgeStyle(item.stockStatus)}>
+                                            {getStockStatusLabel(item.stockStatus)}
+                                        </Badge>
+                                    </div>
                                     <img
                                         src={item.imageUrl || `/items/${(item.sku || '').toLowerCase()}.jpg`}
                                         alt={item.name}
-                                        className="w-full h-[80px] object-cover rounded-md"
+                                        className="w-full h-36 object-cover rounded-md mb-4"
                                         onError={(e) => {
                                             // Fallback to a placeholder if image doesn't load
                                             (e.target as HTMLImageElement).src = "https://via.placeholder.com/150";
                                         }}
                                     />
-                                </div>
-                                <div className="p-3 flex flex-col justify-between">
-                                    <div>
-                                        <div className="flex justify-between items-start">
-                                            <h3 className="text-base font-semibold">{item.name}</h3>
-                                            <Badge className={getBadgeStyle(item.stockStatus)}>
-                                                {getStockStatusLabel(item.stockStatus)}
-                                            </Badge>
-                                        </div>
-                                        <p className="text-sm text-gray-600">{item.quantity} {item.unit || 'units'}</p>
-                                        {item.costPerUnitFormatted && (
-                                            <p className="text-xs text-gray-500">{item.costPerUnitFormatted} per {item.unit || 'unit'}</p>
-                                        )}
-                                    </div>
+                                    <PrimaryButton className="w-full" onClick={() => handleOrderStock(item.id)} disabled={item.stockStatus === "in" || usingMockData}>
+                                        Order Stock
+                                    </PrimaryButton>
                                 </div>
                             </div>
-                            <div className="p-3 pt-0">
-                                <Button
-                                    variant="default"
-                                    className="w-full bg-[#e85c2c] hover:bg-[#d24e20] text-white"
-                                    onClick={() => handleOrderStock(item.id)}
-                                    disabled={item.stockStatus === "in" || usingMockData}
-                                >
-                                    Order Stock
-                                </Button>
-                            </div>
-                        </Card>
-                    ))}
-                </div>
-
-                {filteredInventory.length === 0 && (
-                    <div className="flex flex-col items-center justify-center p-10 bg-gray-50 rounded-lg">
-                        <Package className="h-16 w-16 text-gray-400 mb-4" />
-                        <h3 className="text-xl font-semibold text-gray-700">No inventory items found</h3>
-                        <p className="text-gray-500 mt-2">Try adjusting your search or filters.</p>
+                        ))}
                     </div>
-                )}
-            </div>
-        </div>
+                </div>
+            </Card>
+        </ManagementPageLayout>
     );
 } 
